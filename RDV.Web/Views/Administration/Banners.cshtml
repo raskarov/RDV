@@ -1,0 +1,63 @@
+﻿@using RDV.Web.Models.UI
+@model RDV.Web.Models.Administration.Content.BannerContentModel
+@{
+    ViewBag.Title = "Редактирование блока баннеров";
+    string bannersMarkup = @ViewBag.bannersMarkup;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Content-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Разделы
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/content/menu">Меню</a> </li>
+                                    <li><a href="/administration/content/news">Публикации</a> </li>
+                                    <li><a href="/administration/content/">Страницы</a> </li>
+                                    <li><a href="/administration/content/partners">Партнеры</a> </li>
+                                    <li><a href="/administration/content/file-mgr">Менеджер файлов</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма редактирования таблицы *@
+                            <div class="page-form-container">
+                                <form action="/administration/content/save-banners" method="POST" id="edit-banners-form">
+                                    <div class="editor-label">
+                                        Содержимое блока баннеров (HTML)
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea class="round field-large" id="page-content-field" name="Markup" placeholder="Введите HTML содержимое блока баннеров">@Model.Markup</textarea>
+                                    </div>
+                                    <div id="submit-button-wrapper" onclick="$('#edit-banners-form').submit();">
+                                        <span id="submit-button"></span>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    validators.bindEditBannersFormValidators();
+</script>

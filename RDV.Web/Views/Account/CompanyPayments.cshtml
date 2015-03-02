@@ -1,0 +1,145 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.Payment>
+@{
+    ViewBag.Title = "Кошелек компании";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Company-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Кошелек
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="payment-stats-action">График оборотов</a> </li>
+                                    @if (ViewContext.CurrentUser().HasPermission(Permission.ControlCompanySponsoring))
+                                    {
+                                    <li><a href="/account/company/sponsoring" id="manage-sponsoring-action">Управление спонсорством</a> </li>    
+                                    }
+                                    <li><a href="javascript:showPaymentDialog()" id="add-money-action">Пополнить</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            <div class="info">
+                                В данной таблице отражена информация по движению денежных средств кошелька вашей компании в нашей системе
+                            </div>
+            
+                            <div class="info">
+                                Баланс вашей компании составляет: <b>@ViewContext.CurrentUser().Company.GetAccountBalance()</b> рублей
+                            </div>
+            
+                            <div class="info">
+                                <a href="javascript:showPaymentDialog()">Пополнить кошелек компании</a>
+                            </div>
+                            @* Таблица *@
+                            <table class="content-table" id="statistics-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Дата операции
+                                        </th>
+                                        <th>
+                                            Тип
+                                        </th>
+                                        <th>
+                                            Сумма, рублей
+                                        </th>
+                                        <th>
+                                            Описание
+                                        </th>
+                                        <th>
+                                            Оплачен
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach (var payment in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @payment.DateCreated
+                                                </td>
+                                                <td>
+                                                    @(((PaymentDirection)payment.Direction).GetEnumMemberName())
+                                                </td>
+                                                <td>
+                                                    @payment.Amount
+                                                </td>
+                                                <td>
+                                                    @payment.Description
+                                                </td>
+                                                <td>
+                                                    @(payment.Payed ? "Да" : "Нет")
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5">
+                                                <div style="text-align: center">
+                                                    Нет информации о движении денежных средств</div>
+                                            </td>
+                                        </tr>    
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="new-payment-dialog" title="Пополнение кошелька" class="dialog" style="display: none">
+    Укажите сумму, на которую вы хотите пополнить кошелек вашей компании @ViewContext.CurrentUser().Company.Name. Для пополнения вы можете воспользоваться своей банковской карточкой или любым другим поддерживаемым способом оплаты. Для приема платежей используется система ROBOKASSA.
+    <form action="/account/company/payments/new-payment" id="new-payment-form" method="POST">
+        <div class="editor-label">
+            Сумма для зачисления (в рублях)
+        </div>
+        <div class="editor-field">
+            <input type="number" id="new-payment-amount-field" name="amount" class="round field required" placeholder="Введите число"/>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" language="javascript">
+    function showPaymentDialog() {
+        var dialog = $("#new-payment-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            maxHeight: window.innerHeight * 0.8,
+            buttons: {
+                "Пополнить": function () {
+                    $("#new-payment-form").submit();
+                },
+                "Закрыть": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,593 @@
+#page-main
+	#estate-operations-wrapper
+		position: relative
+		height: 95px
+		padding-top: 10px
+
+		#estate-operations-bottom-shadow
+			width: 877px
+			height: 24px
+			position: absolute
+			background: url(../../images/mainpage/estate-operations-top-shadow.png) left top no-repeat
+			z-index: 1000
+
+		.estate-operation-icon
+			float: left
+			margin-right: 1px
+			height: 95px
+			width: 95px
+			cursor: pointer
+
+		#estate-operation-buying
+			width: 101px
+			height: 95px
+			background: url(../../images/mainpage/operations/buying.png) left top no-repeat
+
+			&:hover, &.active
+				background: url(../../images/mainpage/operations/buying-active.png) left top no-repeat
+
+		#estate-operation-selling
+			width: 121px
+			height: 95px
+			background: url(../../images/mainpage/operations/selling.png) left top no-repeat
+
+			&:hover, &.active
+				background: url(../../images/mainpage/operations/selling-active.png) left top no-repeat
+
+		#estate-operation-leasing
+			width: 103px
+			height: 95px
+			background: url(../../images/mainpage/operations/leasing.png) left top no-repeat
+
+			&:hover, &.active
+				background: url(../../images/mainpage/operations/leasing-active.png) left top no-repeat
+
+		#estate-operation-rent
+			width: 107px
+			height: 95px
+			background: url(../../images/mainpage/operations/rent.png) left top no-repeat
+
+			&:hover, &.active
+				background: url(../../images/mainpage/operations/rent-active.png) left top no-repeat
+
+		#estate-operation-trade
+			width: 127px
+			height: 95px
+			background: url(../../images/mainpage/operations/exchange.png) left top no-repeat
+
+			&:hover, &.active
+				background: url(../../images/mainpage/operations/exchange-active.png) left top no-repeat
+
+
+
+		#estate-new-request-wrapper
+			float: left
+			margin-left: 85px
+			padding-top: 30px
+
+			#estate-new-request-button
+				width: 39px
+				height: 37px
+				background: url(../../images/mainpage/estate-new-request-button.png) left top no-repeat
+				float: left
+
+			#estate-new-request-label
+				float: left
+				padding-top: 10px
+				padding-left: 10px
+				font-size: 20px
+
+				a
+					color: #666666
+					text-decoration: none
+					font-family: $content-header-font
+
+					&:hover
+						text-decoration: underline
+
+	#main-blocks
+		width: 100%
+		margin-top: 15px
+
+		td
+			padding: 5px
+
+		.single-column
+			width: 33%
+
+		.double-column
+			width: 66%
+
+		.triple-column
+			width: 99%
+
+		.double-line
+			.block-inner-content
+				height: 506px
+
+
+		#searchBlock
+			.search-columns
+				width: 100%
+
+				.search-field-label, .search-field-content
+					font-size: 12px
+					color: #323232
+
+					input[type='text']
+						width: 105px
+
+					.search-district-selector
+						width: 347px !important
+						margin-left: 18px
+						margin-right: 10px
+
+					.column
+						display: inline-block
+						vertical-align: top
+						width: 47%
+
+						.editor-label
+							margin-top: 0px
+
+
+				.search-field-label
+					font-weight: bold
+					padding-left: 20px
+
+				.search-field-checkbox-wrapper
+					float: left
+					height: 21px
+					font-weight: normal
+					text-align: left
+					min-width: 100px
+
+			.search-footer
+				margin-top: 10px
+
+				.search-footer-links-wrapper
+					float: right
+
+					div.search-extended-link
+						float: left
+						font-size: 13px
+						padding-top: 7px
+
+						a
+							color: #5d5d5d
+							text-decoration: none
+
+							&:hover
+								text-decoration: underline
+
+					.search-submit-button
+						margin-left: 15px
+						float: left
+						width: 96px
+						height: 29px
+						margin-right: 25px
+						background: url(../../images/mainpage/search-submit-button.png) left top no-repeat
+						cursor: pointer
+
+				#room-search-tab
+					display: block
+
+		#banners-wrapper
+			background-color: white
+			height: 506px
+			border-radius: $block-border-radius
+			overflow: hidden
+
+			.banner
+				margin-bottom: 10px
+				border-radius: $block-border-radius
+
+		#calendar
+			width: 210px
+			padding-left: 20px
+			padding-top: 20px
+
+			.month-calendar
+				display: none
+
+				&.active
+					display: block
+
+			.calendar-header
+				.prev-month
+					width: 19px
+					height: 20px
+					cursor: pointer
+					float: left
+					background: url(../../images/mainpage/prev-month.png) left top no-repeat
+
+				.next-month
+					float: left
+					width: 19px
+					height: 20px
+					cursor: pointer
+					background: url(../../images/mainpage/next-month.png) left top no-repeat
+
+				.current-month
+					width: 165px
+					float: left
+					color: black
+					padding-tp: 3px
+					font-size: 16px
+					text-align: center
+					font-family: $content-header-font
+
+			.calendar-content
+				.calendar-table
+					width: 100%
+
+					th
+						background-color: #ebeaea
+						font-size: 10px
+						color: #858585
+						width: 30px
+						height: 20px
+						text-align: center
+						line-height: 20px
+						border-right: 1px solid #f3f3f3
+
+						&:last-child
+							border-right: 0
+
+					td
+						padding: 0px
+						background-color: #f2f2f2
+						color: #858585
+						height: 20px
+						width: 30px
+						text-align: center
+						line-height: 20px
+						font-size: 10px
+						border-right: 1px solid #f3f3f3
+						cursor: pointer
+
+						a
+							color: #858585
+
+						div.hasEvent
+							background-color: #69c06c
+
+							a
+								color: white
+
+
+						div.active
+							background-color: #8eef91
+
+						&:last-child
+							border-right: 0
+
+						&:hover, &.active
+							background-color: #9ad36d
+
+		#calendar-day-events
+			padding-left: 15px
+			padding-top: 20px
+			vertical-align: top
+
+			#calendar-events-holder
+				position: relative
+				height: 211px
+
+			#calendar-day-wrapper
+				width: 80px
+				height: 81px
+				background: url(../../images/mainpage/calendar-day-bg.png) left top no-repeat
+				float: left
+				text-align: center
+
+			#calendar-day
+				font-size: 40px
+				color: white
+				margin-top: 20px
+
+			#calendar-day-info
+				margin-left: 10px
+				color: #858585
+				float: left
+				border-bottom: 1px solid #858585
+				padding-bottom: 1px
+				padding-top: 25px
+
+				#calendar-month-name
+					font-size: 40px
+
+				#calendar-year
+					font-size: 20px
+
+			#calendar-total-events-wrapper
+				font-size: 11px
+				color: #858585
+				position: absolute
+				right: 15px
+				top: 10px
+				z-index: 100
+
+			#calendar-event-description
+				color: #4a4a4a
+				font-size: 12px
+				text-align: justify
+				line-height: 1.2
+				margin-top: 10px
+				height: 95px
+				padding-right: 15px
+
+				a
+					color: #4a4a4a
+
+					&:hover
+						text-decoration: underline
+
+			#calendar-all-events-wrapper
+				text-align: right
+				padding-right: 15px
+				font-size: 11px
+				padding-bottom: 20px
+				position: absolute
+				bottom: 10px
+				right: 0px
+
+				a
+					color: #323941
+					text-decoration: none
+
+					&:hover
+						text-decoration: underline
+
+		#news-block
+			padding: 10px 20px
+
+			.article
+				margin-bottom: 20px
+
+				.article-header
+					margin-bottom: 5px
+					font-size: 14px
+
+					a
+						color: #2a2a2a
+						text-decoration: none
+
+						&:hover
+							text-decoration: underline
+
+				.article-preview
+					text-align: justify
+					font-size: 10px
+					color: #919698
+
+			#all-news-wrapper
+				position: absolute
+				right: 20px
+				font-size: 11px
+				bottom: 10px
+
+				a
+					color: #323941
+					text-decoration: none
+
+					&:hover
+						text-decoration: underline
+
+		#video-block
+			padding: 10px 20px
+
+			#video-section-selector
+				text-align: center
+				margin-bottom: 20px
+
+				.video-category
+					font-size: 12px
+					color: #858585
+					cursor: pointer
+
+					&:hover
+						text-decoration: underline
+
+					&.video-category-active
+						color: #303030
+						cursor: default
+
+			.video-element
+				.video-element-preview
+					float: left
+					width: 66px
+					height: 50px
+					text-align: center
+					overflow: hidden
+					margin-right: 10px
+
+					img
+						width: 66px
+						height: auto
+
+				.video-element-link
+					font-size: 11px
+					line-height: 1.2
+					padding-top: 5px
+
+					a
+						color: #303030
+						text-decoration: none
+
+						&:hover
+							text-decoration: underline
+							color: #639b4b
+
+				.video-element-separator
+					width: 100%
+					height: 30px
+					background: url(../../images/mainpage/video-block-separator.png) center center no-repeat
+
+			#all-video-wrapper
+				position: absolute
+				right: 20px
+				bottom: 10px
+				font-size: 11px
+
+				a
+					color: #323941
+					text-decoration: none
+
+					&:hover
+						text-decoration: underline
+
+		#partners-block
+
+			#partners-wrapper
+				position: relative
+				text-align:  left
+				height: 100px
+
+				.partners-left
+					display: inline-block
+					vertical-align: top
+					height: 38px
+					width:  25px
+					background: url(../../images/mainpage/partners-left.png)  left top no-repeat
+					cursor: pointer
+					margin-top: 35px
+
+					&:hover
+						background: url(../../images/mainpage/partners-left.png) left -39px no-repeat
+
+				.partners-right
+					display: inline-block
+					vertical-align: top
+					height: 38px
+					width:  25px
+					background: url(../../images/mainpage/partners-right.png)  left top no-repeat
+					cursor: pointer
+					margin-top: 35px
+
+					&:hover
+						background: url(../../images/mainpage/partners-right.png) left -39px no-repeat
+
+				.partners-viewport
+					display: inline-block
+					vertical-align: top
+					position: relative
+					height: 100px
+					width: 885px
+					overflow: hidden
+
+					.partners-overview
+						position: absolute
+						left: 0px
+						top: 0px
+						width: auto
+						white-space: no-wrap
+
+				.partner
+					display: inline-block
+					vertical-align: top
+					vertical-align: top
+					width:  125px
+					height: 75px
+					margin: 15px 25px
+					overflow:  hidden
+
+					a
+						display: block
+
+					img
+						width: 125px
+						height: auto
+						min-height: 75px
+
+
+
+
+		#new-objects-block
+			padding: 10px 10px
+
+			.new-object
+				width: 100%
+
+				.new-object-image
+					float: left
+					width: 112px
+					height: 97px
+					border-radius: 10px
+					overflow: hidden
+					text-align: center
+					margin-right: 10px
+					background-color: black
+					position: relative
+
+					.new
+						position: absolute
+						width: 36px
+						height: 34px
+						background: url(../../images/mainpage/newoverlay.png) center center no-repeat
+						right: -1px
+						top: -1px
+
+					img
+						width: 112px
+						height: 97px
+
+				.new-object-title
+					margin-bottom: 10px
+
+					a
+						font-size: 14px
+						color: #2a2a2a
+						text-decoration: none
+
+						&:hover
+							text-decoration: underline
+
+				.new-object-info, .new-object-price
+					font-size: 12px
+					color: #6d6d6d
+					margin-bottom: 3px
+
+				.new-object-price
+					margin-top: 12px
+
+					.price
+						color: #437e13
+
+				.new-object-separator
+					width: 100%
+					height: 30px
+					background: url(../../images/mainpage/video-block-separator.png) center center no-repeat
+
+		#services-block
+			padding: 10px 20px
+
+			.service
+				width: 100%
+
+				.service-image
+					float: left
+					width: 73px
+					height: 73px
+					margin-right: 20px
+
+					img
+						width: 73px
+						height: 73px
+
+				.service-title
+					font-size: 17px
+					font-weight: bold
+					padding-top: 20px
+
+					a
+						color: #639b4b
+						tetx-decoration: none
+
+						&:hover
+							text-decoration: underline
+
+				.service-separator
+					width: 100%
+					height: 30px
+					background: url(../../images/mainpage/video-block-separator.png) center center no-repeat

@@ -1,0 +1,110 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@model RDV.Domain.Entities.EstateObject
+<form>
+    @if (Model.Status == (short)EstateStatuses.TemporarilyWithdrawn | Model.Status == (short)EstateStatuses.Withdrawn)
+    {
+        var statusItem = Model.GetHistoryItems().Where(o => o.HistoryStatus == Model.Status).OrderByDescending(d => d.DateCreated).First();
+        <div class="editor-label">
+            Статус
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @(((EstateStatuses)Model.Status).GetEnumMemberName())
+        </div>
+        if (!String.IsNullOrEmpty(IdObjectsCache.GetDictionaryValue(statusItem.DelayReason)))
+        {
+        <div class="editor-label">
+            Причина
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @IdObjectsCache.GetDictionaryValue(statusItem.DelayReason)
+        </div>    
+        }
+        <div class="editor-label">
+            Дата установки
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @statusItem.DateCreated.FormatDate()
+        </div>
+    }
+    else if (Model.Status == (short)EstateStatuses.Advance | Model.Status == (short)EstateStatuses.Deal)
+    {
+        var statusItem = Model.GetHistoryItems().Where(o => o.HistoryStatus == Model.Status).OrderByDescending(d => d.DateCreated).FirstOrDefault() ?? Model.GetHistoryItems().Where(o => o.HistoryStatus == (short)EstateStatuses.Advance).OrderByDescending(d => d.DateCreated).First();
+        <div class="editor-label">
+            Статус
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @(((EstateStatuses)Model.Status).GetEnumMemberName())
+        </div>
+        if (statusItem.AdvanceEndDate.HasValue && Model.Status == (short)EstateStatuses.Advance)
+        {
+        <div class="editor-label">
+            Дата окончания аванса
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @statusItem.AdvanceEndDate.FormatDate()
+        </div>
+        }
+        <div class="editor-label">
+            Тип контрагента
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @Model.GetDealCounterAgentType()
+        </div>
+        <div class="editor-label">
+            Контрагент
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @Model.GetDealCounterAgent()
+        </div>
+        if (statusItem.RDVAgentId > 0 || statusItem.NonRDVAgentId > 0)
+        {
+             <div class="editor-label">
+                Агент компании контрагрента
+            </div>
+            <div class="editor-field" style="font-weight: bold">
+                @if (statusItem.RDVAgentId > 0)
+                {
+                    @IdObjectsCache.GetUserName(statusItem.RDVAgentId)
+                }
+                else if (statusItem.NonRdvAgent != null)
+                {
+                    @statusItem.NonRdvAgent.ToString()
+                }
+            </div>
+        }
+        <div class="editor-label">
+            Окончательная стоимость
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @Model.ObjectMainProperties.RealPrice.FormatPrice() рублей
+        </div>
+        <div class="editor-label">
+            Дата установки
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @statusItem.DateCreated.FormatDate()
+        </div>
+        <div class="editor-label">
+            Ипотека банка
+        </div>
+        <div class="editor-field" style="font-weight: bold">
+            @if (Model.ObjectMainProperties.MortgageBank.HasValue)
+            {
+                @IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.MortgageBank)
+            }
+            else
+            {
+                <text>Собственные средства</text>
+            }
+        </div>
+    }
+    else
+    {
+        <p>
+            Черновик или активный?
+        </p>
+    }
+</form>

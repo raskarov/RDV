@@ -1,0 +1,274 @@
+﻿@model IList<RDV.Domain.Entities.Achievment>
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Достижения";
+    var filesRep = Locator.GetService<IStoredFilesRepository>();
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Достижения
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li>
+                                        <a href="#" id="add-achievment-action">Добавить</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="edit-achievment-action">Редактировать</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="delete-achievment-action">Удалить</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true"/>
+                                        </th>
+                                        <th>
+                                            Дата достижения
+                                        </th>
+                                        <th>
+                                            Наименование
+                                        </th>
+                                        <th>
+                                            Организатор
+                                        </th>
+                                        <th>
+                                            Скан
+                                        </th>
+                                        <th class="icons">
+                                            
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach(var achievment in Model)
+                                        {
+                                            var url = !String.IsNullOrEmpty(achievment.ScanUrl) && achievment.ScanUrl.StartsWith("file://") ? filesRep.ResolveFileUrl(achievment.ScanUrl) : "";
+                                            <tr data-item-id="@achievment.Id" data-scan-url="@url">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@achievment.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="ReachDate">@achievment.ReachDate.FormatDate()</td>
+                                                <td field="Title">@achievment.Title</td>
+                                                <td field="Organizer">@achievment.Organizer</td>
+                                                <td field="ScanUrl">
+                                                    <span class="icon-photos"></span>
+                                                </td>
+                                                <td>
+                                                    <span class="edit-row icon-edit" title="Редактировать"></span>&nbsp;<span class="delete-row icon-delete" title="Удалить"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    } else
+                                    {
+                                        <tr>
+                                            <td colspan="6">
+                                                <div style="text-align: center">Нет информации о достижениях</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@* Диалог создания или редактирования учебной программы *@
+<div class="dialog" id="training-achievment-dialog" title="Редактирование достижения" style="display: none">
+    <form action="/account/save-achievment" method="POST" id="training-achievment-form" enctype="multipart/form-data">
+        <input type="hidden" id="training-achievment-id-field" name="Id" value="-1"/>
+        <input type="hidden" id="training-achievment-userid-field" name="UserId" value="@ViewContext.CurrentUser().Id"/>
+        <div class="editor-label">
+            Наименование
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Title" maxlength="255" id="achievment-name-field"/>
+        </div>
+        <div class="editor-label">
+            Дата получения
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field datepicker" name="ReachDate" id="achievment-date-field"/>
+        </div>
+        <div class="editor-label">
+            Организатор
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Organizer" maxlength="255"  id="achievment-organizer-field"/>
+        </div>
+        <div class="editor-label">
+            Скан сертификата
+        </div>
+        <div class="editor-field">
+            <input type="file" id="achievment-file-field" name="Scan"/>
+        </div>
+    </form>
+</div>
+@* диалог удаления учебной программы *@
+<div class="dialog" title="Удаление достижений" id="delete-achievment-dialog" style="display: none; margin-top: 20px">
+    <p>Вы действительно хотите удалить эти достижения?</p>
+</div>
+
+<script language="javascript" type="text/javascript">
+    validators.bindAchievmentFormValidators();
+
+    $("#add-achievment-action").click(function() {
+        addAchievmentDialog();
+        return false;
+    });
+
+    $("#edit-achievment-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            editAchievmentDialog(tr.first());
+        }
+    });
+
+    $("#delete-achievment-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteAchievmentDialog(idsStr);
+    });
+    
+    @* Отображает диалог добавления новой учебной программы *@
+    function addAchievmentDialog() {
+        // Очищаем форму и отображаем диалог
+        $("#training-achievment-id-field").val("-1");
+        var dialog = $("#training-achievment-dialog").dialog({
+            autoOpen: true,
+            title: 'Добавление нового достижения',
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Добавить": function () {
+                    $("#training-achievment-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#training-achievment-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог редактирования учебной программ *@
+    function editAchievmentDialog(programRow)
+    {
+        // Устанавливаем значения для редактирования
+        var id = programRow.data("item-id");
+        var form = $("#training-achievment-form");
+        form.find("#achievment-id-field").val(id);
+        form.find("#achievment-date-field").val($(programRow).find("td[field='ReachDate']").text());
+        form.find("#achievment-name-field").val($(programRow).find("td[field='Title']").text());
+        form.find("#achievment-organizer-field").val($(programRow).find("td[field='Organizer']").text());
+        
+        // Отображаем диалог
+        var dialog = $("#training-achievment-dialog").dialog({
+            autoOpen: true,
+            title: 'Редактирование достижения',
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Сохранить": function () {
+                    $("#training-achievment-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#training-achievment-dialog").dialog("close");
+                }
+            },
+            open: function () {
+                $("#training-achievment-name-field").focus();
+            }
+        });
+    }
+    
+    @* Отображает диалог удаления программ с указанными идентификаторами *@
+    function deleteAchievmentDialog(programIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-achievment-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/account/delete-achievments',
+                        data: {
+                            achievmentIds: programIds,
+                            userId: $("#training-achievment-userid-field").val()
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить достижения");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    $("#delete-achievment-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    // Байнд контекстных ссылок
+    $(".edit-row").click(function(e) {
+        var tr = $(this).parent().parent();
+        editAchievmentDialog(tr);
+    });
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        deleteAchievmentDialog(id);
+    });
+    $(".icon-photos").click(function() {
+        var tr = $(this).parent().parent();
+        $.fancybox.open({ href: $(tr).data("scan-url") });
+    });
+
+</script>

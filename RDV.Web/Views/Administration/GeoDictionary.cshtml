@@ -1,0 +1,517 @@
+﻿@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Географический справочник";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Dictionaries-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Гео-объекты
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="add-object-action">Добавить</a> </li>
+                                    <li><a href="#" id="edit-object-action">Редактировать</a> </li>
+                                    <li><a href="#" id="delete-object-action">Удалить</a> </li>
+                                    <li><a href="#" id="import-objects-action">Импортировать</a> </li>
+                                    <li><a href="#" id="export-objects-action">Экспортировать</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* TreeView контейнер для древа всех географических объектов *@
+                            <div id="geo-tree">
+                                <div id="geo-tree-informer">
+                                    Выбранный элемент: <span id="current-geo-element">Наименование выбранного элемента</span>
+                                </div>
+                                <div id="geo-tree-container">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* диалог гео объекта: создания или редактирования *@
+<div class="dialog" style="display: none" id="geo-object-dialog">
+    <form method="POST" id="geo-object-form" action="/administration/dictionaries/geo/edit">
+    <input type="hidden" name="Id" value="-1" id="object-id-field" />
+    <input type="hidden" name="ObjectType" value="1" id="object-type-field" />
+    <input type="hidden" name="ParentObjectId" value="-1" id="parent-object-id-field" />
+    <div class="editor-label">
+        Тип объекта
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="object-type-name-field" name="ObjectTypeName"
+            readonly="readonly" maxlength="255" value="Страна" />
+    </div>
+    <div class="editor-label">
+        Родительский объект
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="parent-object-field" name="ParentObject"
+            readonly="readonly" maxlength="255" value="" />
+    </div>
+    <div class="editor-label">
+        Наименование объекта
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="object-name-field" name="Name" placeholder="Введите наименование объекта"
+            maxlength="255" value="" />
+    </div>
+    <div id="bounds-field-wrapper" style="display: none">
+        <div class="editor-label">
+            Границы
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="bounds-field" readonly="readonly" name="Bounds" placeholder="Нажмите для редактирования границ" value="" />
+        </div>  
+        <a href="#" id="edit-bounds">Редактировать границы</a>  
+    </div>
+    </form>
+</div>
+@* диалог удаления гео объета *@
+<div class="dialog" title="Удаление геообъекта" id="delete-object-dialog" style="display: none;">
+    <p>
+        Вы действительно хотите удалить этот объект, а так же все его дочерние объекты?
+        Внимание, если какой либо объект недвижимости ссылается на удаляемый гео-объект,
+        то удаление не будет произведено, поскольку это нарушает целостность данных, так
+        что пользуйтесь этой операцией с осторожность
+    </p>
+</div>
+@* диалог импорта гео данных *@
+<div class="dialog" title="Импорт данных" id="import-data-dialog" style="display: none;">
+    <form action="/administration/dictionaries/geo/import" method="POST" id="import-data-form"
+          enctype="multipart/form-data">
+        <div class="editor-label">
+            Формат файла
+        </div>
+        <div class="editor-field">
+            <select id="import-data-format-field" name="importFormat" class="round field">
+                <option value="1" selected="selected">Таблица Microsoft Excel 97-2007</option>
+                <option value="2">XML документ</option>
+            </select>
+        </div>
+        <div class="editor-label">
+            Файл с данными
+        </div>
+        <div class="editor-field">
+            <input type="file" name="DataFile" id="import-data-file-field"/>
+        </div>
+    </form>
+</div>
+@* Диалог редактора границ объектов *@
+<div class="dialog" title="Редактирование границ" id="edit-bounds-dialog" style="display: none">
+    <div id="yandexMap" style="height: 500px; width: 600px;">
+        
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    var selectedNode = [];
+    $("#geo-tree-container").jstree({
+        "json_data": {
+            "ajax": {
+                "url": "/administration/dictionaries/geo/get-geo-data",
+                "data": function (node) {
+                    return {
+                        id: node.attr ? node.attr("id") : -1,
+                        level: node.attr ? node.attr("level") : -1
+                    };
+                }
+            }
+        },
+        "themes": {
+            "theme": "classic",
+            "url": "@Url.Content("/Content/jquery-themes/jsTree/style.css")",
+            "icons": true
+        },
+        "ui": {
+            "select_limit": 1
+        },
+        "core": {
+            "strings": {
+                "loading": "Идет загрузка..."
+            }  
+        },
+        "plugins": ["themes", "json_data","ui","crrm"]
+    }).bind("select_node.jstree",function (e,data) {
+        selectedNode = data.rslt.obj;
+        $("#current-geo-element").text(selectedNode.attr("real-name"));
+    });
+    
+    // Подгатавливаем диалог к аяксовому сабмиту
+    
+    @* Отображает диалог создания нового географического объекта *@
+    function showAddObjectDialog() {
+        if (selectedNode == null) {
+            alert("Выберите узел к которому добавить объект");
+            return;
+        }
+        // Открываем узел если он у нас закрыт
+        $.jstree._reference($("#geo-tree-container")).open_node(selectedNode, null, true);
+        // Устанавливаем тип объекта, который мы хотим добавить
+        var level = parseInt(selectedNode.attr("level"));
+        level++;
+        if (level > 8) {
+            alert("Выберите узел с улицей, к которой вы хотите добавить объект");
+            return;
+        }
+        var addedObjectTypeName = "", dialogTitle = "", showBoundsEditor = false;
+        switch (level) {
+            case 2:
+                addedObjectTypeName = "Регион";
+                dialogTitle = "Создание региона";
+                break;
+            case 3:
+                addedObjectTypeName = "Район региона";
+                dialogTitle = "Создание района региона";
+                break;
+            case 4:
+                addedObjectTypeName = "Город";
+                dialogTitle = "Создание города";
+                break;
+            case 5:
+                addedObjectTypeName = "Район города";
+                dialogTitle = "Создание района";
+                showBoundsEditor = true;
+                break;
+            case 6:
+                addedObjectTypeName = "Жилой массив";
+                dialogTitle = "Создание жилого массива";
+                showBoundsEditor = true;
+                break;
+            case 7:
+                addedObjectTypeName = "Улица";
+                dialogTitle = "Создание улицы";
+                break;
+            case 8:
+                addedObjectTypeName = "Объект";
+                dialogTitle = "Создание объекта";
+                break;
+            default :
+                addedObjectTypeName = "Страна";
+                dialogTitle = "Создание страны";
+                break;
+        }
+        // Заполняем поля формы
+        $("#bounds-field-wrapper").hide();
+        if (showBoundsEditor) {
+            $("#bounds-field-wrapper").show();
+        }
+        $("#object-id-field").val(-1);
+        $("#object-type-field").val(level);
+        $("#object-type-name-field").val(addedObjectTypeName);
+        $("#parent-object-id-field").val(selectedNode.attr("real-id"));
+        $("#parent-object-field").val($("#current-geo-element").text());
+        $("#object-name-field").val("");
+        $("#geo-object-dialog").attr("title", dialogTitle);
+        $("#bounds-field").val("");
+        // Отображаем диалог
+        $("#geo-object-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            title: dialogTitle,
+            maxHeight: window.innerHeight*0.8,
+            buttons: {
+                "Добавить": function () {
+                    var name = $("#object-name-field").val();
+                    if (name == null || name == "") {
+                        alert("Введите наименование объекта");
+                        return;
+                    }
+                    $("#geo-object-form").ajaxSubmit({
+                        dataType: 'json',
+                        success: function (data) {
+                            $.jstree._reference($("#geo-tree-container")).create(selectedNode, "last", data.serverData,null,true);
+                            $("#geo-object-dialog").dialog("close");
+                        },
+                        error: function () {
+                            alert("Ошибка при сохранении формы");
+                        }
+                    });
+                },
+                "Закрыть": function () {
+                    $("#geo-object-dialog").dialog("close");
+                }
+            }
+        }); 
+    }
+
+    @* Отображает диалог редактирования выбранного узла *@
+    function showEditObjectDialog() {
+        if (selectedNode == null) {
+            alert("Выберите узел, который хотите отредактировать");
+            return;
+        }
+        // Открываем узел если он у нас закрыт
+        $.jstree._reference($("#geo-tree-container")).open_node(selectedNode, null, true);
+        // Устанавливаем тип объекта, который мы хотим редактировать
+        var level = parseInt(selectedNode.attr("level"));
+        var editedObjectType = "", dialogTitle = "", showBoundsEditor = false;
+        switch (level) {
+            case 2:
+                editedObjectType = "Регион";
+                dialogTitle = "Редактирование региона";
+                break;
+            case 3:
+                editedObjectType = "Район региона";
+                dialogTitle = "Редактирование района региона";
+                break;
+            case 4:
+                editedObjectType = "Город";
+                dialogTitle = "Редактирование города";
+                break;
+            case 5:
+                editedObjectType = "Район города";
+                dialogTitle = "Редактирование района";
+                showBoundsEditor = true;
+                break;
+            case 6:
+                editedObjectType = "Жилой массив";
+                dialogTitle = "Редактирование жилого массива";
+                showBoundsEditor = true;
+                break;
+            case 7:
+                editedObjectType = "Улица";
+                dialogTitle = "Редактирование улицы";
+                break;
+            case 8:
+                editedObjectType = "Объект";
+                dialogTitle = "Редактирование объекта";
+                break;
+            default :
+                editedObjectType = "Страна";
+                dialogTitle = "Редактирование страны";
+                break;
+        }
+        // Заполняем поля формы
+        $("#bounds-field-wrapper").hide();
+        if (showBoundsEditor) {
+            $("#bounds-field-wrapper").show();
+        }
+        $("#object-id-field").val(selectedNode.attr("real-id"));
+        $("#object-type-field").val(level);
+        $("#object-type-name-field").val(editedObjectType);
+        $("#parent-object-field").val(selectedNode.parents("li").last().attr("real-name"));
+        $("#object-name-field").val(selectedNode.attr("real-name"));
+        $("#geo-object-dialog").attr("title", dialogTitle);
+        $("#bounds-field").val(selectedNode.attr("bounds"));
+        // Отображаем диалог
+        $("#geo-object-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            title: dialogTitle,
+            maxHeight: window.innerHeight*0.8,
+            buttons: {
+                "Сохранить": function () {
+                    var name = $("#object-name-field").val();
+                    if (name == null || name == "") {
+                        alert("Введите наименование объекта");
+                        return;
+                    }
+                    $("#geo-object-form").ajaxSubmit({
+                        dataType: 'json',
+                        success: function (data) {
+                            selectedNode.attr("real-name",data.serverData);
+                            selectedNode.attr("bounds", $("#bounds-field").val());
+                            $.jstree._reference($("#geo-tree-container")).rename_node(selectedNode, data.serverData);
+                            $("#geo-object-dialog").dialog("close");
+                        },
+                        error: function () {
+                            alert("Ошибка при сохранении формы");
+                        }
+                    });
+                },
+                "Закрыть": function () {
+                    $("#geo-object-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог удаления выбранного гео объекта *@
+    function showDeleteObjectDialog() {
+        if (selectedNode == null) {
+            alert("Выберите узел, который хотите удалить");
+            return;
+        }
+        // Отображаем диалог
+        var dialog = $("#delete-object-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/administration/dictionaries/geo/delete',
+                        data: {
+                            ObjectType: selectedNode.attr("level"),
+                            Id: selectedNode.attr("real-id")
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            $.jstree._reference($("#geo-tree-container")).remove(selectedNode);
+                            $("#current-geo-element").text();
+                            selectedNode = null;
+                            $("#delete-object-dialog").dialog("close");
+                        },
+                        error: function () {
+                            alert("Не удалось удалить объекты. Возможно, какой либо объект недвижимости ссылается на удаляемый гео-объект, либо на один из его потомков.");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    $("#delete-object-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог импортирования данных *@
+    function showImportObjectsDialog() {
+        // Отображаем диалог
+        var dialog = $("#import-data-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Импортировать": function () {
+                    $("#import-data-form").submit();
+                },
+                "Отмена": function () {
+                    $("#import-data-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    @* Кнопка добавления объекта *@
+    $("#add-object-action").click(function(e) {
+        showAddObjectDialog();
+        return false;
+    });
+
+    @* Кнопка редактирования объекта *@
+    $("#edit-object-action").click(function(e) {
+        showEditObjectDialog();
+        return false;
+    });
+    
+    @* Кнопка удаления объекта *@
+    $("#delete-object-action").click(function(e) {
+        showDeleteObjectDialog();
+        return false;
+    });
+    
+    @* Кнопка импорта данных *@
+    $("#import-objects-action").click(function(e) {
+        showImportObjectsDialog();
+        return false;
+    });
+    
+    @* Инициаилизация яндекс карты *@
+    var yandexMap;
+    ymaps.ready(function() {
+        yandexMap = new ymaps.Map('yandexMap', {
+            center: [48.514592,135.145739],
+            zoom: 11
+        });
+        yandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+    });
+    
+    
+    @* Отображает диалог редактирование границ объектов *@
+    function showBoundsEditorDialog(editor) {
+        // Парсим координаты
+        var coordinates = parseCoordinates($(editor).val());
+        // Создаем объект геометрии
+        var geometry = {
+            type: 'Polygon',
+            coordinates: [coordinates]
+        };
+        var options = {
+            strokeWidth: 3,
+            strokeColor: '#0000FF', 
+            fillColor: '#FFFF00',
+            fillOpacity: 0.3,
+            draggable: true                             
+        };
+        var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+        
+        // Отображаем диалог
+        var dialog = $("#edit-bounds-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Сохранить": function () {
+                    $(editor).val(serializeCoordinates(polygon.geometry.getCoordinates()));
+                    yandexMap.geoObjects.remove(polygon);
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    yandexMap.geoObjects.remove(polygon);
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.geoObjects.add(polygon);
+                    yandexMap.setCenter(getPolygonCenter(coordinates));
+                    polygon.editor.startEditing();
+                },1000);
+                
+            }
+        });
+    }
+        @*
+    $("#bounds-field").focus(function() {
+        showBoundsEditorDialog(this);
+    });
+    *@
+    $("#edit-bounds").click(function() {
+        showBoundsEditorDialog($("#bounds-field"));
+        return false;
+    });
+    @* Парсит координаты из строки *@
+    function parseCoordinates(str) {
+        return geo.parseCoordinates(str);
+    }
+    
+    @* Сериализует координаты *@
+    function serializeCoordinates(coords) {
+        return geo.serializeCoordinates(coords);
+    }
+    
+    @* Находит координаты центра *@
+    function getPolygonCenter(coords) {
+        return geo.getPolygonCenter(coords);
+    }
+</script>

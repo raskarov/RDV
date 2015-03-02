@@ -1,0 +1,91 @@
+﻿@using RDV.Domain.Infrastructure.Misc
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Account.Company.CompanyProfileModel
+@{
+    ViewBag.Title = @Model.Name;
+    var imagesRep = Locator.GetService<IStoredFilesRepository>();
+    Layout = "MembersLayout.cshtml";
+}
+@if (!String.IsNullOrEmpty(Model.LogoUrl))
+{
+    <img src="@Model.LogoUrl" alt="Логотип" style="width:100px; height: auto; float: right"/>
+    
+}
+<div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+    @Model.Name
+</div>
+<div class="clear"></div>
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Описание компании
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content" style="padding: 15px">
+            @Model.Description
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Контакты
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content" style="padding: 15px">
+            <div style="margin-bottom: 10px">
+                @Model.Address
+            </div>
+            <div style="margin-bottom: 10px">
+                Телефоны: @Model.Phone1.FormatPhoneNumber(), @Model.Phone2.FormatPhoneNumber(),
+                @Model.Phone3.FormatPhoneNumber()
+            </div>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Сотрудники
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content" style="padding: 15px">
+            <table class="content-table" style="width: 100%">
+                <thead>
+                    <tr>
+                        <th>
+                            ФИО
+                        </th>
+                        <th>
+                            Должность
+                        </th>
+                        <th>
+                            Телефон
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var agent in Model.Agents)
+                    {
+                        <tr>
+                            <td>
+                                <a href="/members/users/@agent.Id">@agent.ToString()</a>
+                            </td>
+                            <td>
+                                @agent.Appointment
+                            </td>
+                            <td>
+                                @agent.Phone.FormatPhoneNumber()
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

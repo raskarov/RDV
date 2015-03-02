@@ -1,0 +1,99 @@
+body
+	background-color: white
+	font-family: Arial
+	font-size: 13px
+
+	a
+		text-decoration: underline
+
+		&:hover
+			text-decoration: none
+
+	#header
+		height: 141px
+		background-color: #e5e5e5
+		background: url(../../images/layout/headerbg.png) top center repeat
+
+		#header-content
+			width: 960px
+			margin: 0px auto
+			padding-top: 10px
+
+			#call-info
+				float: right
+				text-align: right
+				margin-right: 5px
+
+				.info-line
+					line-height: 1.15
+					font-size: 13pt
+					font-family: Tahoma
+					color: black
+					font-weight: bold
+
+				.info-line-large
+					font-size: 28px
+					font-weight: bold
+					font-style: italic
+					color: black
+					margin-top: 5px
+
+				.buttons
+					margin-top: 10px
+
+					#callback-button
+						width: 173px
+						height: 45px
+						cursor: pointer
+						margin-right: 5px
+						background: url(../../images/layout/callback.png) left top no-repeat
+
+					#feedback-button
+						width: 122px
+						height: 45px
+						cursor: pointer
+						margin-right: 0px
+						background: url(../../images/layout/feedback.png) left top no-repeat
+
+	#footer
+		background-color: #222222
+		padding: 35px
+		height: 60px
+		text-align: center
+		font-style: italic
+		color: #f4ce22
+		font-size: 16px
+
+		.name
+			margin-top: 10px
+			font-size: 23px
+			font-weight: bold
+
+	#content
+		margin: 10px 0px
+
+		#content-wrapper
+			width: 960px
+			margin: 0px auto
+
+.dialog
+	.editor-label
+		margin-top: 5px
+		margin-bottom: 5px
+		font-size:  12px
+		color:  black
+
+	.editor-field
+		margin-bottom: 5px
+
+		input[type='text'], textarea, input[type='password']
+			border: 1px solid #a9a9a9
+			border-radius:  3px
+			padding:  6px
+			width: 220px
+
+		label.error
+			display: block
+			color: red
+			margin-top: 5px
+			font-size: 11px

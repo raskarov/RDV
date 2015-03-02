@@ -1,0 +1,165 @@
+﻿@using RDV.Web.Models.UI
+@model IList<RDV.Web.Models.Account.ObjectsList.ObjectComparationModel>
+
+@{
+    ViewBag.Title = "Сравнение объектов";
+    var sample = Model.First();
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            
+            @* Контейнер лейаута страницы *@
+            @* Таблица *@
+            <table class="content-table" id="statistics-table">
+                <thead>
+                    <tr>
+                        <th width="100%">
+                            Показатель 
+                        </th>
+                        @foreach(var compObj in Model)
+                        {
+                            <th>
+                                Объект №@compObj.EstateObject.Id
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Сервисные</td>
+                    </tr>
+                    @foreach(var sampleField in sample.ServiceFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.ServiceFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Местоположение</td>
+                    </tr>
+                    @foreach(var sampleField in sample.LocationFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.LocationFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Технические свойства</td>
+                    </tr>
+                    @foreach(var sampleField in sample.TechFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.TechFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Инфраструктура</td>
+                    </tr>
+                    @foreach(var sampleField in sample.InfrastructureFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.InfrastructureFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Эксплуатационные свойства</td>
+                    </tr>
+                    @foreach(var sampleField in sample.ExpluatationFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.ExpluatationFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Юридические свойства</td>
+                    </tr>
+                    @foreach(var sampleField in sample.LegalFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.LegalFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td class="sub-title" colspan="@(Model.Count+1)">Системные свойства</td>
+                    </tr>
+                    @foreach(var sampleField in sample.SystemFields.OrderBy(f => f.Position))
+                    {
+                        <tr>
+                            <td>
+                                @sampleField.Caption
+                            </td>
+                            @foreach(var compareObj in Model)
+                            {
+                                var field = compareObj.SystemFields.FirstOrDefault(f => f.Name == sampleField.Name);
+                                <td>
+                                    @(field != null ? field.ValueAsString() : String.Empty)
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

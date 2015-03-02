@@ -1,0 +1,54 @@
+﻿@using System.Text
+@using System.Web.UI.WebControls
+@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.SearchRequests.RequestsListModel
+
+@Html.DevExpress().GridView(settings =>
+{
+    settings.Name = String.Format("RDV_grid_view_requests_{0}", (short) Model.Section);
+    settings.CallbackRouteValues = new {Controller = "SearchRequests", Action = "RequestsListPartial", section = Model.Section};
+    settings.Width = Unit.Percentage(100);
+
+    settings.SettingsPager.PageSize = 100;
+    settings.SettingsPager.AlwaysShowPager = true;
+    settings.Settings.ShowGroupPanel = true;
+    settings.Settings.ShowFilterRow = true;
+    settings.Settings.ShowFilterRowMenu = true;
+    settings.SettingsDetail.AllowOnlyOneMasterRowExpanded = false;
+    settings.SettingsDetail.ShowDetailRow = true;
+    
+    // Конфигурация столбцов
+    settings.KeyFieldName = "Id";
+    settings.Columns.Add("Id", "Код").Width = Unit.Pixel(60);
+    settings.Columns.Add("Name", "Название").SetDataItemTemplateContent(c =>
+    {
+        ViewContext.Writer.Write(String.Format("<a href='/account/search-request/{0}' target='_blank'>{1}</a>",c.KeyValue,c.Text));
+    });
+    settings.Columns.Add("ObjectType", "Тип объекта");
+    settings.Columns.Add("NewObjects", "Новых объектов");
+    settings.Columns.Add("AcceptedObjects", "Объектов в работе");
+    settings.Columns.Add("DateCreated", "Дата создания").PropertiesEdit.DisplayFormatString = "dd.MM.yyyy";
+    
+    // Дополнительные строки
+    settings.Columns.Add(col =>
+    {
+        col.ColumnType = MVCxGridViewColumnType.ButtonEdit;
+        col.Caption = "";
+        col.Width = Unit.Pixel(24);
+        col.SetDataItemTemplateContent(c =>
+        {
+            var builder = new StringBuilder();
+            long objId = (long)c.KeyValue;
+            builder.AppendFormat("<a href='javascript:deleteRequest({0})' title='Удалить запрос'/><img src='/Content/images/common/icon-delete.png'/></a>", c.KeyValue);
+            
+
+            ViewContext.Writer.Write(builder.ToString());
+        });
+    });
+
+    // Распотрошение информации
+    settings.SetDetailRowTemplateContent(c => Html.RenderAction("SearchRequestObjects", new { id = c.KeyValue }));
+    
+}).Bind(Model.Data).GetHtml()

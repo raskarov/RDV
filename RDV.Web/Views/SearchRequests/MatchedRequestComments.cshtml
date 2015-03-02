@@ -1,0 +1,10 @@
+﻿@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@model System.Collections.Generic.List<RDV.Domain.Entities.EstateObjectMatchedSearchRequestComment>
+
+@foreach (var comment in Model)
+{
+    <div style="margin: 5px; line-height: 1.5">
+        <span style="font-weight: bold">@IdObjectsCache.GetUserName(comment.UserId) @comment.DateCreated.FormatDateTime()</span>: @comment.Text
+    </div>
+}

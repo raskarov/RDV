@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "Восстановление пароля. Шаг 2";
+    Layout = "..//Shared//_CommonPageLayout.cshtml";
+}
+
+<div id="page-registration">
+    <div id="registration-form">
+        <form action="/account/remember" method="POST" id="fgt-form">
+            <div class="editor-label">
+                Email адрес
+            </div>
+            <div class="editor-field">
+                <input type="email" class="round reg-field" id="email-field" name="email" placeholder="Введите свой Email" maxlength="255" value="@ViewBag.email"/>
+            </div>
+            <div class="editor-label">
+                Код восстановления
+            </div>
+            <div class="editor-field">
+                <input type="text" class="round reg-field" id="code-field" name="code" placeholder="Введите код для восстановления" maxlength="255" value=""/>
+            </div>
+            <input type="submit" id="submit-reg-form" style="display: none"/>
+            <div id="submit-button-wrapper" onclick="$('#submit-reg-form').click();">
+                <span id="submit-button">
+                    
+                </span>
+            </div>
+        </form>
+    </div>
+    <div id="registration-info">
+        <p>
+            Введите email адрес и код для восстановления пароля, полученный в письме.
+        </p>
+        
+    </div>
+</div>
+<div class="clear"></div>

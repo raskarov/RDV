@@ -1,0 +1,42 @@
+﻿@model System.Collections.Generic.List<RDV.Web.Models.Account.Profile.StatisticItem>
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Настройки системы";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Settings-tab" })
+            @* Контейнер лейаута страницы *@
+            
+            @* Таблица *@
+            <table class="content-table" id="settings-table">
+                <thead>
+                    <tr>
+                        <th width="100%">
+                            Параметр 
+                        </th>
+                        <th>
+                            Значение
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Кешировать список объектов для гостей. Если включен, то гости будут видеть старую - не актуальную версию информации, обновление кеша происходит в среднем каждый час или ранее. Включение данного параметра позволяет существенно повысить производительность для гостей.</td>
+                        <td><input type="checkbox"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

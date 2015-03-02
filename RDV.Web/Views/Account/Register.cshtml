@@ -1,0 +1,258 @@
+﻿@using RDV.Domain.Entities
+@model RDV.Web.Models.Account.RegisterModel
+@{
+    ViewBag.Title = "Регистрация";
+    Layout = "..//Shared//_CommonPageLayout.cshtml";
+    var companies = (IEnumerable<Company>)ViewBag.companies;
+}
+<div id="page-registration">
+    <div id="registration-form">
+        <form action="/account/register" method="POST" id="reg-form">
+            <fieldset>
+                <div class="legend">
+                    Регистрационные данные
+                </div>
+                <div class="editor-label">
+                    Email адрес
+                </div>
+                <div class="editor-field">
+                    <input type="email" class="round reg-field" id="regEmailField" name="Email" placeholder="Введите свой Email" maxlength="255" value="@Model.Email"/>
+                </div>
+                <div class="editor-label">
+                    Пароль
+                </div>
+                <div class="editor-field">
+                    <input type="password" class="round reg-field" id="regPasswordField" name="Password"
+                           maxlength="255" />
+                </div>
+                <div class="editor-label">
+                    Подтверждение пароля
+                </div>
+                <div class="editor-field">
+                    <input type="password" class="round reg-field" id="regPasswordConfirmField" name="PasswordConfirm"
+                           maxlength="255" />
+                </div>
+            </fieldset>
+            <fieldset>
+                <div class="legend">
+                    Личные данные</div>
+                <table width="100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="editor-label">
+                                    Имя
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small" id="nameField" name="FirstName" placeholder="Ваше имя" maxlength="255" value="@Model.FirstName"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="editor-label">
+                                    Отчество
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small" id="surnameField" name="SurName" placeholder="Ваше отчество" maxlength="255" value="@Model.SurName"/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="editor-label">
+                                    Фамилия
+                                </div>
+                                <div class="editor-field">
+                                    <input style="width: 343px" type="text" class="round" id="lastnameField" name="LastName" placeholder="Ваша фамилия" maxlength="255" value="@Model.LastName"/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="editor-label">
+                                    Контактный телефон
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small phone-field" id="phoneField" name="Phone" placeholder="Основной номер" maxlength="255" value="@Model.Phone"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="editor-label">
+                                    Дополнительный телефон
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small phone-field" id="phone2Field" name="Phone2" placeholder="Вспомогательный номер" maxlength="255" value="@Model.Phone2"/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="editor-label">
+                                    Номер ICQ
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small" id="icqField" name="ICQ" placeholder="Ваш номер ICQ" maxlength="12" value="@Model.ICQ"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="editor-label">
+                                    Дата рождения
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small datepicker" id="birthdateField" name="Birthdate"
+                                           placeholder="Дата рождения" />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+            <fieldset>
+                <div class="legend">
+                    Профессиональные данные</div>
+                <div class="editor-label">
+                    Я регистрируюсь как
+                </div>
+                <div class="editor-field">
+                    <select id="registerAsField" name="RegisterAs" style="width: 343px" class="round">
+                        <option value="2">Агент РДВ</option>
+                    </select>
+                </div>
+                <table id="agent-fields" width="100%" style="display: none">
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                <div class="editor-label">
+                                    Компания
+                                </div>
+                                <div class="editor-field">
+                                    @Html.DropDownList("CompanyId", companies.Select(c => new SelectListItem()
+                                        {
+                                            Text = c.Name,
+                                            Value = c.Id.ToString(),
+                                            Selected = Model.CompanyId == c.Id
+                                        }), new { @id = "companyField", @class = "round", @style = "width: 343px", @placeholder = "Выберите вашу компанию" })
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="editor-label">
+                                    Должность
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small" id="appointmentField" name="Appointment" placeholder="Ваша должность" maxlength="255" value="@Model.Appointment"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="editor-label">
+                                    Дата начала стажа
+                                </div>
+                                <div class="editor-field">
+                                    <input type="text" class="round field-small datepicker" id="senioritStartField" name="SeniorityStartDate" />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+            <div class="editor-field">
+                <input type="checkbox" value="true" class="" id="acceptAgreementField" name="AcceptAgreement" />
+                Я принимаю <a href="/rules" target="__blank">правила пользования системой</a>.
+                <input type="hidden" value="false" name="AcceptAgreement" />
+            </div>
+            <input type="submit" id="submit-reg-form" style="display: none" />
+            <div id="submit-button-wrapper" onclick="$('#submit-reg-form').click();">
+                <span id="submit-button"></span>
+            </div>
+        </form>
+    </div>
+    @*
+    <div id="registration-info">
+        <p>
+            НП РДВ в соответствии с учредительными документами и уставными задачами проводит
+            политику, направленную на защиту интересов всех участников рынка недвижимости, в
+            том числе защиту интересов риэлторского сообщества, касающихся информационного освещения
+            рынка. Политика РДВ в этой области направлена на объединение усилий и возможностей
+            всех участников рынка для закрепления цивилизованных форм деятельности и сотрудничества
+            заинтересованных лиц в вопросах информации и рекламы.
+        </p>
+        <p>
+            Настоящее Положение является локальным нормативным актом НП РДВ. Соблюдение требований
+            Положения обязательно для всех Участников.
+        </p>
+        <p>
+            Настоящее Положение принимается и может быть изменено Общим собранием участников
+            НП РДВ, если иной порядок его изменения не установлен решением Общего собрания участников
+            НП РДВ.
+        </p>
+        <p>
+            По неурегулированным настоящим Положением вопросам, связанным с обращением информации
+            на рынке недвижимости, Президентский Совет РДВ вправе на период между общими собраниями
+            участников РДВ принимать решения, имеющие обязательный характер для Участников.
+        </p>
+        <p>
+            Участники профессионального риэлторского информационного пространства, объединенные
+            общими интересами в профессиональной сфере и стремящиеся закрепить цивилизованные
+            формы деятельности и сотрудничества между всеми Участниками и их клиентами на рынке
+            недвижимости, добровольно устанавливают обязательные для исполнения всеми Участниками
+            правила и условия распространения Участником собственной рекламной информации (профессиональные
+            стандарты), соблюдение которых является условием и гарантией получения Участником
+            специальной профессиональной информации.
+        </p>
+        <p>
+            Участник должен соблюдать установленные законодательством РФ и локальными актами
+            РДВ правила распространения рекламной информации и установленные ими ограничения,
+            в том числе на свободное распространение специальной профессиональной информации,
+            а также ограничения, касающиеся форм и средств подачи рекламной информации.
+        </p>
+        <p>
+            Распространение рекламной или иной информации не должно причинять ущерб законным
+            интересам других участников рынка. Указание Участником в своей рекламе в Базе стоимости
+            услуг, не соответствующей действительности, а также бесплатных услуг по продаже
+            объектов недвижимости и по продаже объектов недвижимости на условиях встречной покупки,
+            недопустимо и расценивается как попытка получить несправедливое преимущество перед
+            другими членами РДВ.
+        </p>
+        <p>
+            Распространяемая Участником информация не должна содержать положений, дискредитирующих
+            РДВ и добросовестных участников рынка недвижимости.
+        </p>
+        <p>
+            Любая распространяемая Участником рекламная информация в Базе должна соответствовать
+            действительности. Участник отвечает за недостоверность распространяемой им рекламной
+            информации. В равной мере это касается рекламных объявлений о приеме на работу риэлторов.
+            Указание в рекламе оплаты труда риэлторов в виде процентной ставки не допускается.
+        </p>
+        <p>
+            Участник обязан не допускать разглашения информации, являющейся конфиденциальной
+            в силу закона либо отнесенной к таковой договором, заключенным Участником либо другим
+            участником рынка.
+        </p>
+        <p>
+            Участник может свободно использовать в своей рекламной информации логотип (фирменный
+            знак) НП РДВ, а также ссылаться в рекламной информации на факт своего членства в
+            РДВ.
+        </p>
+    </div>
+    *@
+</div>
+<div class="clear">
+</div>
+<script language="javascript" type="text/javascript">
+    function checkProfFieldsVisibility() {
+        var registerAsAgent = $("#registerAsField").val() == 2;
+        if (registerAsAgent) {
+            $("#agent-fields").slideDown("normal");
+        } else {
+            $("#agent-fields").slideUp("normal");
+        }
+    }
+    checkProfFieldsVisibility();
+
+    $(document).ready(function (e) {
+        $("#registerAsField").bind("change", function (d) {
+            checkProfFieldsVisibility();
+        });
+        validators.bindRegistrationFormValidators();
+    });
+</script>

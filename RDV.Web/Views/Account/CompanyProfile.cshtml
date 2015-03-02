@@ -1,0 +1,138 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model RDV.Web.Models.Account.Company.CompanyProfileModel
+@{
+    ViewBag.Title = "Сведения о компании";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Company-tab" })
+            <div id="left-content-block">
+                @if (!String.IsNullOrEmpty(Model.LogoUrl))
+                {
+                <div id="company-logo">
+                    <img src="@Model.LogoUrl" alt="Логотип"/>
+                </div>    
+                }
+                @if (ViewContext.CurrentUser().HasPermission(Permission.EditOwnCompanyInfo))
+                {
+                    <div class="profile-link">
+                        <a href="/account/company/edit">Редактировать</a>
+                    </div>    
+                }
+                <div class="profile-link">
+                    <a href="/account/company/statistics">Статистика</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/company/activity">Просмотр активности</a>
+                </div>
+                @if (ViewContext.CurrentUser().HasPermission(Permission.AccessCompanyPayments))
+                {
+                    <div class="profile-link">
+                        <a href="/account/company/payments">Кошелек компании</a>    
+                    </div>
+                }
+                @if (ViewContext.CurrentUser().HasPermission(Permission.ControlCompanySponsoring))
+                {
+                    <div class="profile-link">
+                        <a href="/account/company/sponsoring">Управление спонсорством</a>    
+                    </div>
+                }
+            </div>
+            <div id="center-content-block" class="profile-form-block">
+                <form>
+                <fieldset>
+                    <div class="legend">
+                        Общие сведения
+                    </div>
+                    <div class="editor-label">
+                        Наименование компании
+                    </div>
+                    <div class="editor-field">
+                        @Model.Name
+                    </div>
+                    <div class="editor-label">
+                        Краткон наименование компании
+                    </div>
+                    <div class="editor-field">
+                        @Model.ShortName
+                    </div>
+                    <div class="editor-label">
+                        Директор
+                    </div>
+                    <div class="editor-field">
+                        @Model.Director
+                    </div>
+                    <div class="editor-label">
+                        Описание
+                    </div>
+                    <div class="editor-field">
+                        @Model.Description
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="legend">
+                        Контакты
+                    </div>
+                    <div class="editor-label">
+                        Адрес
+                    </div>
+                    <div class="editor-field">
+                        @Model.Address
+                    </div>
+                    <div class="editor-label">
+                        Телефоны
+                    </div>
+                    <div class="editor-field">
+                        @Model.Phone1.FormatPhoneNumber(), @Model.Phone2.FormatPhoneNumber(), @Model.Phone3.FormatPhoneNumber()
+                    </div>
+                    <div class="editor-label">
+                        Email
+                    </div>
+                    <div class="editor-field">
+                        @Model.Email
+                    </div>
+                    <div class="editor-label">
+                        Контактное лицо
+                    </div>
+                    <div class="editor-field">
+                        @Model.ContactPerson
+                    </div>
+                    @if (!String.IsNullOrEmpty(Model.SchemeUrl))
+                    {
+                        <div class="editor-label">
+                            Схема проезда
+                        </div>
+                        <div class="editor-field">
+                            @Model.SchemeUrl
+                        </div>
+                    }
+                    @if (!String.IsNullOrEmpty(Model.Branch))
+                    {
+                        <div class="editor-label">
+                            Сведения о филиалах
+                        </div>
+                        <div class="editor-field">
+                            @Model.Branch
+                        </div>
+                    }
+                </fieldset>
+                </form>
+            </div>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    
+</script>

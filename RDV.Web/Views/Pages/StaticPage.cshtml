@@ -1,0 +1,19 @@
+﻿@using RDV.Web.Models.UI
+@model RDV.Domain.Entities.StaticPage
+@{
+    ViewBag.Title = Model.Title;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="static-page-content">
+            @Html.Raw(Model.Content)
+        </div>
+    </div>
+</div>
+

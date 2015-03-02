@@ -1,0 +1,48 @@
+﻿@model RDV.Web.Models.MainPage.MainPageModel
+
+<div class="block">
+    <div class="block-header">
+        <div class="block-icon">
+            <img src="@Url.Content("/Content/images/mainpage/newobjectsicon.png")" alt="Icon"/>
+        </div>
+        <div class="block-title">
+            Новинки
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <div id="new-objects-block">
+                @foreach(var newObj in Model.NewEstateObjects.Take(3))
+                {
+                    var objUrl = String.Format("/objects/{0}/card", newObj.Id);
+                    <div class="new-object">
+                        <div class="new-object-image">
+                            <a href="@objUrl">
+                                @if (!String.IsNullOrEmpty(newObj.ImageUrl))
+                                {
+                                    <img src="@newObj.ImageUrl"/>        
+                                }
+                                else
+                                {
+                                    <img src="@Url.Content("/Content/images/mainpage/new-object-photo.png")"/>    
+                                }
+                            </a>
+                            <div class="new"></div>
+                        </div>
+                        <div class="new-object-title">
+                            <a href="@objUrl">
+                                @newObj.TitleLine
+                            </a>
+                        </div>
+                        <div class="new-object-info">@newObj.SizeLine</div>
+                        <div class="new-object-info">@newObj.DistrictLine</div>
+                        <div class="new-object-price">Цена: <span class="price">@newObj.PriceLine</span></div>
+                        <div class="clear"></div>
+                        <div class="new-object-separator"></div>
+                    </div>    
+                }
+            </div>
+        </div>
+    </div>
+</div>

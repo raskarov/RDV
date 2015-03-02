@@ -1,0 +1,290 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model RDV.Web.Models.Administration.Audit.AuditViewModel
+@{
+    ViewBag.Title = "Аудит системы";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Audit-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Фильтр событий
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="filter-period-action">Период</a> </li>
+                                    <li><a href="#" id="filter-types-action">Тип событий</a> </li>
+                                    <li><a href="#" id="filter-companies-action">Компании</a> </li>
+                                    <li><a href="#" id="filter-users-action">Пользователи</a> </li>
+                                    <li><a href="#" id="filter-apply-action">Применить фильтр</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Тип
+                                        </th>
+                                        <th>
+                                            Дата
+                                        </th>
+                                        <th>
+                                            Пользователь
+                                        </th>
+                                        <th>
+                                            Компания
+                                        </th>
+                                        <th>
+                                            Сообщение
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Events.Count > 0)
+                                    {
+                                        foreach (var auditEvent in Model.Events)
+                                        {
+                                        <tr data-item-id="@auditEvent.Id">
+                                            <td>
+                                                @auditEvent.EventType.GetEnumMemberName()
+                                            </td>
+                                            <td>
+                                                @auditEvent.EventDate.FormatDateTime()
+                                            </td>
+                                            <td>
+                                                @auditEvent.User.ToString()
+                                            </td>
+                                            <td>
+                                                @(auditEvent.User.Company != null ? @auditEvent.User.Company.Name : "Вне компании")
+                                            </td>
+                                            <td>
+                                                @auditEvent.Message
+                                            </td>
+                                            <td>
+                                                <span class="edit-row icon-details" title="Подробности запроса"></span>
+                                            </td>
+                                        </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6">
+                                                <p align="center">
+                                                    Нет событий, удовлетворяющих указанным критериям выборки</p>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialog" title="Фильтр дат" id="date-filter-dialog" style="display: none">
+    Пожалуйста, выберите период отображения событий.
+    <form>
+    <div class="editor-label">
+        Начало периода
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field datepicker" id="filter-start-date-field" value="@Model.FilterPeriodStartDate.FormatDate()"/>
+    </div>
+    <div class="editor-label">
+        Конец периода
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field datepicker" id="filter-end-date-field" value="@Model.FilterPeriodEndDate.FormatDate()"/>
+    </div>
+    </form>
+</div>
+<div class="dialog" title="Фильтр типов событий" id="type-filter-dialog" style="display: none">
+    Пожалуйста, отметьте типы событий, которые вы хотите просмотреть. Для отображения
+    всех типов событий - сбросьте все галочки.
+    <form>
+    @foreach (short value in Enum.GetValues(typeof(AuditEventTypes)))
+    {
+        var convertedVal = (AuditEventTypes)value;
+        <div class="editor-field">
+            <input type="checkbox" id="event-type-@value-checkbox" value="@value" @(Model.FilterEvents != null && Model.FilterEvents.Contains(convertedVal) ? "checked=\"checked\"" : String.Empty)/>&nbsp;<span
+                class="checkbox-label">@convertedVal.GetEnumMemberName()</span>
+        </div>
+    }
+    </form>
+</div>
+<div class="dialog" title="Фильтр компаний" id="company-filter-dialog" style="display: none">
+    Пожалуйста, отметьте те компании, события которых вы хотите просмотреть. Чтобы просмотреть
+    события по всем компаниям - сбросьте все галочки.
+    <form>
+    @foreach (var company in Model.AllCompanies)
+    {
+        <div class="editor-field">
+            <input type="checkbox" value="@company.Id" id="company-@company.Id-checkbox" @(Model.FilterCompaniesIds != null && Model.FilterCompaniesIds.Contains(company.Id) ? "checked=\"checked\"" : String.Empty)/>&nbsp;<span
+                class="checkbox-label">@company.Name</span>
+        </div>
+    }
+    </form>
+</div>
+<div class="dialog" title="Фильтр пользователей" id="user-filter-dialog" style="display: none">
+    Пожалуйста, отметьте тех пользователей, события которых вы хотите просмотреть. Чтобы
+    просмотреть события по всем пользователям - сбросьте все галочки.
+    <form>
+    @foreach (var user in Model.AllUsers)
+    {
+        <div class="editor-field">
+            <input type="checkbox" value="@user.Id" id="company-@user.Id-checkbox" @(Model.FilterUsersIds != null && Model.FilterUsersIds.Contains(user.Id) ? "checked=\"checked\"" : String.Empty)/>&nbsp;<span
+                class="checkbox-label">@user.ToString()</span>
+        </div>
+    }
+    </form>
+</div>
+<div class="dialog" id="event-details-dialog" style="display: none" title="Подробности события">
+    <pre id="event-details"></pre>
+</div>
+<script language="javascript" type="text/javascript">
+    
+    @* Отображает диалог выбора фильтра *@
+    function showFilterDialog(dialogId) {
+        var dialog = $("#"+dialogId).dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            height: 500,
+            buttons: {
+                "Применить": function () {
+                    applyFilter();
+                },
+                "Закрыть": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    function applyFilter() {
+        // Даты
+        var startDate = $("#filter-start-date-field").val();
+        var endDate = $("#filter-end-date-field").val();
+        
+        // Отмеченные типы событий
+        var eventsIds = "";
+        var eventsCheckbox = $("#type-filter-dialog input:checked");
+        if (eventsCheckbox.length > 0) {
+            eventsCheckbox.each(function(index, item) {
+                eventsIds += $(item).val() + ",";
+            });
+        }
+        
+        // Отмеченные компании
+        var companiesIds = "";
+        var companiesCheckbox = $("#company-filter-dialog input:checked");
+        if (companiesCheckbox.length > 0) {
+            companiesCheckbox.each(function(index, item) {
+                companiesIds += $(item).val() + ",";
+            });
+        }
+        
+        // Отмеченные пользователи
+        var usersIds = "";
+        var usersCheckbox = $("#user-filter-dialog input:checked");
+        if (usersCheckbox.length > 0) {
+            usersCheckbox.each(function(index, item) {
+                usersIds += $(item).val() + ",";
+            });
+        }
+        
+        // Собираем строку для перехода
+        var requestString = "/administration/audit/?startDate=" + startDate + "&endDate=" + endDate;
+        if (eventsIds != "") {
+            requestString += "&eventTypes=" + eventsIds;
+        }
+        if (companiesIds != "") {
+            requestString += "&companies=" + companiesIds;
+        }
+        if (usersIds != "") {
+            requestString += "&users=" + usersIds;
+        }
+        
+        // Переходим
+        window.location.href = requestString;
+    }
+    
+    @* Отображает детальную информацию по указанному событию аудита *@
+    function showEventDetails(eventId) {
+        $("#event-details-dialog pre").load("/administration/audit/details", { id: eventId }, function() {
+            var dialog = $("#event-details-dialog").dialog({
+                autoOpen: true,
+                resizable: true,
+                modal: true,
+                maxHeight: 1024,
+                maxWidth: 1280,
+                buttons: {
+                    "Закрыть": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+    
+    @* Байндинг выбор периода фильтра *@
+    $("#filter-period-action").click(function(e) {
+        showFilterDialog("date-filter-dialog");
+        return false;
+    });
+    
+    @* Байндинг типа событий фильтра *@
+    $("#filter-types-action").click(function(e) {
+        showFilterDialog("type-filter-dialog");
+        return false;
+    });
+    
+    @* Байндинг компаний фильтра *@
+    $("#filter-companies-action").click(function(e) {
+        showFilterDialog("company-filter-dialog");
+        return false;
+    });
+    
+    @* Байндинг юзеров фильтра *@
+    $("#filter-users-action").click(function(e) {
+        showFilterDialog("user-filter-dialog");
+        return false;
+    });
+    
+    @* Байндинг применение фильтра *@
+    $("#filter-apply-action").click(function(e) {
+        applyFilter();
+        return false;
+    });
+
+    $(".icon-details").click(function (e) {
+        var id = $(this).parent().parent().data("item-id");
+        showEventDetails(id);
+    });
+
+</script>

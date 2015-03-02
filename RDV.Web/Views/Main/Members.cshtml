@@ -1,0 +1,51 @@
+﻿@using RDV.Domain.Infrastructure.Misc
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@model IList<RDV.Domain.Entities.Company>
+@{
+    ViewBag.Title = "Члены РДВ";
+    Layout = "MembersLayout.cshtml";
+    var imagesRep = Locator.GetService<IStoredFilesRepository>();
+}
+<div id="companies">
+    <table class="content-table" style="width: 100%">
+        <thead>
+            <tr>
+                <th>
+                    Логотип
+                </th>
+                <th>
+                    Название компании
+                </th>
+                <th>
+                    Адрес
+                </th>
+                <th>
+                    Телефон
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var comp in Model)
+            {
+                var imageUrl = !String.IsNullOrEmpty(comp.LogoImageUrl) ? imagesRep.ResolveFileUrl(comp.LogoImageUrl) : "/Content/images/mainpage/new-object-photo.png";
+                <tr class="company">
+                    <td style="vertical-align: middle; background-color: white">
+                        <div class="company-photo">
+                            <img src="@imageUrl" alt="@comp.Name" onclick="window.location.href='/member/@comp.Id';"/>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="/member/@comp.Id">@comp.Name</a>
+                    </td>
+                    <td>
+                        @comp.Address
+                    </td>
+                    <td>
+                        @comp.Phone1.FormatPhoneNumber()
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

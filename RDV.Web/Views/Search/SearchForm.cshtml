@@ -1,0 +1,917 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Infrastructure
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Classes.Forms
+@model RDV.Web.Models.Search.SearchFormModel
+@{
+    var geoManager = Locator.GetService<IGeoManager>();
+    var cities = geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name).ToList();
+}
+<div id="search-form-wrapper">
+    <form method="GET" id="search-form" action="/search/results">
+        <input type="hidden" name="requestName" id="request-name-hidden" />
+        <div class="block">
+            <div class="block-header">
+                <div class="block-title">
+                    Основные критерии
+                </div>
+            </div>
+            <div class="block-content">
+                <div class="block-inner-content">
+                    <div class="columns-wrapper">
+                        <div class="column">
+                            @* Тип объекта *@
+                            <div class="field-wrapper">
+                                <div class="editor-label">
+                                    Тип объекта</div>
+                                <div class="editor-field">
+                                    <select id="object-type-field" class="round field" name="objectType">
+                                        <option value="-1" @(Model.ObjectType == -1 ? "selected=selected" : "")>Любой</option>
+                                        @foreach (EstateTypes objectType in Enum.GetValues(typeof(EstateTypes)))
+                                        {
+                                            var val = (short)objectType;
+                                            <option value="@val" @(val == Model.ObjectType ? "selected=selected" : "")>@objectType.GetEnumMemberName()</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            @* Операция над объектом *@
+                            <div class="field-wrapper">
+                                <div class="editor-label">
+                                    Операция</div>
+                                <div class="editor-field">
+                                    <select id="object-operation-field" class="round field" name="operation">
+                                        <option value="-1" @(Model.Operation == -1 ? "selected=selected" : "")>Любая</option>
+                                        @*@foreach (EstateOperations operation in Enum.GetValues(typeof(EstateOperations)))
+                                        {
+                                            var val = (short)operation;
+                                            <option value="@val" @(val == Model.Operation ? "selected=selected" : "")>@operation.GetEnumMemberName()</option>
+                                        }*@
+                                        <option value="@((short)EstateOperations.Selling)" @(Model.Operation == (short)EstateOperations.Selling ? "selected=selected" : "")>Продажа</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            @* Цена *@
+                            <div class="field-wrapper">
+                                <div class="editor-label">
+                                    Цена</div>
+                                <div class="columns-wrapper">
+                                    <div class="column">
+                                        От
+                                        <input type="text" class="round field-column" id="price-from-field" name="priceFrom" value="@Model.PriceFrom.FormatString()"/>
+                                    </div>
+                                    <div class="column">
+                                        до
+                                        <input type="text" class="round field-column" id="price-to-field" name="priceTo" value="@Model.PriceTo.FormatString()"/>
+                                    </div>
+                                </div>
+                            </div>
+                            @* Площадь *@
+                            <div class="field-wrapper">
+                                <div class="editor-label">
+                                    Площадь</div>
+                                <div class="columns-wrapper">
+                                    <div class="column">
+                                        От
+                                        <input type="text" class="round field-column" id="square-from-field" name="squareFrom" value="@Model.SquareFrom.FormatString()"/>
+                                    </div>
+                                    <div class="column">
+                                        до
+                                        <input type="text" class="round field-column" id="square-to-field" name="squareTo" value="@Model.SquareTo.FormatString()"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="block-header">
+                <div class="block-title">
+                    Местоположение
+                </div>
+            </div>
+            <div class="block-content">
+                <div class="block-inner-content">
+                    @* Город *@
+                    <div class="field-wrapper">
+                        <div class="editor-label">
+                            Город</div>
+                        <div class="editor-field">
+                            <select id="city-id-field" name="cityId" class="field round">
+                                <option value="-1" @(Model.CityId == -1 ? "selected=selected" : "")>Любой</option>
+                                @foreach (var city in cities)
+                                {
+                                    <option value="@city.Id" @(Model.CityId == city.Id ? "selected=selected" : "")>@city.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="columns-wrapper">
+                        <div class="column">
+                            @* Районы города *@
+                            <div class="field-wrapper" id="district-fields-wrapper">
+                                <div class="editor-label">
+                                    Районы города</div>
+                                <div class="editor-field">
+                                    <input type="hidden" id="districtIds-hidden" name="districtIds" value="@Model.DistrictIds"/>
+                                    @{
+                                        var dIds = Model.DistrictIds.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(s => Convert.ToInt64(s)).ToList();
+                                        var currentCity = Model.CityId != -1 ? geoManager.CitiesRepository.Load(Model.CityId) : null;
+                                    }
+                                    <select id="district-names-field" multiple="multiple" class="round field">
+                                        @if (currentCity != null)
+                                        {
+                                            foreach (var district in geoManager.DistrictsRepository.Search(d => d.CityId == currentCity.Id))
+                                            {
+                                                <option value="@district.Id" @(dIds.Contains(district.Id) ? "selected=selected" : "")>@district.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span class="link" id="district-map-selection" onclick="showDistrictSelectionDialog()">
+                                        Выбор на карте</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            @* Жил. массивы района города *@
+                            <div class="field-wrapper" id="areas-fields-wrapper">
+                                <div class="editor-label">
+                                    Жилые массивы района</div>
+                                <div class="editor-field">
+                                    <input type="hidden" name="areaIds" value="@Model.AreaIds" id="area-ids-hidden"/>
+                                    @{
+                                        var aIds = Model.AreaIds.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(s => Convert.ToInt64(s)).ToList();
+                                    }
+                                    <select id="area-names-field" class="round field" multiple="multiple">
+                                        @if (currentCity != null && dIds.Count == 1)
+                                        {
+                                            foreach (var area in geoManager.ResidentialAreasRepository.Search(d => d.DistrictId == dIds.First()))
+                                            {
+                                                <option value="@area.Id" @(aIds.Contains(area.Id) ? "selected=selected" : "")>@area.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span class="link" id="area-map-selection" onclick="showAreaSelectionDialog()">Выбор
+                                        на карте</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns-wrapper">
+                        @* Улицы города *@
+                        <div class="field-wrapper" id="street-fields-wrapper" style="display: none">
+                            <div class="editor-label">
+                                Улицы</div>
+                            <div class="editor-field">
+                                <input type="hidden" name="streetIds" value="@Model.StreetIds" id="street-ids-hidden"/>
+                                @{
+                                    var sIds = (Model.StreetIds ?? String.Empty).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(s => Convert.ToInt64(s)).ToList();
+                                }
+                                <select id="street-names-field" class="round field" multiple="multiple" style="width: 600px">
+                                    @if (currentCity != null && aIds.Count > 0)
+                                    {
+                                        foreach (var street in geoManager.StreetsRepository.Search(d => aIds.Contains(d.AreaId)))
+                                        {
+                                            <option value="@street.Id" @(sIds.Contains(street.Id) ? "selected=selected" : "")>@street.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block">
+            <div class="block-header">
+                <div class="block-title">
+                    Дополнительные критерии
+                </div>
+            </div>
+            <div class="block-content">
+                <div class="block-inner-content">
+                    <table class="content-table" id="criterias-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-wrapper">
+                                    <input type="checkbox" id="select-all-checkbox" value="true" />
+                                </th>
+                                <th>
+                                    Критерий
+                                </th>
+                                <th>
+                                    Описание
+                                </th>
+                                <th>
+                                    Фильтр
+                                </th>
+                                <th>
+                                    Значение
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="no-criterias-row">
+                                <td colspan="5">
+                                    <p align="center">
+                                        Не задано дополнительных критериев поиска</p>
+                                </td>
+                            </tr>
+                            @foreach (var addCriteria in Model.AdditionalCriterias)
+                            {
+                                var fieldFilter = Model.FieldsFilters.ContainsKey(addCriteria.Name) ? Model.FieldsFilters[addCriteria.Name] : "";
+                                <tr data-item-id="@addCriteria.Name" name="@addCriteria.Name">
+                                    <td class='checkbox-wrapper'>
+                                        <input type='checkbox' id='select-"+@addCriteria.Name+"-checkbox' value='true'/>
+                                    </td>
+                                    <td>
+                                        @addCriteria.Caption
+                                    </td>
+                                    <td>
+                                        @addCriteria.Tooltip
+                                    </td>
+                                    <td>
+                                        @Html.Raw(addCriteria.GetFilterMarkup(fieldFilter))
+                                    </td>
+                                    <td>
+                                        @Html.Raw(addCriteria.RenderFieldEditor(new FieldRenderingContext(Locator.GetService<IEstateObjectsRepository>().GetTempObject(), Locator.GetService<IUsersRepository>().GetGuestUser())).Replace("name=\"", "name=\"af_"))
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="submit-wrapper">
+            <div class="search-submit-button" onclick="$('#search-form').submit();">
+                <input type="submit" style="display: none" />
+            </div>
+        </div>
+    </form>
+</div>
+@* Диалог добавления нового критерия *@
+<div class='dialog' id="new-criteria-dialog" title='Новы критерий' style="display: none;
+    margin-top: 20px">
+    <form>
+    <div class="editor-label">
+        Критерий поиска</div>
+    <div class="editor-field" id="criterias-wrapper">
+    </div>
+    </form>
+</div>
+@* Диалог сохранения настроек поиска *@
+<div class="dialog" id="save-search-dialog" title="Сохранение поиска" style="display: none">
+    <p>
+        Введите наименование под которым будут сохранены настройки поиска. Если настройки
+        под таким именем существуют - они будут перезаписаны.</p>
+    <form>
+    <div class="editor-label">
+        Наименование поиска
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="search-name-field" placeholder="Введите наименование поиска" />
+    </div>
+    </form>
+</div>
+@* Диалог восстановления настроек поиска *@
+<div class="dialog" id="load-search-dialog" title="Восстановление настроек" style="display: none">
+    <p>
+        Выберите настройки поиска, которые хотите восстановить. Учтите, что текущие настройки
+        несохраненные настройки пропадут.</p>
+    <form>
+    <div class="editor-label">
+        Наименование поиска
+    </div>
+    <div class="editor-field">
+        <select id="search-options" class="round field">
+        </select>
+    </div>
+    </form>
+</div>
+@* Диалог выбора районов города *@
+<div class="dialog" id="select-districts-dialog" title="Выбор районов города" style="display: none">
+    <div id="districts-yandex-map" style="width: 600px; height: 500px">
+    </div>
+    <p>
+        Выбранные районы: <span id="selected-districts"></span>
+    </p>
+</div>
+@* Диалог выбора жилых массивов города *@
+<div class="dialog" id="select-area-dialog" title="Выбор массивов района" style="display: none">
+    <div id="area-yandex-map" style="width: 600px; height: 500px">
+    </div>
+    <p>
+        Выбранные жил. массивы: <span id="selected-areas"></span>
+    </p>
+</div>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $("#criterias-wrapper").load("/search/criterias");
+        updateCriteriasTable();
+        
+        // Байдим компоненты выбора районв и массивов
+        $("#district-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 317
+        });
+
+        $("#area-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 317
+        });
+        
+        // Обновляем необходимость отображения блока выбора массивов
+        var selectedDistricts = $("#district-names-field").val();
+        if (selectedDistricts != null && selectedDistricts.length == 1) {
+            $("#areas-fields-wrapper").show();
+        } else {
+            $("#areas-fields-wrapper").hide();
+        }
+        var selectedAreas = $("#area-names-field").val();
+        if (selectedAreas != null && selectedAreas.length > 0) {
+            $("#street-fields-wrapper").show();
+        } else {
+            $("#street-fields-wrapper").hide();
+        }
+        setTimeout(function() {
+            $(window).unbind("scroll");
+        },1000);
+    });
+    
+    @* диалог добавления критериев *@
+    function showAddCriteriaDialog() {
+        var dialog = $("#new-criteria-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 400,
+            buttons: {
+                "Добавить": function () {
+                    // Проверяем, есть ли у нас в таблице критериев такой критерий
+                    var fieldName = $("#search-criteria-field").val();
+                    var selector = "#criterias-table tbody tr[name='"+fieldName+"']";
+                    if ($(selector).length > 0) {
+                        alert("Такой критерий уже добавлен");
+                        return;
+                    }
+                    // Посылаем запрос на сервак и получаем разметку
+                    $.post("/search/criteria/", { field: fieldName }, function(data) {
+                        var rowMarkup = "<tr data-item-id='" + fieldName + "' name='" + fieldName + "'><td class='checkbox-wrapper'><input type='checkbox' id='select-"+fieldName+"-checkbox' value='true'/></td><td>" + data.caption + "</td><td>" + data.description + "</td><td>"+data.filterMarkup+"</td><td>"+data.fieldMarkup+"</td></tr>";
+                        $("#criterias-table").find("tbody").append($(rowMarkup));
+                        dialog.dialog("close");
+                        updateCriteriasTable();
+                    }, 'json');
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Обновляет таблицу критериев *@
+    function updateCriteriasTable() {
+        var noCriteriasRow = $("#no-criterias-row");
+        if ($("#criterias-table tbody tr[name]").length > 0) {
+            noCriteriasRow.hide();
+        } else {
+            noCriteriasRow.show();
+        }
+        rebindListControls();
+    }
+    
+    function rebindListControls() {
+        
+        // Очищаем старый шлак
+        $("#criterias-table .multiselect").multiselect("destroy");
+
+        // Байндинг мультиселектов
+        $(".multiselect").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 368
+        });
+
+        // Байндинг сингселектов
+        $(".singleSelect").multiselect({
+            multiple: false,
+            header: 'Выберите одно значение',
+            noneSelectedText: "Выберите значение",
+            selectedList: 1,
+            maxWidth: 317
+        });
+        
+        // Байндим дейтпикеры
+        $(".datepicker").datepicker({
+            dateFormat:"dd.mm.yy"
+        });
+        
+        // Байдим компоненты выбора районв и массивов
+        $("#district-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 317
+        });
+
+        $("#area-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 317
+        });
+
+        $("#street-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 12,
+            maxWidth: 700
+        });
+    }
+    
+    @* Диалог сохранения настроек *@
+    function showSaveSearchDialog() {
+        var dialog = $("#save-search-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 400,
+            buttons: {
+                "Сохранить": function () {
+                    // Сохраняем
+                    saveFormFieldsInMarkup();
+                    saveSearch($("#search-name-field").val());
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Диалог восстановления настроек поиска *@
+    function showLoadSearchDialog() {
+        loadSavedSearches(); // Загружаем список сохраненных поисков
+        var dialog = $("#load-search-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 400,
+            buttons: {
+                "Восстановить": function () {
+                    // Восстанавливаем
+                    loadSearch($("#search-options").val());
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Сохраняет статусное состояние полей форм в разметке *@
+    function saveFormFieldsInMarkup() {
+        
+    }
+    
+    @* Диалог выбора районов *@
+    function showDistrictSelectionDialog() {
+        var yandexMap = districtsYandexMap;
+        yandexMap.geoObjects.each(function(obj) {
+            yandexMap.geoObjects.remove(obj);
+        });
+        var selectedDistricts = parseIdsStr($("#districtIds-hidden").val());
+        $.ajax({
+            type: 'POST',
+            url: '/search/districts',
+            data: {
+                cityId: $("#city-id-field").val()
+            },
+            success: function(data){
+                $.each(data.districts, function(index, item) {
+                    // Создаем объект геометрии
+                    var geometry = {
+                        type: 'Polygon',
+                        coordinates: item.coordinates
+                    };
+                    var options = {
+                        strokeWidth: 3,
+                        strokeColor: '#0000FF', 
+                        fillColor: '#FFFF00',
+                        fillOpacity: 0.3,
+                        draggable: false,
+                        hasHint: true
+                    };
+                    var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+                    polygon.name = item.name;
+                    polygon.districtName = item.name;
+                    polygon.districtId = item.id;
+                    polygon.selected = false;
+                    for (var i = 0; i < selectedDistricts.length; i++) {
+                        var selId = selectedDistricts[i];
+                        if (selId == item.id) {
+                            polygon.selected = true;
+                            break;
+                        }
+                    }
+                    polygon.events.add("click",function(event) {
+                        if (!event.originalEvent.target.selected) {
+                            event.originalEvent.target.options.set("fillColor", "#FF0000");
+                            event.originalEvent.target.selected = true;
+                        } else {
+                            event.originalEvent.target.options.set("fillColor", "#FFFF00");
+                            event.originalEvent.target.selected = false;
+                        }
+                        updateSelectedDistricts();
+                    });
+                    yandexMap.geoObjects.add(polygon);
+                    updateSelectedDistricts();
+                });
+            },
+            error: function(){
+
+            },
+            dataType: 'json'
+        });
+        var dialog = $("#select-districts-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Выбрать": function () {
+                    var idsStr = "";
+                    var idsArray = [];
+                    yandexMap.geoObjects.each(function(obj) {
+                        if (obj.selected) {
+                            idsStr += obj.districtId + ",";
+                            idsArray.push(obj.districtId);
+                        }
+                    });
+                    $("#districtIds-hidden").val(idsStr);
+                    $("#district-names-field").val(idsArray).change().multiselect("refresh");
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.setBounds(yandexMap.geoObjects.getBounds());
+                },1000);
+                
+            }
+        });
+    }
+    
+    @* Отображает диалог выбора жилых массивов *@
+    function showAreaSelectionDialog() {
+        var selectedDistricts = parseIdsStr($("#districtIds-hidden").val());
+        if (selectedDistricts.length != 1) {
+            alert("Вы должны выбрать только 1 район, в котором должны выбираться жилые массивы");
+            return;
+        }
+        var yandexMap = areasYandexMap;
+        yandexMap.geoObjects.each(function(obj) {
+            yandexMap.geoObjects.remove(obj);
+        });
+        var selectedAreas = parseIdsStr($("#area-ids-hidden").val());
+        $.ajax({
+            type: 'POST',
+            url: '/search/areas',
+            data: {
+                districtId: selectedDistricts[0]
+            },
+            success: function(data){
+                // Создаем границы родительского района
+                var parentGeometry = {
+                    type: 'Polygon',
+                    coordinates: data.parentCoords
+                };
+                var parentOptions = {
+                    strokeWidth: 3,
+                    strokeColor: '#FF0000',
+                    draggable: false,
+                    fill: false
+                };
+                var parentPolygon = new ymaps.GeoObject({geometry: parentGeometry}, parentOptions);
+                parentPolygon.parent = true;
+                yandexMap.geoObjects.add(parentPolygon);
+                // Рисуем объекты геометрии
+                $.each(data.areas, function(index, item) {
+                    // Создаем объект геометрии
+                    var geometry = {
+                        type: 'Polygon',
+                        coordinates: item.coordinates
+                    };
+                    var options = {
+                        strokeWidth: 3,
+                        strokeColor: '#0000FF', 
+                        fillColor: '#FFFF00',
+                        fillOpacity: 0.3,
+                        draggable: false,
+                        name: item.name,
+                        hasHint: true
+                    };
+                    var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+                    polygon.name = item.name;
+                    polygon.areaName = item.name;
+                    polygon.areaId = item.id;
+                    polygon.selected = false;
+                    for (var i = 0; i < selectedAreas.length; i++) {
+                        var selId = selectedAreas[i];
+                        if (selId == item.id) {
+                            polygon.selected = true;
+                            break;
+                        }
+                    }
+                    polygon.events.add("click",function(event) {
+                        if (!event.originalEvent.target.selected) {
+                            event.originalEvent.target.options.set("fillColor", "#FF0000");
+                            event.originalEvent.target.selected = true;
+                        } else {
+                            event.originalEvent.target.options.set("fillColor", "#FFFF00");
+                            event.originalEvent.target.selected = false;
+                        }
+                        updateSelectedAreas();
+                    });
+                    yandexMap.geoObjects.add(polygon);
+                    updateSelectedAreas();
+                });
+            },
+            error: function(){
+
+            },
+            dataType: 'json'
+        });
+        var dialog = $("#select-area-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Выбрать": function () {
+                    var idsStr = "";
+                    var idsArray = [];
+                    yandexMap.geoObjects.each(function(obj) {
+                        if (obj.selected) {
+                            idsStr += obj.areaId + ",";
+                            idsArray.push(obj.areaId);
+                        }
+                    });
+                    $("#area-ids-hidden").val(idsStr);
+                    $("#area-names-field").val(idsArray).change().multiselect("refresh");
+                    dialog.dialog("close");
+                    yandexMap.geoObjects.each(function(obj) {
+                        yandexMap.geoObjects.remove(obj);
+                    });
+                },
+                "Отмена": function () {
+                    
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.setZoom(14);
+                    yandexMap.setBounds(yandexMap.geoObjects.getBounds());
+                },1000);
+                
+            }
+        });
+    }
+
+    @* Обновляет выбранные районы *@
+    function updateSelectedDistricts() {
+        var selectedNames = "";
+        districtsYandexMap.geoObjects.each(function(obj) {
+            if (obj.selected) {
+                selectedNames += obj.districtName + ", ";
+                obj.options.set("fillColor", "#FF0000");
+            }
+        });
+        $("#selected-districts").text(selectedNames);
+    }
+
+    @* Обновляет выбранные жил массивы *@
+    function updateSelectedAreas() {
+        var selectedNames = "";
+        areasYandexMap.geoObjects.each(function(obj) {
+            if (obj.selected) {
+                selectedNames += obj.areaName + ", ";
+                obj.options.set("fillColor", "#FF0000");
+            }
+        });
+        $("#selected-areas").text(selectedNames);
+    }
+    
+    @* Парсит строку идентификаторов и возвращает ее в виде массива *@
+    function parseIdsStr(str) {
+        var parts = str.split(',');
+        var result = [];
+        $.each(parts, function(index, item) {
+            if (item != "") {
+                result.push(parseInt(item));
+            }
+        });
+        return result;
+    }
+    
+    // Инициализатор яндекс карт
+    var districtsYandexMap;
+    var areasYandexMap;
+    ymaps.ready(function() {
+        districtsYandexMap = new ymaps.Map('districts-yandex-map', {
+            center: [48.514592,135.145739],
+            zoom: 11
+        });
+        districtsYandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+        areasYandexMap = new ymaps.Map('area-yandex-map', {
+            center: [48.514592,135.145739],
+            zoom: 11
+        });
+        areasYandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+    });
+    
+    @* Байндим изменение города *@
+    $("#city-id-field").change(function() {
+        var val = $(this).val();
+        $("#areas-fields-wrapper").hide();
+        if (val == -1) {
+            $("#district-fields-wrapper").hide();
+            $("#street-fields-wrapper").hide();
+        } else {
+            $("#district-fields-wrapper").show().find("#district-names-field").remove();
+            $("#district-fields-wrapper").find(".ui-multiselect").remove();
+            $.ajax({
+                type: 'GET',
+                url: '/search/districts-selector',
+                data: {
+                    cityId: val
+                },
+                dataType: 'html',
+                success: function(responseText) {
+                    $("#districtIds-hidden").val("").after(responseText);
+                    $("#district-names-field").multiselect({
+                        noneSelectedText: 'Выберите значения из списка',
+                        selectedList: 4,
+                        maxWidth: 317
+                    });
+                },
+                error: function() {
+                    alert("Ошибка на сервере. Обновите страницу");
+                }
+            });
+        }
+    });
+    @* Байндим изменение района *@
+    $("#district-names-field").live("change", function() {
+        var val = $(this).val();
+        var ids = "";
+        if (val == null) {
+            val = [];
+        }
+        $.each(val, function(index, item) {
+            ids += item + ",";
+        });
+        $("#districtIds-hidden").val(ids);
+        $("#area-ids-hidden").val("");
+        if (val != null && val.length == 1) {
+            $("#areas-fields-wrapper").show();
+            $("#area-names-field").remove();
+            $("#areas-fields-wrapper").find(".ui-multiselect").remove();
+            $.ajax({
+                type: 'GET',
+                url: '/search/areas-selector',
+                data: {
+                    districtId: val[0]
+                },
+                dataType: 'html',
+                success: function(responseText) {
+                    $("#area-ids-hidden").val("").after(responseText);
+                    $("#area-names-field").multiselect({
+                        noneSelectedText: 'Выберите значения из списка',
+                        selectedList: 4,
+                        maxWidth: 317
+                    });
+                },
+                error: function() {
+                    alert("Ошибка на сервере. Обновите страницу");
+                }
+            });
+        } else {
+            $("#areas-fields-wrapper").hide();
+            $("#street-fields-wrapper").hide();
+        }
+    });
+    @* Байндинг селектора массивов *@
+    $("#area-names-field").live("change", function() {
+        var val = $(this).val();
+        var ids = "";
+        if (val == null) {
+            val = [];
+        }
+        $.each(val, function(index, item) {
+            ids += item + ",";
+        });
+        $("#area-ids-hidden").val(ids);
+        $("#street-ids-hidden").val("");
+        if (val != null && val.length > 0) {
+            $("#street-fields-wrapper").show();
+            $("#street-names-field").remove();
+            $("#street-fields-wrapper").find(".ui-multiselect").remove();
+            $.ajax({
+                type: 'GET',
+                url: '/search/streets-selector',
+                data: {
+                    areaIds: ids
+                },
+                dataType: 'html',
+                success: function(responseText) {
+                    $("#street-ids-hidden").val("").after(responseText);
+                    $("#street-names-field").multiselect({
+                        noneSelectedText: 'Выберите значения из списка',
+                        selectedList: 12,
+                        maxWidth: 700
+                    });
+                },
+                error: function() {
+                    alert("Ошибка на сервере. Обновите страницу");
+                }
+            });
+        } else {
+            $("#street-fields-wrapper").hide();
+        }
+    });
+     @* Байндинг селектора массивов *@
+    $("#street-names-field").live("change", function() {
+        var val = $(this).val();
+        var ids = "";
+        $.each(val, function(index, item) {
+            ids += item + ",";
+        });
+        $("#street-ids-hidden").val(ids);
+    });
+    
+    @* Обработка добавления *@
+    $("#add-criteria-action").click(function() {
+        showAddCriteriaDialog();
+        return false;
+    });
+
+    @* Обработка удаления критериев *@
+    $("#delete-criterias-action").click(function() {
+        var ids = getSelectedTableItems();
+        $.each(ids, function(index, item) {
+            var selector = "#criterias-table tbody tr[name='"+item+"']";
+            $(selector).remove();
+        });
+        updateCriteriasTable();
+        return false;
+    });
+    
+    @* Сохранение поиска *@
+    $("#save-search-action").click(function() {
+        showSaveSearchDialog();
+        return false;
+    });
+    
+    @* Восстановлене поиска  *@
+    $("#load-search-action").click(function() {
+        showLoadSearchDialog();
+        return false;
+    });
+    
+    @* Редактирование районов *@
+    $("#district-ids-field").live("click", function() {
+        showDistrictSelectionDialog();
+    });
+    
+    @* Редактирование массивов *@
+    $("#area-ids-field").live("click", function() {
+        showAreaSelectionDialog();
+    });
+    
+    
+
+</script>
+@* Методы сохранения и восстановления поисков *@
+@if (!ViewContext.IsAuthentificated())
+{
+    @Html.Partial("SearchLocalPersistence")
+}
+else
+{
+    @Html.Partial("SearchRemotePersistence")    
+}

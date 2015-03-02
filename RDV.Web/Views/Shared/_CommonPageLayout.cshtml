@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout.cshtml";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="page-inner-content">
+            @RenderBody()
+        </div>
+    </div>
+</div>

@@ -1,0 +1,181 @@
+﻿@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.SearchRequest>
+
+@{
+    ViewBag.Title = "Поисковые запросы";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Requests-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Запросы
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/search/" id="create-request-action">Создать</a></li>
+                                    <li><a href="#" id="delete-request-action">Удалить</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            Наименование
+                                        </th>
+                                        <th>
+                                            Новых объектов
+                                        </th>
+                                        <th>
+                                            Объектов в работе
+                                        </th>
+                                        <th>
+                                            Дата создания
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                        <th class="expand">
+                                            
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach (var searchRequest in Model)
+                                        {
+                                            <tr data-item-id="@searchRequest.Id" class="@(searchRequest.HasNewObjects() ? "bold":"")">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@searchRequest.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td>
+                                                    <a href="/account/search-request/@searchRequest.Id">@searchRequest.Title</a>
+                                                </td>
+                                                <td>
+                                                    @searchRequest.GetNewObjectsCount()
+                                                </td>
+                                                <td>
+                                                    @searchRequest.GetWorkObjectsCount()
+                                                </td>
+                                                <td>
+                                                    @searchRequest.DateCreated.FormatDate()
+                                                </td>
+                                                <td class="icons">
+                                                    <span class="icon-delete delete-row" title="Удалить"></span>
+                                                </td>
+                                                <td>
+                                                    @* Просмотр развенутой информации по объекту *@ 
+                                                    <span class="edit-row icon-details" title="Развернутая информация"></span>
+                                                    <img class="ajax-indicator" src="/Content/images/common/green-ajax.gif" style="display: none" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="9">
+                                                <div style="text-align: center">Нет сохраненных запросов</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialog" style="display: none" title="Удаление запроса" id="delete-request-dialog">
+    <p class="info">Вы действительно хотите удалить текущий поисковый запрос и всю информацию по объектам, которая с ним связана?</p>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        @* Экшены *@
+        $("#delete-request-action").click(function (e) {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            window.location.href = '/account/search-requests/delete/' + ids[0];
+            return false;
+        });
+
+        $(".delete-row").click(function (e) {
+            var id = $(this).parent().parent().data('item-id');
+            var dialog = $("#delete-request-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Удалить": function () {
+                        window.location.href = '/account/search-requests/delete/'+id;            
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+            
+        });
+        
+        @* Установка подгрузки детальной информации по объектам *@
+        $(".icon-details").unbind("click").click(function() {
+            var self = this;
+            var tr = $(this).parent().parent();
+            var id = tr.data("item-id");
+            // Проверяем может мы уже загружали данные
+            if (tr.hasClass("expanded")) {
+                tr.next().hide();
+                tr.removeClass("expanded");
+                $(this).parent().removeClass("no-bottom");
+            } else if (tr.hasClass("loaded")) {
+                tr.next().show();
+                tr.addClass("expanded");
+                $(this).parent().addClass("no-bottom");
+            } else {
+                // Создаем новый ряд таблицы и вставляем его после текущего ряда
+                var colSpan = $(this).parents("table").last().find("tbody").find("tr").first().find("td").length;
+                var nextTr = $("<tr style='display: none'><td class='no-top' colspan='"+colSpan+"'></td></tr>");
+                tr.after(nextTr);
+                tr.find(".ajax-indicator").show();
+                $(this).hide();
+                nextTr.find("td").load("/account/search-requests/get-details/" + id, { }, function() {
+                    tr.addClass("loaded expanded");
+                    if (tr.hasClass("even")) {
+                        tr.next().addClass("even");
+                    }
+                    $(self).parent().addClass("no-bottom");
+                    nextTr.show();
+                    tr.find(".ajax-indicator").hide();
+                    tr.find(".icon-details").show();
+                });
+            }
+        });
+    });
+</script>

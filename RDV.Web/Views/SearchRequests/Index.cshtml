@@ -1,0 +1,366 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.SearchRequests
+@using RDV.Web.Models.UI
+@model System.Collections.IEnumerable
+@{
+    ViewBag.Title = "Поисковые запросы";
+    RequestsListSection sect = ViewBag.section;
+}
+
+@* DevExpress *@
+@Html.DevExpress().GetScripts(new Script { ExtensionSuite = ExtensionSuite.All })
+@Html.DevExpress().GetStyleSheets(new StyleSheet { ExtensionSuite = ExtensionSuite.All, Theme = "Youthful" })
+
+<script type="text/javascript">
+    $("#main-content").css("width", "95%");
+    
+    function initDetails(id) {
+        var selector = "#request-" + id + "-details";
+        if ($(selector).hasClass("inited")) {
+            return;
+        }
+        $(selector).addClass("inited");
+        $("#request-"+id+"-details .tab-header-item").click(function (e) {
+            $("#request-"+id+"-details .tab-header-item").removeClass("active");
+            $("#request-" + id + "-details .tab").hide();
+            $("#request-" + id + "-details " + $(this).attr("target")).show();
+            $(this).addClass("active");
+        });
+    }
+    
+    function deleteRequest(id){
+        var dialog = $("#delete-request-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Удалить": function () {
+                    window.location.href = '/search-requests/delete/' + id + "?section=@((short)sect)";
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    // Принимает объект в работу
+    function acceptObject(requestId, objectId) {
+        $("#accept-request-id-field").val(requestId);
+        $("#accept-request-object-id-field").val(objectId);
+        $("#accept-comments").load("/search-requests/request-object-comments", {id: requestId, roid: objectId}, function() {
+            var dialog = $("#accept-request-object-dialog").dialog({                
+                modal: true,
+                width: 500,
+                resizable: false,
+                autoOpen: true,
+                buttons: {
+                    "Сохранить": function() {
+                        $("#accept-request-object-form").ajaxSubmit(function(data) {
+                            dialog.dialog("close");
+                            var baseName = "RDV_request_objects_grid_view_" + requestId + "_";
+                            var nameNew = baseName + "1";
+                            var nameAccepted = baseName + "2";
+                            var nameDeclined = baseName + "3";
+                            var newGrid = window[nameNew];
+                            var acceptedGrid = window[nameAccepted];
+                            var declinedGrid = window[nameDeclined];
+                            newGrid.Refresh();
+                            acceptedGrid.Refresh();
+                            declinedGrid.Refresh();
+                            $("#comment-text-field, #accept-text-field, #decline-text-field").val("");
+                            updateHeaders(requestId);
+                        });
+                    },
+                    "Отмена": function() {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+    
+    // Отклоняет объект
+    function declineObject(requestId, objectId) {
+        $("#decline-request-id-field").val(requestId);
+        $("#decline-request-object-id-field").val(objectId);
+        $("#decline-comments").load("/search-requests/request-object-comments", { id: requestId, roid: objectId }, function () {
+            var dialog = $("#decline-request-object-dialog").dialog({
+                modal: true,
+                width: 500,
+                resizable: false,
+                autoOpen: true,
+                buttons: {
+                    "Сохранить": function () {
+                        $("#decline-request-object-form").ajaxSubmit(function (data) {
+                            dialog.dialog("close");
+                            var baseName = "RDV_request_objects_grid_view_" + requestId + "_";
+                            var nameNew = baseName + "1";
+                            var nameAccepted = baseName + "2";
+                            var nameDeclined = baseName + "3";
+                            var newGrid = window[nameNew];
+                            var acceptedGrid = window[nameAccepted];
+                            var declinedGrid = window[nameDeclined];
+                            newGrid.Refresh();
+                            acceptedGrid.Refresh();
+                            declinedGrid.Refresh();
+                            $("#comment-text-field, #accept-text-field, #decline-text-field").val("");
+                            updateHeaders(requestId);
+                        });
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+    
+    function acceptObjects() {
+        var params = [];
+        var cbs = $('span[data-name="cb_Choose"]').find('.dxWeb_edtCheckBoxChecked_Youthful');
+        
+        if (cbs == null || cbs.length == 0)
+            return;
+
+        var dialog = $("#accept-request-object-dialog").dialog({
+            modal: true,
+            width: 500,
+            resizable: false,
+            autoOpen: true,
+            buttons: {
+                "Сохранить": function () {
+                    $.each(cbs, function (index, elem) {
+                        var item = $(elem).parent();
+                        var requestId = $(item).attr("data-id");
+                        var objectId = $(item).attr("data-value");
+                        var comment = $('#accept-text-field').val();
+
+                        params.push({ id: requestId, roid: objectId, comment: comment });
+                    });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/search-requests/accept-object-all",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify(params),
+                        timeout: 1000000000,
+                        success: function (data, textStatus) {
+                            dialog.dialog("close");
+                            location.reload();
+                        },
+                        error: function () {
+                        }
+                    });
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+
+    function declineObjects() {
+        var params = [];
+        var cbs = $('span[data-name="cb_Choose"]').find('.dxWeb_edtCheckBoxChecked_Youthful');
+
+        if (cbs == null || cbs.length == 0)
+            return;
+
+        var dialog = $("#decline-request-object-dialog").dialog({
+            modal: true,
+            width: 500,
+            resizable: false,
+            autoOpen: true,
+            buttons: {
+                "Сохранить": function () {
+                    $.each(cbs, function (index, elem) {
+                        var item = $(elem).parent();
+                        var requestId = $(item).attr("data-id");
+                        var objectId = $(item).attr("data-value");
+                        var comment = $('#decline-request-object-form').find('#decline-text-field').val();
+                        var declineReasonPrice = $('#decline-request-object-form').find('input[name=declineReasonPrice]:checked').val();
+
+                        params.push({ id: requestId, roid: objectId, comment: comment, declineReasonPrice: declineReasonPrice });
+                    });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/search-requests/decline-object-all",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify(params),
+                        timeout: 1000000000,
+                        success: function (data, textStatus) {
+                            dialog.dialog("close");
+                            location.reload();
+                        },
+                        error: function () {
+                        }
+                    });
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+
+    // Отклоняет объект
+    function writeComments(requestId, objectId) {
+        $("#comment-request-id-field").val(requestId);
+        $("#comment-request-object-id-field").val(objectId);
+        $("#comment-comments").load("/search-requests/request-object-comments", { id: requestId, roid: objectId }, function () {
+            var dialog = $("#comment-request-object-dialog").dialog({
+                modal: true,
+                width: 500,
+                resizable: false,
+                autoOpen: true,
+                buttons: {
+                    "Сохранить": function () {
+                        $("#comment-request-object-form").ajaxSubmit(function (data) {
+                            dialog.dialog("close");
+                            $("#comment-text-field, #accept-text-field, #decline-text-field").val("");
+                        });
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+
+    function updateHeaders(id) {
+        $.post("/search-requests/update-headers", { id: id }, function(data) {
+            if (data.success == true) {
+                var block = $("[request='" + id + "']");
+                block.find(".newo").text(data.newObjects);
+                block.find(".ao").text(data.acceptedObjects);
+                block.find(".do").text(data.declinedObjects);
+            }
+        },"json");
+    }
+
+    $(document).ready(function() {
+        $(".section-change").change(function() {
+            var section = $(".section-change:checked").val();
+            window.location.href = '/search-requests?section=' + section;
+        });
+    });
+</script>
+
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Requests-tab" })
+
+            <div style="margin: 10px">
+                @if (ViewContext.CurrentUser().HasPermission(Permission.EditOwnObjects))
+                {
+                    <text><input class="section-change" type="radio" name="section" style="margin-left: 15px" value="1" @(sect == RequestsListSection.MyRequests ? "checked=checked" : "")/>&nbsp; Мои запросы</text>
+                }
+                @if (ViewContext.CurrentUser().HasPermission(Permission.EditCompanyObjects))
+                {
+                    <text><input class="section-change" type="radio" name="section" style="margin-left: 10px" value="2" @(sect == RequestsListSection.CompanyRequests ? "checked=checked" : "")/>&nbsp; Запросы компании  </text>  
+                }
+                @if (ViewContext.CurrentUser().HasPermission(Permission.EditAllObjects))
+                {
+                    <text><input class="section-change" type="radio" name="section" style="margin-left: 10px" value="3" @(sect == RequestsListSection.AllRequests ? "checked=checked" : "")/>&nbsp; Все запросы    </text>
+                }
+            </div>
+            <div style="margin: 10px">
+                <div style="margin-bottom: 10px">
+                    @Html.DevExpress().Menu(menuSettings =>
+                    {
+                        menuSettings.Name = "actionsMenu";
+                        menuSettings.Items.Add(addItem =>
+                        {
+                            addItem.Name = "miAdd";
+                            addItem.Text = "Добавить запрос";
+                            addItem.NavigateUrl = "/search";
+                        });
+                    }).GetHtml()
+                </div>
+                @Html.Partial("RequestsListPartial",new RequestsListModel()
+                {
+                    Section = sect,
+                    Data = Model
+                })
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialog" style="display: none" title="Удаление запроса" id="delete-request-dialog">
+    <p class="info">Вы действительно хотите удалить текущий поисковый запрос и всю информацию по объектам, которая с ним связана?</p>
+</div>
+@* Диалог изменения статуса запроса *@
+<div id="accept-request-object-dialog" title="Принять объект в Работу" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/search-requests/accept-object" method="POST" id="accept-request-object-form">
+        <input type="hidden" name="rid" id="accept-request-id-field" value="-1" />
+        <input type="hidden" name="roid" id="accept-request-object-id-field" value="-1" />
+        <div id="accept-comments" style="border: 1px solid lightgrey; padding: 5px; height: 300px; overflow-y: scroll">
+            
+        </div>
+        <div class="editor-label">
+            Комментарии
+        </div>
+        <div class="editor-field">
+            <textarea name="comments" placeholder="Напишите комментарий" id="accept-text-field" class="field round"></textarea>
+        </div>
+    </form>
+</div>
+@* Диалог изменения статуса запроса *@
+<div id="decline-request-object-dialog" title="Отклонить объект" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/search-requests/decline-object" method="POST" id="decline-request-object-form">
+        <input type="hidden" name="rid" id="decline-request-id-field" value="-1" />
+        <input type="hidden" name="roid" id="decline-request-object-id-field" value="-1" />
+        <div class="editor-label">
+            Причина отклонения
+        </div>
+        <div class="editor-field">
+            <input type="radio" name="declineReasonPrice" checked="checked" value="true"/> Цена <br/>
+            <input type="radio" name="declineReasonPrice" value="false"/> Другое 
+        </div>
+        
+        <div id="decline-comments" style="border: 1px solid lightgrey; padding: 5px; height: 300px; overflow-y: scroll; display: none">
+            
+        </div>
+        <div class="editor-label">
+            Комментарии
+        </div>
+        <div class="editor-field">
+            <textarea name="comments" placeholder="Напишите комментарий" id="decline-text-field" class="field round"></textarea>
+        </div>
+    </form>
+</div>
+@* Диалог изменения статуса запроса *@
+<div id="comment-request-object-dialog" title="Написать комментарий" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/search-requests/comment-object" method="POST" id="comment-request-object-form">
+        <input type="hidden" name="rid" id="comment-request-id-field" value="-1" />
+        <input type="hidden" name="roid" id="comment-request-object-id-field" value="-1" />
+        <div id="comment-comments" style="border: 1px solid lightgrey; padding: 5px; height: 300px; overflow-y: scroll">
+            
+        </div>
+        <div class="editor-label">
+            Комментарии
+        </div>
+        <div class="editor-field">
+            <textarea name="comments" placeholder="Напишите комментарий" id="comment-text-field" class="field round"></textarea>
+        </div>
+    </form>
+</div>

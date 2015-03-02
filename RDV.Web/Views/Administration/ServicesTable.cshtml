@@ -1,0 +1,87 @@
+﻿@using RDV.Web.Classes.Caching
+@model System.Collections.Generic.List<RDV.Domain.Entities.ServiceType>
+<table class="content-table" id="services-table">
+    <thead>
+        <tr>
+            <th class="checkbox-wrapper">
+                <input type="checkbox" id="select-all-checkbox" value="true" />
+            </th>
+            <th>
+                ИД
+            </th>
+            <th>
+                Название
+            </th>
+            <th>
+                Провайдер
+            </th>
+            <th>
+                Тариф
+            </th>
+            <th>
+                Ед. измерения
+            </th>
+            <th>
+                Субъект
+            </th>
+            <th>
+                География
+            </th>
+            <th>
+                % РДВ
+            </th>
+            <th class="icons" width="10%">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count > 0)
+        {
+            foreach (var st in Model)
+            {
+            <tr data-item-id="@st.Id">
+                <td class="checkbox-wrapper">
+                    <input type="checkbox" id="select-@st.Id-checkbox" value="true"/>
+                </td>
+                <td>
+                    @st.Id
+                </td>
+                <td>
+                    @st.ServiceName
+                </td>
+                <td>
+                    @st.Company.Name
+                </td>
+                <td>
+                    @st.Tax.ToString("0.00")
+                </td>
+                <td>
+                    @IdObjectsCache.GetDictionaryValue(st.Measure)
+                </td>
+                <td>
+                    @IdObjectsCache.GetDictionaryValue(st.Subject)
+                </td>
+                <td>
+                    @IdObjectsCache.GetCityNames(st.Geo)
+                </td>
+                <td>
+                    @st.RDVShare.ToString("0.00")
+                </td>
+                <td class="icons">
+                    <span class="edit-row icon-edit" title="Редактировать"></span><span class="edit-row icon-change-state"
+                        title="Изменить статус"></span><span class="edit-row icon-history" title="История вызовов">
+                        </span>
+                </td>
+            </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="10">
+                    Нет услуг в данной категории
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

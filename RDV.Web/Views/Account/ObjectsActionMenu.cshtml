@@ -1,0 +1,76 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Account.ObjectsList.ObjectsListViewModel
+@{
+    var currentUser = ViewContext.CurrentUser();
+    var canChangeStatus = true;
+    var canDelete = false;
+    switch (Model.ListLocation)
+    {
+        case ObjectsListLocation.MyObjects:
+            canChangeStatus = currentUser.HasPermission(Permission.ChangeOwnObjectsStatus);
+            canDelete = currentUser.HasPermission(StandartPermissions.DeleteOwnObjects);
+            canChangeStatus = true;
+            break;
+        case ObjectsListLocation.Favourites:
+            canChangeStatus = false;
+            canDelete = false;
+            break;
+        case ObjectsListLocation.CompanyObjects:
+            canChangeStatus = currentUser.HasPermission(Permission.ChangeCompanyObjectsStatus);
+            canDelete = currentUser.HasPermission(StandartPermissions.DeleteCompanyObjects);
+            break;
+        case ObjectsListLocation.AllObjects:
+            canChangeStatus = currentUser.HasPermission(Permission.ChangeAllObjectsStatus);
+            canDelete = currentUser.HasPermission(StandartPermissions.DeleteAllObjects);
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+}
+<div id="action-menu" style="width: 200px" cellspacing="0">
+    <div id="action-menu-header">
+        Объекты
+    </div>
+    <ul id="action-menu-content">
+        <li><a id="object-filter-action" href="#">Фильтр объектов</a></li>
+        <div class="separator">
+        </div>
+        @if (currentUser.HasPermission(Permission.AddObjects) && Model.ListLocation != ObjectsListLocation.Favourites)
+        {
+            <li><a href="#" id="add-object-action">Добавить</a> </li>    
+        }
+        @if (Model.ListLocation != ObjectsListLocation.Favourites)
+        {
+            <li><a href="#" id="edit-object-action">Редактировать</a></li>    
+        }
+        @if (canChangeStatus)
+        {
+            <li><a href="#" id="change-object-status-action">Изменить статус</a></li>    
+        }
+        @if (canDelete)
+        {
+            <li><a href="#" id="delete-objects-action">Удалить</a></li>    
+        }
+        <li><a href="#" id="compare-objects-action">Сравнить</a> </li>
+        <div class="separator">
+        </div>
+        @if (currentUser.HasPermission(Permission.ChangeObjectAgent))
+        {
+            <li><a href="#" id="change-objects-agent-action">Изменить агента</a></li>
+            <div class="separator">
+            </div>    
+        }
+        <li><a href="#" id="print-objects-action">Печатать</a></li>
+        <li><a href="#" id="presentate-objects-action">Презентация</a></li>
+        <li><a href="#" id="advertase-objects-action">Рекламировать</a></li>
+    </ul>
+</div>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        
+        
+    });
+</script>

@@ -1,0 +1,63 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Classes.Forms
+@model RDV.Web.Models.Objects.ObjectFormModel
+@{
+    ViewBag.estateObject = Model.EstateObject;
+}
+@* Форма редактирования объекта *@
+<form method="POST" id="object-form">
+    <input type="hidden" id="object-id-field" name="id" value="@Model.EstateObject.Id"/>
+    <input type="hidden" id="submit-action-field" name="action" value="finish"/>
+    @* Рендеринг полей формы *@
+    @{
+        var context = new FieldRenderingContext(Model.EstateObject, ViewContext.CurrentUser());
+    }
+    @foreach(var field in Model.Fields.OrderBy(f => f.Position))
+    {
+        if (field.CheckVisibility(context))
+        {
+            @Html.Raw(field.RenderField(context))
+        }
+    }
+    <div class="form-buttons-wrapper">
+        <span class="form-button" id="form-prev-action"></span>
+        <span class="form-button" id="form-next-action"></span>
+        <span class="form-button" id="form-finish-action"></span>
+    </div>
+</form>
+<div class="dialog" id="save-changes-dialog" title="Обнаружены несохраненные изменения" style="display: none">
+    <p>В данном разделе обнаружены несохраненные изменения. Вы хотите их сохранить перед переходом в другой раздел?</p>
+</div>
+<script language="javascript" type="text/javascript">
+    @* рендеринг валидаторы формы *@
+    $("#object-form").validate({
+        rules: {
+            @foreach (var field in Model.Fields.Where(f => f.Validator != null))
+            {
+                <text>"</text>@field.Name<text>"</text> <text>:</text>
+                <text>{</text>
+                foreach (var rule in field.Validator)
+                {
+                        @rule.Name <text>:</text> @rule.Value<text>,</text>
+                }
+                <text>},</text>
+            }
+        },
+        submitHandler: function (form) {
+            if (typeof customValidate == 'undefined') {
+                form.submit();
+                return;
+            }
+            if (customValidate != undefined) {
+                if (customValidate()) {
+                    form.submit();
+                }
+            } else {
+                form.submit();
+            }
+        }
+    });
+</script>
+
+@Html.Partial("ObjectFormScripts")

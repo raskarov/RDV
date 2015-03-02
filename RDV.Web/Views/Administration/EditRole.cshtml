@@ -1,0 +1,367 @@
+﻿@model RDV.Web.Models.Administration.Roles.RoleModel
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.Administration
+@using RDV.Web.Models.Administration.Roles
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Редактирование роли "+Model.Name;
+    var allPermissions = (IList<PermissionModel>) ViewBag.allPermissions;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Roles-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Роль
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="rename-role-action">Переименовать</a> </li>
+                                    <li><a href="#" id="add-permission-action">Добавить разрешение</a> </li>
+                                    <li><a href="#" id="edit-permission-action">Редактировать разрешение</a> </li>
+                                    <li><a href="#" id="delete-permission-action">Удалить разрешение</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            Разрешение
+                                        </th>
+                                        <th>
+                                            Описание
+                                        </th>
+                                        <th>
+                                            Категория
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Permissions.Count > 0)
+                                    {
+                                        foreach (var permission in Model.Permissions.OrderBy(r => r.PermissionGroup).ThenBy(r => r.PermissionId))
+                                        {
+                                            <tr data-item-id="@permission.Id" data-operation-content="@permission.OperationContext" data-permission-options="@permission.Options" data-permission-id="@permission.PermissionId">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@permission.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="SystemName">@permission.SystemName</td>
+                                                <td field="DisplayName">@permission.DisplayName</td>
+                                                <td field="PermissionGroup">@permission.PermissionGroup</td>
+                                                <td>
+                                                    <span class="edit-row icon-edit" title="Редактировать"></span>&nbsp;<span class="delete-row icon-delete" title="Удалить"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else {
+                                        <tr>
+                                            <td colspan="5">
+                                                <div style="text-align: center">
+                                                    Нет информации о разрешениях для данной роли</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог переименования роли *@
+<div class="dialog" id="rename-role-dialog" title="Создание новой роли" style="display: none; padding-top: 30px">
+    <form action="/administration/roles/rename-role" method="POST" id="rename-role-form">
+        <input type="hidden" name="Id" value="@Model.Id"/>
+        <input type="hidden" id="training-program-userid-field" name="UserId" value="@ViewContext.CurrentUser().Id"/>
+        <div class="editor-label">
+            Новое наименование роли
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Name" maxlength="255" id="role-name-field"
+                   value="" />
+        </div>
+    </form>
+</div>
+@* Диалог создания / редактирования пермишеннов к роли *@
+<div class="dialog" id="permission-dialog" title="Диалог редактирования пермишеннов" style="display: none">
+    <form action="/administration/roles/save-role-permission" method="POST" id="permission-form">
+        <input type="hidden" name="RolePermissionId" id="role-permission-id-field" value="-1"/>
+        <input type="hidden" name="RoleId" id="role-id-field" value="@Model.Id"/>
+        <input type="hidden" name="UserId" id="user-id-field" value="@ViewContext.CurrentUser().Id"/>
+        <div class="editor-label">
+            Разрешение/право
+        </div>
+        <div class="editor-field">
+            <select name="PermissionId" id="permission-id-field" class="round field">
+                @foreach(var permissionGroup in allPermissions.GroupBy(p => p.PermissionGroup).OrderBy(g => g.Key))
+                {
+                    <optgroup label="@permissionGroup.Key">
+                        @foreach(var permission in @permissionGroup)
+                        {
+                            <option value="@permission.Id" data-operation-context="@permission.OperationContext">@permission.DisplayName</option>
+                        }
+                    </optgroup>
+                }
+            </select>    
+        </div>
+        <div id="permission-operation-context" style="display: block">
+            @* Формируем таблицу  контекстных операций*@
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            &nbsp; @* первая ячейка таблицы *@
+                        </th>
+                        @foreach(EstateOperations operationType in Enum.GetValues(typeof(EstateOperations)))
+                        {
+                            <th>
+                                @EnumUtils.GetEnumMemberName(operationType)
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(EstateTypes objectType in Enum.GetValues(typeof(EstateTypes)))
+                    {
+                        <tr>
+                            <td class="operation-name">
+                                @EnumUtils.GetEnumMemberName(objectType)
+                            </td>    
+                            @foreach(EstateOperations operationType in Enum.GetValues(typeof(EstateOperations)))
+                            {
+                                var name = String.Format("Context_{0}_{1}",(int)objectType,(int)operationType);
+                                <td>
+                                    <input type="checkbox" name="@name" value="true" id="@name-context-operation-field"/>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+@* диалог удаления пермишеннов *@
+<div class="dialog" title="Удаление пермишеннов" id="delete-permissions-dialog" style="display: none; margin-top: 20px">
+    <p>Вы действительно хотите удалить эти права у текущей роли?</p>
+</div>
+
+<script language="javascript" type="text/javascript">
+    validators.bindRenameRoleFormValidators(submitRenameRoleForm);
+    
+    @* Функция отображающая диалог переименования роли *@
+    function renameRoleDialog() {
+        $("#rename-role-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Переименовать": function () {
+                    $("#rename-role-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#rename-role-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    @* Выполняет аяксовую отсылку формы переименования роли *@
+    function  submitRenameRoleForm(form) {
+        $("#rename-role-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+
+    @* Диалог добавления нового разрешения к роли *@
+    function addPermissionDialog() {
+        $("#role-permission-id-field").val(-1);
+        $("#permission-operation-context input[type='checkbox']").attr("checked", false);
+        $("#permission-id-field").change();
+        $("#permission-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            title: "Добавление нового разрешения",
+            modal: true,
+            width: 400,
+            buttons: {
+                "Добавить": function () {
+                    submitPermissionForm();
+                },
+                "Закрыть": function () {
+                    $("#permission-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    @* Диалог редактирования выбранного пермишенна *@
+    function editPermissionDialog(tableRow) {
+        // Устанавливаем переменные
+        var id = $(tableRow).data("item-id");
+        var permId = $(tableRow).data("permission-id");
+        $("#permission-operation-context input[type='checkbox']").attr("checked", false);
+        $("#role-permission-id-field").val(id);
+        $("#permission-id-field").val(permId);
+        $("#permission-id-field").change();
+        // Устанавливаем контекстные маппинги
+        var parts = $(tableRow).data("permission-options").split(",");
+        $.each(parts, function(index, item) {
+            var selector = "#Context_"+item+"-context-operation-field";
+            $(selector).attr("checked", true);
+        });
+        // Отображаем диалог
+        $("#permission-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            title: "Редактирование пермишенна",
+            modal: true,
+            width: 400,
+            buttons: {
+                "Сохранить": function () {
+                    submitPermissionForm();
+                },
+                "Закрыть": function () {
+                    $("#permission-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отправляет форму пермишенна на сервер *@
+    function submitPermissionForm() {
+        $("#permission-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+
+    $("#permission-id-field").change(function(e) {
+        var optionObj = $(this).find("option[value='" + $(this).val() + "']");
+        var operationContext = $(optionObj).data("operation-context") == "True";
+        if (operationContext) {
+            $("#permission-operation-context").show();    
+        } else {
+            $("#permission-operation-context").hide();    
+        }
+        
+    });
+    
+    @* Отображает диалог удаления пермишеннов с указанными идентификаторами *@
+    function deletePermissionsDialog(permissionIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-permissions-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/administration/roles/delete-role-permissions',
+                        data: {
+                            permissionIds: permissionIds,
+                            userId: $("#user-id-field").val(),
+                            roleId: $("#role-id-field").val()
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить пермишены");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    $("#delete-permissions-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    $("#rename-role-action").click(function() {
+        renameRoleDialog();
+        return false;
+    });
+
+    $("#add-permission-action").click(function() {
+        addPermissionDialog();
+        return false;
+    });
+
+    $("#edit-permission-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            editPermissionDialog(tr.first());
+        }
+        return false;
+    });
+    
+    $("#delete-permission-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deletePermissionsDialog(idsStr);
+        return false;
+    });
+
+    $(".edit-row").click(function(e) {
+        var tr = $(this).parent().parent();
+        editPermissionDialog(tr);
+    });
+
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deletePermissionsDialog(id);
+    });
+</script>

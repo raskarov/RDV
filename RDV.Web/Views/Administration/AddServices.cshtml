@@ -1,0 +1,48 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Web.Models.UI
+@model dynamic
+
+@{
+    ViewBag.Title = "Создание новой услуги";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Services-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Услуги
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/services">Список</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма редактирования таблицы *@
+                            <div class="page-form-container">
+                                @Html.Partial("ServiceEditForm",new ServiceType())
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>

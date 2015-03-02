@@ -1,0 +1,45 @@
+﻿@model System.Collections.Generic.List<RDV.Web.Models.Account.Profile.StatisticItem>
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Статистика системы";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Statistics-tab" })
+            @* Контейнер лейаута страницы *@
+            
+            @* Таблица *@
+            <table class="content-table" id="statistics-table">
+                <thead>
+                    <tr>
+                        <th width="100%">
+                            Показатель 
+                        </th>
+                        <th>
+                            Значение
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var item in Model)
+                    {
+                        <tr>
+                            <td>@item.ItemName</td>
+                            <td>@item.ItemValue</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

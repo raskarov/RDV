@@ -1,0 +1,75 @@
+﻿@model dynamic
+<script language="javascript" type="text/javascript">
+    
+    @* Получает все сохраненные поиски в виде массивов *@
+    function getSearchNames() {
+        // Восстанавливаем массив имен поиска
+        var searchNamesStr = localStorage["searchNames"];
+        if (searchNamesStr == null || searchNamesStr == "") {
+            searchNamesStr = "[]";
+        }
+        var searchNames = JSON.parse(searchNamesStr);
+        return searchNames;
+    }
+    
+    @* Сохраняет имена поиска в локальном хранилище в виде строки *@
+    function saveSearchNames(searchNames) {
+        var str = "[";
+        $.each(searchNames, function(index, item) {
+            var isLast = index == searchNames.length - 1;
+            str += '"'  + item + '"';
+            if (!isLast) {
+                str += ",";
+            }
+        });
+        str += "]";
+        localStorage.setItem("searchNames", str);
+    }
+
+    @* Сохраняет настройки поиска в локальном хранилище *@
+    function saveSearch(name) {
+        if (name == null || name == "") {
+            alert("Введите имя для сохраненного поиска");
+            return;
+        }
+        
+        var searchNames = getSearchNames();
+        
+        // Проверяем, есть ли поиск с указанным именем, если есть то добавляем
+        var hasName = false;
+        for(var i =0; i< searchNames.length; i++) {
+            if (name == searchNames[i]) {
+                hasName = true;
+                break;
+            }
+        }
+        if (!hasName) {
+            searchNames.push(name);
+        }
+        saveSearchNames(searchNames);
+
+        // Сохраняем поиск
+        localStorage.setItem(name, $("#search-form-wrapper").html());
+        alert("Поиск успешно сохранен");
+    }
+    
+    @* Загружает хранимые поиски и формирует на их основе комбобокс *@
+    function loadSavedSearches(){
+        var savedSearches = getSearchNames();
+        var html = "";
+        $.each(savedSearches, function(index, item) {
+            html += "<option value='" + item + "'>" + item + "</option>";
+        });
+        $("#search-options").html(html);
+    }
+    
+    @* Загружает сохраненный поиск *@
+    function loadSearch(name) {
+        var searchHtml = localStorage.getItem(name);
+        if (searchHtml == null || searchHtml == "") {
+            return;
+        }
+        $("#search-form-wrapper").html(searchHtml);
+        rebindListControls();
+    }
+</script>

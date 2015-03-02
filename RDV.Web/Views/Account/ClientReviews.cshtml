@@ -1,0 +1,267 @@
+﻿@model IList<RDV.Domain.Entities.ClientReview>
+@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Отзывы по клиентам";
+    var filesRep = Locator.GetService<IStoredFilesRepository>();
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Отзывы клиентов
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li>
+                                        <a href="#" id="add-client-review-action">Добавить</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="edit-client-review-action">Редактировать</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="delete-client-review-action">Удалить</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true"/>
+                                        </th>
+                                        <th>
+                                            Дата отзыва
+                                        </th>
+                                        <th>
+                                            Сделка
+                                        </th>
+                                        <th>
+                                            Скан
+                                        </th>
+                                        <th class="icons">
+                                            
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach(var review in Model)
+                                        {
+                                            var url = !String.IsNullOrEmpty(review.ScanUrl) && review.ScanUrl.StartsWith("file://") ? filesRep.ResolveFileUrl(review.ScanUrl) : "";
+                                            <tr data-item-id="@review.Id" data-scan-url="@url">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@review.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="ReviewDate">@review.ReviewDate.FormatDate()</td>
+                                                <td field="Description" val="@review.Description">@review.Description</td>
+                                                <td field="ScanUrl">
+                                                    <span class="icon-photos"></span>
+                                                </td>
+                                                <td>
+                                                    <span class="edit-row icon-edit" title="Редактировать"></span>&nbsp;<span class="delete-row icon-delete" title="Удалить"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    } else
+                                    {
+                                        <tr>
+                                            <td colspan="6">
+                                                <div style="text-align: center">Нет информации о отзывах</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@* Диалог создания или редактирования учебной программы *@
+<div class="dialog" id="client-review-dialog" title="Редактирование отзыва клиента" style="display: none">
+    <form action="/account/save-client-review" method="POST" id="client-review-form" enctype="multipart/form-data">
+        <input type="hidden" id="client-review-id-field" name="Id" value="-1"/>
+        <input type="hidden" id="client-review-userid-field" name="UserId" value="@ViewContext.CurrentUser().Id"/>
+        <div class="editor-label">
+            Дата отзыва
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field datepicker" name="ReviewDate" id="client-review-date-field"/>
+        </div>
+        <div class="editor-label">
+            Сделка
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Description" id="client-description-field"/>
+        </div>
+        
+        <div class="editor-label">
+            Скан отзыва
+        </div>
+        <div class="editor-field">
+            <input type="file" id="client-review-file-field" name="Scan"/>
+        </div>
+    </form>
+</div>
+@* диалог удаления учебной программы *@
+<div class="dialog" title="Удаление отзывов клиентов" id="delete-client-review-dialog" style="display: none; margin-top: 20px">
+    <p>Вы действительно хотите удалить эти отзывы по клиентам?</p>
+</div>
+
+<script language="javascript" type="text/javascript">
+    validators.bindClientReviewFormValidators();
+
+    $("#add-client-review-action").click(function() {
+        addClientReviewDialog();
+        return false;
+    });
+
+    $("#edit-client-review-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            editClientReviewDialog(tr.first());
+        }
+    });
+
+    $("#delete-client-review-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteAchievmentDialog(idsStr);
+    });
+    
+    @* Отображает диалог добавления новой учебной программы *@
+    function addClientReviewDialog() {
+        // Очищаем форму и отображаем диалог
+        $("#client-review-id-field").val("-1");
+        var dialog = $("#client-review-dialog").dialog({
+            autoOpen: true,
+            title: 'Добавление нового отзыва',
+            resizable: false,
+            modal: true,
+            width: 350,
+            buttons: {
+                "Добавить": function () {
+                    $("#client-review-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#client-review-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог редактирования учебной программ *@
+    function editClientReviewDialog(programRow)
+    {
+        // Устанавливаем значения для редактирования
+        var id = programRow.data("item-id");
+        var form = $("#client-review-form");
+        form.find("#client-review-id-field").val(id);
+        form.find("#client-review-date-field").val($(programRow).find("td[field='ReviewDate']").text());
+        form.find("#client-description-field").val($(programRow).find("td[field='Description']").attr("val"));
+        
+        // Отображаем диалог
+        var dialog = $("#client-review-dialog").dialog({
+            autoOpen: true,
+            title: 'Редактирование отзыва клиента',
+            resizable: false,
+            modal: true,
+            width: 350,
+            buttons: {
+                "Сохранить": function () {
+                    $("#client-review-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#client-review-dialog").dialog("close");
+                }
+            },
+            open: function () {
+                $("#client-review-name-field").focus();
+            }
+        });
+    }
+    
+    @* Отображает диалог удаления программ с указанными идентификаторами *@
+    function deleteAchievmentDialog(programIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-client-review-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/account/delete-client-reviews',
+                        data: {
+                            clientReviewIds: programIds,
+                            userId: $("#client-review-userid-field").val()
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить отзывы по клиентам");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    $("#delete-client-review-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    // Байнд контекстных ссылок
+    $(".edit-row").click(function(e) {
+        var tr = $(this).parent().parent();
+        editClientReviewDialog(tr);
+    });
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        deleteAchievmentDialog(id);
+    });
+    $(".icon-photos").click(function() {
+        var tr = $(this).parent().parent();
+        $.fancybox.open({ href: $(tr).data("scan-url") });
+    });
+
+</script>

@@ -1,0 +1,120 @@
+﻿@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@model System.Collections.Generic.List<RDV.Domain.Entities.Book>
+
+@{
+    ViewBag.Title = "Магазин профессиональной литературы";
+    Layout = "TrainingCenterLayout.cshtml";
+    var filesRep = Locator.GetService<IStoredFilesRepository>();
+}
+
+<div style="margin: 15px 0px">
+    @if (Model.Count == 0)
+    {
+        <p>
+            Нет книг в нашем магазине
+        </p>
+    }
+    else
+    {
+        foreach(var book in Model)
+        {
+            <div class="book">
+                <div class="book-preview">
+                    <img src="@(!String.IsNullOrEmpty(book.Picture) ? filesRep.ResolveFileUrl(book.Picture) : "http://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No-Book.svg/230px-No-Book.svg.png")"/>
+                </div>
+                <div class="book-info">
+                    <div class="book-info-item">
+                        <div class="book-info-caption">
+                            Название:
+                        </div>
+                        <div class="book-info-value">
+                            @book.Title
+                        </div>
+                    </div>
+                    <div class="book-info-item">
+                        <div class="book-info-caption">
+                            Автор:
+                        </div>
+                        <div class="book-info-value">
+                            @book.Author
+                        </div>
+                    </div>
+                    <div class="book-info-item">
+                        <div class="book-info-caption">
+                            Издательство:
+                        </div>
+                        <div class="book-info-value">
+                            @book.Publisher
+                        </div>
+                    </div>
+                    <div class="book-info-item">
+                        <div class="book-info-caption">
+                            Стоимость:
+                        </div>
+                        <div class="book-info-value">
+                            @String.Format("{0:C}",book.Price)
+                        </div>
+                    </div>
+                    <div class="book-annotation static-content">
+                        @Html.Raw(book.Description)
+                    </div>
+                    <div class="book-button">
+                        <span class="btn" onclick="showOrderDialog('@book.Title');">Заказать</span>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+<div class="dialog" style="display: none" title="Заказ книги" id="order-book-dialog">
+    <form action="/order-book" id="order-book-form" method="POST">
+        <div class="editor-label">
+            Ваше имя
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="book-name-field" maxlength="255" name="fio" placeholder="Введите ваше имя" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().ToString() : "" )"/>
+        </div>
+        <div class="editor-label">
+            Ваш email
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="book-email-field" maxlength="255" name="email" placeholder="Введите ваш email" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().Email : "" )"/>
+        </div>
+        <div class="editor-label">
+            Телефон для связи
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field phone-field" id="book-phone-field" maxlength="255" name="phone" placeholder="Введите ваш телефон" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().Phone : "" )"/>
+        </div>
+        <div class="editor-label">
+            Наименование книги
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="book-title-field" maxlength="255" name="title" readonly="readonly"/>
+        </div>
+    </form>
+    <script language="javascript" type="text/javascript">
+        // Байндим валидацию
+        validators.bindOrderBookFormValidators();
+
+        function showOrderDialog(bookTitle) {
+            $("#book-title-field").val(bookTitle);
+            var dialog = $("#order-book-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                width: 400,
+                buttons: {
+                    "Заказать": function () {
+                        $("#order-book-form").submit();
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+    </script>
+</div>

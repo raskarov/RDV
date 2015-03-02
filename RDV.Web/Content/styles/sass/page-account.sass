@@ -1,0 +1,106 @@
+.page-account-content
+	min-height: 200px
+	border: 1px solid white
+	background-color: #f0f0f0
+	border-radius: $block-border-radius
+	position: relative
+	font-size: 12px
+
+	.info
+		margin: 10px
+
+		b
+			font-weight: bold
+
+	#left-content-block
+		float: left
+		margin-right: 10px
+		padding: 10px
+		padding-left: 20px
+		padding-top: 20px
+
+		#user-photo
+			width: 250px
+			min-height: 250px
+			height: auto
+			max-height: 600px
+			text-align: center
+			overflow: hidden
+			margin-bottom: 10px
+
+			img
+				width: 250px
+
+		#company-logo
+			width: 250px
+			height: auto
+			max-height: 600px
+			text-align: center
+			overflow: hidden
+			margin-bottom: 10px
+
+			img
+				width: 250px
+
+	#center-content-block
+		float: left
+		padding: 10px
+		padding-top: 20px
+
+	.profile-form-block
+		width: 366px
+
+	.profile-link
+		margin: 5px 0px
+
+#statistics-table, #activity-table, #settings-table
+	margin: 10px
+
+	tr
+		td:first-child, th:first-child
+			text-align: left
+
+#objects-table-wrapper
+	#objects-tabs-header
+
+		.header-tab
+			position: relative
+			top: 1px
+			background-color: #ececec
+			border: 1px solid #e3e3e3
+			border-top-left-radius: 10px
+			border-top-right-radius: 10px
+			text-align: center
+			float: left
+			padding: 7px 10px
+
+			&.active
+				border-bottom: 1px dashed #98cf6b
+				background-color: #98cf6b
+
+			a
+				color: #6d6d6d
+				text-decoration: none
+				font-size: 12px
+
+				&:hover
+					text-decoration: none
+
+	#objects-tabs
+		background-color: #f9f9f9
+		border: 1px solid #e3e3e3
+		border-radius: 10px
+		padding: 10px
+		box-shadow: 3px 4px 8px rgba(0,0,0,0.2)
+		border-top-left-radius: 0px
+		margin-right: 10px
+
+		.content-table
+			width: 100%
+
+		.filter-info
+			margin-bottom: 10px
+
+			.filter-info-data
+				display: inline
+

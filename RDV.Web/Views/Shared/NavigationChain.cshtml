@@ -1,0 +1,29 @@
+﻿@using RDV.Web.Controllers
+@model dynamic
+@{
+    var items = ((BaseController) ViewContext.Controller).NavigationChainItems;
+    var num = 0;
+}
+@* Цепочка навигации в приложении *@
+<ul id="navigation-chain">
+    @foreach (var navItem in items)
+    {
+        num++;
+        <li class="navigation-chain-item">
+            @if (num > 1)
+            {
+            <span class="chain-bullet">
+                &rarr;
+            </span>    
+            }
+            @if (navItem.Active)
+            {
+                <a href="@navItem.Url" title="@(navItem.Description ?? @navItem.Title)">@navItem.Title</a>
+            }
+            else
+            {
+                @navItem.Title
+            }
+        </li>
+    }
+</ul>

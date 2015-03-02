@@ -1,0 +1,38 @@
+﻿@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model RDV.Domain.Entities.Payment
+
+@{
+    ViewBag.Title = "Новый платеж";
+    var login = System.Configuration.ConfigurationManager.AppSettings["MerchantLogin"]; ;
+    var password = System.Configuration.ConfigurationManager.AppSettings["MerchantPassword"];
+    var signature = PasswordUtils.QuickMD5(String.Format("{0}:{1}:{2}:{3}:Shp_item={4}", login, Model.Amount, Model.Id, password, 1));
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            <div class="info">
+                Вы иниицировали пополнение кошелька вашей компании <b>@ViewContext.CurrentUser().Company.Name</b> на сайте на сумму <b>@Model.Amount</b> рублей. Для платежей используется электронная платежная система ROBOKASSA. Нажмите кнопку "Оплатить" и выберите наиболее подходящий вам вариант пополнения кошелька вашей компании.
+            </div>
+            <div class="info">
+                Внутренний номер вашего платежа: @Model.Id . Запомните этот номер на случай, если с вашим платежом возникнут какие-либо проблемы.
+            </div>
+            
+            <div class="info">
+                <a href="http://test.robokassa.ru/Index.aspx?MrchLogin=@login&OutSum=@Model.Amount&InvId=@Model.Id&Shp_item=1&SignatureValue=@signature&Desc=@Model.Description&IncCurrLabel=WMRM&Culture=ru&Encoding=utf-8">Оплатить</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,209 @@
+﻿@using RDV.Web.Classes.Extensions
+@model dynamic
+
+@{
+    ViewBag.Title = "Аренда учебного класса";
+    Layout = "TrainingCenterLayout.cshtml";
+}
+
+<div style="margin-top: 20px" class="static-content">
+    <p>
+        Оборудование учебного класса:
+    </p>
+    <ul>
+        <li>
+            Стулья с пюпитрами (25 штук)
+        </li>
+        <li>
+            Стол для преподавателя
+        </li>
+        <li>
+            Столы для оборудования (2 штуки)
+        </li>
+        <li>
+            Проекционное оборудование (ноутбук, проектор, экран)
+        </li>
+        <li>
+            Доска с маркерами и бумагой для флип-чарта
+        </li>
+        <li>
+            Звукоусиливающая аппаратура
+        </li>
+        <li>
+            Климатическое оборудование (кондиционеры, вентиляторы, тепловая пушка)
+        </li>
+        <li>
+            Стойка с вешалками для верхней одежды
+        </li>
+        <li>
+            Оборудование для кофе брейков (кулер, стол)
+        </li>
+    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    №
+                </th>
+                <th>
+                    Наименование
+                </th>
+                <th>
+                    Цена, руб за 1 астрономический час
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3">
+                    <p style="font-size: 20px; font-weight: bold; text-align: center">
+                        Категория 1 Арендаторы (кроме членов / кандидатов в члены НП РДВ)
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    1
+                </td>
+                <td>
+                    Будни (рабочие) с 9.00 до 18.00
+                </td>
+                <td>
+                    500 руб. без оборудование<br/>
+                    600 руб. с оборудованием
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    2
+                </td>
+                <td>
+                    Будни (рабочие) с 18.00 до 21.00
+                </td>
+                <td>
+                    750 руб. без оборудование<br/>
+                    900 руб. с оборудованием
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    3
+                </td>
+                <td>
+                    Выходные, праздничные дни
+                </td>
+                <td>
+                    750 руб. без оборудование<br/>
+                    900 руб. с оборудованием
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    4
+                </td>
+                <td>
+                    Аренда не менее 8 часов за 1 день
+                </td>
+                <td>
+                    Скидка 50% за каждый час
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <p style="font-size: 20px; font-weight: bold; text-align: center">
+                        Категория 2 Арендаторы (члены / кандидаты в члены НП РДВ)
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    1
+                </td>
+                <td>
+                    Будни, выходные, праздничные дни, не менее 8 часов за 1 день
+                </td>
+                <td>
+                    50% от стоимости для категории 1
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        Дополнительные услуги
+    </p>
+    <ul>
+        <li>
+            Выход в Интернет - бесплатно    
+        </li>
+        <li>
+            Бумага для флип-чарта, 1 упаковка - 500 руб.
+        </li>
+        <li>
+            Вода для кулера (при аренде более 8 часов в день) - 120 руб. / 19л
+        </li>
+        <li>
+            Аренда проектора (с выносом из учебного класса) - 1000 руб. в день
+        </li>
+        <li>
+            Аренда экрана (с выносом из учебного класса) - 500 руб. в день
+        </li>
+    </ul>
+    <p>
+        <a href="javascript:showOrderDialog()">Отправить заявку</a>
+    </p>
+</div>
+<div class="dialog" style="display: none" title="Заказ аренды класса" id="order-book-dialog">
+    <form action="/order-class" id="order-class-form" method="POST">
+        <div class="editor-label">
+            Ваше имя
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="name-field" maxlength="255" name="fio" placeholder="Введите ваше имя" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().ToString() : "" )"/>
+        </div>
+        <div class="editor-label">
+            E-mail
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="phone-field" maxlength="255" name="email" placeholder="Введите ваш email" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().Email : "" )"/>
+        </div>
+        <div class="editor-label">
+            Телефон для связи
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field phone-field" id="book-phone-field" maxlength="255" name="phone" placeholder="Введите ваш телефон" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().Phone : "" )"/>
+        </div>
+        <div class="editor-label">
+            Желаемая дата
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field datepicker" id="book-date-field" maxlength="255" name="date"/>
+        </div>
+        <div class="editor-label">
+            Текст сообщения
+        </div>
+        <div class="editor-field">
+            <textarea class="field round" placeholder="Введите сообщение по вашей заявке" name="message"></textarea>
+        </div>
+    </form>
+    <script language="javascript" type="text/javascript">
+        // Байндим валидацию
+        validators.bindOrderClassFormValidators();
+
+        function showOrderDialog() {
+            var dialog = $("#order-book-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                width: 400,
+                buttons: {
+                    "Заказать": function () {
+                        $("#order-class-form").submit();
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+    </script>
+</div>

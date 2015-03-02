@@ -1,0 +1,25 @@
+﻿@using RDV.Web.Classes.Extensions
+@model System.Collections.Generic.List<RDV.Domain.Entities.Article>
+
+@{
+    ViewBag.Title = "Новости Учебного Центра";
+    Layout = "TrainingCenterLayout.cshtml";
+    var groups = Model.GroupBy(g => g.PublicationDate.Month);
+}
+
+<div id="training-center-news">
+    @foreach(var group in groups.OrderByDescending(d => d.Key))
+    {
+        <div class="month">
+            <div class="month-header">
+                @DateUtils.GetMonthName(group.Key) @group.First().PublicationDate.Year
+            </div>
+            <div class="pubs">
+                @foreach(var pub in group)
+                {
+                    @Html.Partial("TrainingCenterPublication",pub)
+                }
+            </div>
+        </div>
+    }
+</div>

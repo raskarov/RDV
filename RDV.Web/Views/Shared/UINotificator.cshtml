@@ -1,0 +1,29 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Infrastructure
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Notification.UI
+@model dynamic
+
+<div id="UINotificator">
+    @{
+        var notificationsManager = (UINotificationManager)Locator.GetService<IUINotificationManager>();
+        var items = notificationsManager.GetOrCreateNotificationStack();
+        notificationsManager.ClearNotificationStack();
+    }
+    @if (items.Count > 0)
+    {
+        @* Группируем записи по типу *@
+        var grouped = items.GroupBy(i => i.ItemType);
+        foreach (var group in grouped)
+        {
+            <div class="notification-group @group.Key.GetEnumMemberName()">
+                <ul>
+                    @foreach(var notification in group)
+                    {
+                        <li>@notification.Message</li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+</div>

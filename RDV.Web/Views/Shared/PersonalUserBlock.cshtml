@@ -1,0 +1,60 @@
+﻿@using RDV.Web.Classes.Extensions
+@model dynamic
+
+@* Блок авторизации пользователя либо информация о текущем авторизованном пользователе *@
+@if (!ViewContext.IsAuthentificated())
+{
+    <div id="header-personal-login">
+        <div id="header-personal-title">
+            Личный кабинет
+        </div>
+        <form id="auth-form" method="POST" action="/account/logon">
+            <div id="header-personal-auth">
+            
+                <div id="header-personal-auth-form">
+                    <div class="header-input">
+                        <input type="text" name="Email" placeholder="Email" id="emailField"/>
+                    </div>
+                    <div class="header-input">
+                        <input type="password" name="Password" placeholder="Password" id="passwordField"/>
+                        <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+                        <input type="submit" id="header-auth-submit" value=" "/>
+                    </div>
+                </div>
+            
+                <div id="header-personal-auth-links">
+                    <div class="header-personal-auth-link">
+                        <span class="personal-link-bullet">
+                        
+                        </span>
+                        <a href="/account/forgot">Забыли пароль</a>
+                    </div>
+                    <div class="header-personal-auth-link">
+                        <span class="personal-link-bullet">
+                        
+                        </span>
+                        <a href="/account/register">Регистрация</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+}
+else
+{
+    <div id="header-personal-login">
+        <div id="header-personal-title" style="text-align: right; margin-bottom: 5px">
+            Добро пожаловать
+        </div>
+        <div id="header-personal-name">
+            @ViewContext.CurrentUser().ToString()
+        </div>
+        <div id="header-personal-role">
+            [@(ViewContext.CurrentUser().Role != null ? @ViewContext.CurrentUser().Role.Name : "Гость"). <a href="/account/profile/payments">Баланс</a>: @ViewContext.CurrentUser().GetAccountBalance().ToString("0") руб.]
+        </div>
+        <div id="header-personal-links">
+            @Html.ActionLink("Личный кабинет","Index","Account")
+            @Html.ActionLink("Выход","LogOff","Account")
+        </div>
+    </div>
+}

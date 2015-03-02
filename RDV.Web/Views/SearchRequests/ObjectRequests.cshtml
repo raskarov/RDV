@@ -1,0 +1,191 @@
+﻿@using System.Collections
+@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.Objects
+@using RDV.Web.Models.SearchRequests
+@using RDV.Web.Models.UI
+@model RDV.Domain.Entities.EstateObject
+@{
+    ViewBag.Title = "Запросы для объекта №" + Model.Id;
+    IList<EstateObjectMatchedSearchRequest> newRequests = new List<EstateObjectMatchedSearchRequest>(),
+        workedRequests = new List<EstateObjectMatchedSearchRequest>(),
+        declinedRequests = new List<EstateObjectMatchedSearchRequest>();
+    foreach (var request in Model.GetAllMatchedRequests())
+    {
+        switch ((SearchRequestObjectStatus)request.Status)
+        {
+            case SearchRequestObjectStatus.New:
+                newRequests.Add(request);
+                break;
+            case SearchRequestObjectStatus.Accepted:
+                workedRequests.Add(request);
+                break;
+            case SearchRequestObjectStatus.Declined:
+                declinedRequests.Add(request);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+}
+
+@* DevExpress *@
+@Html.DevExpress().GetScripts(new Script { ExtensionSuite = ExtensionSuite.All })
+@Html.DevExpress().GetStyleSheets(new StyleSheet { ExtensionSuite = ExtensionSuite.All, Theme = "Youthful" })
+
+<script type="text/javascript">
+    $("#main-content").css("width", "95%");
+</script>
+
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Requests-tab" })
+            <div style="margin: 10px">
+                <div id="objects-table-wrapper">
+                    <div id="objects-tabs-header">
+                        <div class="header-tab active">
+                            <a href="#new-tab" sharp="new">Новые (@newRequests.Count) </a>
+                        </div>
+                        <div class="header-tab">
+                            <a href="#work-tab" sharp="work">В работе (@(workedRequests.Count))</a>
+                        </div>
+                        <div class="header-tab">
+                            <a href="#declined-tab" sharp="declined">Отклоненные (@(declinedRequests.Count))</a>
+                        </div>
+                        <div class="clear">
+                        </div>
+                    </div>
+                    <div id="objects-tabs">
+                        <div class="object-tab object-tab-active" id="new-tab">
+                            @Html.Partial("MatchedRequestsPartial", new MatchedRequestsListModel()
+                            {
+                                Status = SearchRequestObjectStatus.New,
+                                Data = newRequests,
+                                EstateObject = Model,
+                                ObjectId = Model.Id
+                            })
+                        </div>
+                        <div class="object-tab" id="work-tab" style="display: none">
+                            @Html.Partial("MatchedRequestsPartial", new MatchedRequestsListModel()
+                            {
+                                Status = SearchRequestObjectStatus.Accepted,
+                                Data = workedRequests,
+                                EstateObject = Model,
+                                ObjectId = Model.Id
+                            })
+                        </div>
+                        <div class="object-tab" id="declined-tab" style="display: none">
+                            @Html.Partial("MatchedRequestsPartial", new MatchedRequestsListModel()
+                            {
+                                Status = SearchRequestObjectStatus.Declined,
+                                Data = declinedRequests,
+                                EstateObject = Model,
+                                ObjectId = Model.Id
+                            })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог изменения статуса запроса *@
+<div id="change-request-status-dialog" title="Изменение статуса запроса" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/search-requests/change-matched-request-status" method="POST" id="change-request-status-form">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="rid" id="request-id-field" value="-1" />
+        <input type="hidden" name="newStatus" id="request-new-status-field" value="-1" />
+        <input type="hidden" name="statusSection" class="statusSection" value="new" />
+        <div id="current-comments" style="border: 1px solid lightgrey; padding: 5px; height: 300px; overflow-y: scroll">
+            
+        </div>
+        <div class="editor-label">
+            Комментарии
+        </div>
+        <div class="editor-field">
+            <textarea name="comments" placeholder="Напишите комментарий" id="comment-text-field" class="field round"></textarea>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        @* Переключение закладок у объекта *@
+        $("#objects-tabs-header .header-tab a").click(function () {
+            $("#objects-tabs-header .header-tab").removeClass("active");
+            $("#objects-tabs").find(".object-tab").removeClass("object-tab-active").hide();
+            var target = $(this).attr("href");
+            $(this).parent().addClass("active");
+            $(target).addClass("object-tab-active").show();
+            $(".statusSection").val($(this).attr("sharp"));
+            return false;
+        });
+        
+        @* байндинг переключений вкладок на основании статуса объекта *@
+        var sharpIdx = window.location.href.indexOf("#");
+        if (sharpIdx != -1) {
+            var sharpData = window.location.href.substr(sharpIdx + 1);
+            $("[sharp='" + sharpData + "']").click();
+        }
+    });
+    
+    // Функция отображения диалога для изменения статуса объекта
+    function moveRequest(id, newStatus) {
+        $("#request-id-field").val(id);
+        $("#request-new-status-field").val(newStatus);
+        $("#current-comments").load("/search-requests/matched-comments", {id: @Model.Id, rid: id}, function() {
+            var dialog = $("#change-request-status-dialog").dialog({                
+                modal: true,
+                width: 500,
+                title: "Изменение статуса запроса",
+                resizable: false,
+                autoOpen: true,
+                buttons: {
+                    "Сохранить": function() {
+                        $("#change-request-status-form").submit();
+                    },
+                    "Отмена": function() {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+    // Функция отображения диалога для изменения статуса объекта
+    function writeComments(id) {
+        $("#request-id-field").val(id);
+        $("#request-new-status-field").val(-1);
+        $("#current-comments").load("/search-requests/matched-comments", {id: @Model.Id, rid: id}, function() {
+            var dialog = $("#change-request-status-dialog").dialog({                
+                modal: true,
+                width: 500,
+                title: "Написание комментария",
+                resizable: false,
+                autoOpen: true,
+                buttons: {
+                    "Добавить": function() {
+                        var txt = $("#comment-text-field").val();
+                        if (txt == "") {
+                            alert("Введите текст комментария");
+                            return;
+                        }
+                        $("#change-request-status-form").submit();
+                    },
+                    "Отмена": function() {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+</script>

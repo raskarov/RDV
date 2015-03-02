@@ -1,0 +1,682 @@
+﻿@using RDV.Domain.Interfaces.Infrastructure
+@using RDV.Domain.IoC
+@using RDV.Web.Models.UI
+@model dynamic
+@{
+    ViewBag.Title = "Архив партнерства";
+    var geoManager = Locator.GetService<IGeoManager>();
+    var cities = geoManager.CitiesRepository.FindAll().ToList();
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Partnership-archive-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Архив
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="make-request-action">Сформировать запрос</a></li>
+                                    <li><a href="#" id="export-results-action">Экспорт результатов</a></li>
+                                </ul>
+                                @* *@
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Контейнер результатов *@
+                            <div id="results-holder">
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог формирования запроса *@
+<div class="dialog" style="display: none" title="Формирование запроса" id="make-request-dialog">
+    <form>
+    <p style="margin-bottom: 5px">
+        Выберите параметры запроса и значение</p>
+    <div class="block" style="margin-bottom: 15px">
+        <div class="block-header">
+            <div class="block-title">
+                Местоположение
+            </div>
+        </div>
+        <div class="block-content">
+            <div class="block-inner-content" style="padding: 5px 10px; min-height: 0;">
+                @* Город *@
+                <div class="field-wrapper">
+                    <div class="editor-label">
+                        Город</div>
+                    <div class="editor-field">
+                        <select id="city-id-field" name="cityId" class="field round">
+                            <option value="-1" selected="selected">Не выбран</option>
+                            @foreach (var city in cities)
+                            {
+                                <option value="@city.Id">@city.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="columns-wrapper">
+                    <div class="column" style="display: inline-block; vertical-align: top; width: 49%">
+                        @* Районы города *@
+                        <div class="field-wrapper" id="district-fields-wrapper">
+                            <div class="editor-label">
+                                Районы города</div>
+                            <div class="editor-field">
+                                <input type="hidden" id="districtIds-hidden" name="districtIds" value=""/>
+                                <select id="district-names-field" multiple="multiple" class="round field">
+                                        
+                                </select>
+                                <span class="link" id="district-map-selection" onclick="showDistrictSelectionDialog()">
+                                    Выбор на карте</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column" style="display: inline-block; vertical-align: top; width: 49%">
+                        @* Жил. массивы района города *@
+                        <div class="field-wrapper" id="areas-fields-wrapper">
+                            <div class="editor-label">
+                                Жилые массивы района</div>
+                            <div class="editor-field">
+                                <input type="hidden" name="areaIds" value="" id="area-ids-hidden"/>
+                                <select id="area-names-field" class="round field" multiple="multiple">
+                                        
+                                </select>
+                                <span class="link" id="area-map-selection" onclick="showAreaSelectionDialog()">Выбор
+                                    на карте</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="content-table" id="criterias-table">
+        <thead>
+            <tr>
+                <th>
+                    Параметр
+                </th>
+                <th>
+                    Фильтр
+                </th>
+                <th>
+                    Значение
+                </th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="no-items">
+                <td colspan="4"style="text-align: center">
+                    Добавьте параметры для запроса, нажав на иконку "плюс"
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="margin-top: 15px">
+        <a id="add-request-param" href="javascript:addRequestParam()" style="margin-top: 15px;
+                                                                                                                                                                                                                                                                                                                                                                         color: darkgreen; text-decoration: underline">
+            <img src="../../Content/images/common/add-icon.png" /></a>
+    </div>
+    </form>
+</div>
+@* Диалог выбора параметра *@
+<div class="dialog" style="display: none" title="Выбор параметра" id="add-param-dialog">
+    <form>
+    <div class="editor-label">
+        Выберите параметр, по которому хотите производить поиск
+    </div>
+    <div class="editor-field">
+        <div id="params-wrapper">
+        </div>
+    </div>
+    </form>
+</div>
+@* Диалог выбора районов города *@
+<div class="dialog" id="select-districts-dialog" title="Выбор районов города" style="display: none">
+    <div id="districts-yandex-map" style="width: 600px; height: 500px">
+    </div>
+    <p>
+        Выбранные районы: <span id="selected-districts"></span>
+    </p>
+</div>
+@* Диалог выбора жилых массивов города *@
+<div class="dialog" id="select-area-dialog" title="Выбор массивов района" style="display: none">
+    <div id="area-yandex-map" style="width: 600px; height: 500px">
+    </div>
+    <p>
+        Выбранные жил. массивы: <span id="selected-areas"></span>
+    </p>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        @* байндим действие формирования запроса *@
+        $("#make-request-action").click(function() {
+            var dialog = $("#make-request-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                width: 550,
+                buttons: {
+                    "Отправить запрос": function () {
+                        // Подгатавливаем объект к сабмиту
+                        var dataObj = {};
+                        $("#criterias-table tbody tr").each(function(index, item) {
+                            // Поле поиска
+                            if (!$(item).hasClass("no-items")) {
+                                var input = $(item).find("td").last().prev().find(":input");
+                                var name = $(input).attr("name");
+                                name = name.replace("[", "").replace(']', '');
+                                dataObj[name] = $(input).val();
+                                // Фильтр поля
+                                input = $(item).find("td").last().prev().prev().find(":input");
+                                if (input.length > 0) {
+                                    name = $(input).attr("name");
+                                    name = name.replace("[", "").replace(']', '');
+                                    dataObj[name] = $(input).val();    
+                                }    
+                            }
+                        });
+                        
+                        // Поля местоположения
+                        dataObj["cityId"] = $("#city-id-field").val();
+                        dataObj["districts"] = $("#districtIds-hidden").val();
+                        dataObj["areas"] = $("#area-ids-hidden").val();
+                        
+                        // Выполняем сабмит  и выборку
+                        $(dialog).dialog("close");
+                        if ($("#city-id-field").val() == "-1") {
+                            alert("Выберите город");
+                        }
+                        else {
+                            $("#results-holder").load("/account/partnership-archive/fetch",dataObj);    
+                        }
+                    },
+                    "Закрыть": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+            return false;
+        });
+        $("#params-wrapper").load("/account/partnership-archive/params-select");
+        $(".delete-row").live("click", function() {
+            $(this).parent().parent().remove();
+            checkRows();
+        });
+        
+        // Байдим компоненты выбора районв и массивов
+        $("#district-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 240
+        });
+
+        $("#area-names-field").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 240
+        });
+        
+        // Обновляем необходимость отображения блока выбора массивов
+        var selectedDistricts = $("#district-names-field").val();
+        if (selectedDistricts != null && selectedDistricts.length == 1) {
+            $("#areas-fields-wrapper").show();
+        } else {
+            $("#areas-fields-wrapper").hide();
+        }
+        setTimeout(function() {
+            $(window).unbind("scroll");
+        },1000);
+
+        $("#city-id-field").change();
+    });
+    
+    @* Функция отображения диалога добавления нового параметра *@
+    function addRequestParam() {
+        var dialog = $("#add-param-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Добавить": function () {
+                    // Проверяем, есть ли у нас в таблице критериев такой критерий
+                    var fieldName = $("#search-criteria-field").val();
+                    var selector = "#criterias-table tbody tr[name='"+fieldName+"']";
+                    if ($(selector).length > 0) {
+                        alert("Такой критерий уже добавлен");
+                        return;
+                    }
+                    // Посылаем запрос на сервак и получаем разметку
+                    $.post("/search/criteria/", { field: fieldName }, function(data) {
+                        var rowMarkup = "<tr data-item-id='" + fieldName + "' name='" + fieldName + "'><td>" + data.caption + "</td><td>"+data.filterMarkup+"</td><td>"+data.fieldMarkup+"</td><td class='actions'><span class='icon-delete delete-row' title='Удалить параметр'></span></td></tr>";
+                        $("#criterias-table").find("tbody").append($(rowMarkup));
+                        dialog.dialog("close");
+                        rebindListControls();
+                        checkRows();
+                    }, 'json');
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });   
+    }
+    
+    function rebindListControls() {
+        
+        // Очищаем старый шлак
+        $(".multiselect").multiselect("destroy");
+
+        // Байндинг мультиселектов
+        $(".multiselect").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 368
+        });
+
+        // Байндинг сингселектов
+        $(".singleSelect").multiselect({
+            multiple: false,
+            header: 'Выберите одно значение',
+            noneSelectedText: "Выберите значение",
+            selectedList: 1,
+            maxWidth: 317
+        });
+        
+        // Байндим дейтпикеры
+        $(".datepicker").datepicker({
+            dateFormat:"dd.mm.yy"
+        });
+        
+        
+        
+        // Байдим компоненты выбора районв и массивов
+        $("#district-names-field").multiselect("destroy").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 240
+        });
+
+        $("#area-names-field").multiselect("destroy").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 240
+        });
+    }
+    
+    function checkRows() {
+        var count = $("#criterias-table tbody tr").length;
+        if (count == 1) {
+            $(".no-items").show();
+        } else {
+            $(".no-items").hide();
+        }
+    }
+    
+    // Инициализатор яндекс карт
+    var districtsYandexMap;
+    var areasYandexMap;
+    ymaps.ready(function() {
+        districtsYandexMap = new ymaps.Map('districts-yandex-map', {
+            center: [48.514592,135.145739],
+            zoom: 11
+        });
+        districtsYandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+        areasYandexMap = new ymaps.Map('area-yandex-map', {
+            center: [48.514592,135.145739],
+            zoom: 11
+        });
+        areasYandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+    });
+    
+    @* Диалог выбора районов *@
+    function showDistrictSelectionDialog() {
+        var yandexMap = districtsYandexMap;
+        yandexMap.geoObjects.each(function(obj) {
+            yandexMap.geoObjects.remove(obj);
+        });
+        var selectedDistricts = parseIdsStr($("#districtIds-hidden").val());
+        $.ajax({
+            type: 'POST',
+            url: '/search/districts',
+            data: {
+                cityId: $("#city-id-field").val()
+            },
+            success: function(data){
+                $.each(data.districts, function(index, item) {
+                    // Создаем объект геометрии
+                    var geometry = {
+                        type: 'Polygon',
+                        coordinates: item.coordinates
+                    };
+                    var options = {
+                        strokeWidth: 3,
+                        strokeColor: '#0000FF', 
+                        fillColor: '#FFFF00',
+                        fillOpacity: 0.3,
+                        draggable: false,
+                        hasHint: true
+                    };
+                    var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+                    polygon.name = item.name;
+                    polygon.districtName = item.name;
+                    polygon.districtId = item.id;
+                    polygon.selected = false;
+                    for (var i = 0; i < selectedDistricts.length; i++) {
+                        var selId = selectedDistricts[i];
+                        if (selId == item.id) {
+                            polygon.selected = true;
+                            break;
+                        }
+                    }
+                    polygon.events.add("click",function(event) {
+                        if (!event.originalEvent.target.selected) {
+                            event.originalEvent.target.options.set("fillColor", "#FF0000");
+                            event.originalEvent.target.selected = true;
+                        } else {
+                            event.originalEvent.target.options.set("fillColor", "#FFFF00");
+                            event.originalEvent.target.selected = false;
+                        }
+                        updateSelectedDistricts();
+                    });
+                    yandexMap.geoObjects.add(polygon);
+                    updateSelectedDistricts();
+                });
+            },
+            error: function(){
+
+            },
+            dataType: 'json'
+        });
+        var dialog = $("#select-districts-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Выбрать": function () {
+                    var idsStr = "";
+                    var idsArray = [];
+                    yandexMap.geoObjects.each(function(obj) {
+                        if (obj.selected) {
+                            idsStr += obj.districtId + ",";
+                            idsArray.push(obj.districtId);
+                        }
+                    });
+                    $("#districtIds-hidden").val(idsStr);
+                    $("#district-names-field").val(idsArray).change().multiselect("refresh");
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.setBounds(yandexMap.geoObjects.getBounds());
+                },1000);
+                
+            }
+        });
+    }
+    
+    @* Отображает диалог выбора жилых массивов *@
+    function showAreaSelectionDialog() {
+        var selectedDistricts = parseIdsStr($("#districtIds-hidden").val());
+        if (selectedDistricts.length != 1) {
+            alert("Вы должны выбрать только 1 район, в котором должны выбираться жилые массивы");
+            return;
+        }
+        var yandexMap = areasYandexMap;
+        yandexMap.geoObjects.each(function(obj) {
+            yandexMap.geoObjects.remove(obj);
+        });
+        var selectedAreas = parseIdsStr($("#area-ids-hidden").val());
+        $.ajax({
+            type: 'POST',
+            url: '/search/areas',
+            data: {
+                districtId: selectedDistricts[0]
+            },
+            success: function(data){
+                // Создаем границы родительского района
+                var parentGeometry = {
+                    type: 'Polygon',
+                    coordinates: data.parentCoords
+                };
+                var parentOptions = {
+                    strokeWidth: 3,
+                    strokeColor: '#FF0000',
+                    draggable: false,
+                    fill: false
+                };
+                var parentPolygon = new ymaps.GeoObject({geometry: parentGeometry}, parentOptions);
+                parentPolygon.parent = true;
+                yandexMap.geoObjects.add(parentPolygon);
+                // Рисуем объекты геометрии
+                $.each(data.areas, function(index, item) {
+                    // Создаем объект геометрии
+                    var geometry = {
+                        type: 'Polygon',
+                        coordinates: item.coordinates
+                    };
+                    var options = {
+                        strokeWidth: 3,
+                        strokeColor: '#0000FF', 
+                        fillColor: '#FFFF00',
+                        fillOpacity: 0.3,
+                        draggable: false,
+                        name: item.name,
+                        hasHint: true
+                    };
+                    var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+                    polygon.name = item.name;
+                    polygon.areaName = item.name;
+                    polygon.areaId = item.id;
+                    polygon.selected = false;
+                    for (var i = 0; i < selectedAreas.length; i++) {
+                        var selId = selectedAreas[i];
+                        if (selId == item.id) {
+                            polygon.selected = true;
+                            break;
+                        }
+                    }
+                    polygon.events.add("click",function(event) {
+                        if (!event.originalEvent.target.selected) {
+                            event.originalEvent.target.options.set("fillColor", "#FF0000");
+                            event.originalEvent.target.selected = true;
+                        } else {
+                            event.originalEvent.target.options.set("fillColor", "#FFFF00");
+                            event.originalEvent.target.selected = false;
+                        }
+                        updateSelectedAreas();
+                    });
+                    yandexMap.geoObjects.add(polygon);
+                    updateSelectedAreas();
+                });
+            },
+            error: function(){
+
+            },
+            dataType: 'json'
+        });
+        var dialog = $("#select-area-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Выбрать": function () {
+                    var idsStr = "";
+                    var idsArray = [];
+                    yandexMap.geoObjects.each(function(obj) {
+                        if (obj.selected) {
+                            idsStr += obj.areaId + ",";
+                            idsArray.push(obj.areaId);
+                        }
+                    });
+                    $("#area-ids-hidden").val(idsStr);
+                    $("#area-names-field").val(idsArray).change().multiselect("refresh");
+                    dialog.dialog("close");
+                    yandexMap.geoObjects.each(function(obj) {
+                        yandexMap.geoObjects.remove(obj);
+                    });
+                },
+                "Отмена": function () {
+                    
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.setZoom(14);
+                    yandexMap.setBounds(yandexMap.geoObjects.getBounds());
+                },1000);
+                
+            }
+        });
+    }
+
+    @* Обновляет выбранные районы *@
+    function updateSelectedDistricts() {
+        var selectedNames = "";
+        districtsYandexMap.geoObjects.each(function(obj) {
+            if (obj.selected) {
+                selectedNames += obj.districtName + ", ";
+                obj.options.set("fillColor", "#FF0000");
+            }
+        });
+        $("#selected-districts").text(selectedNames);
+    }
+
+    @* Обновляет выбранные жил массивы *@
+    function updateSelectedAreas() {
+        var selectedNames = "";
+        areasYandexMap.geoObjects.each(function(obj) {
+            if (obj.selected) {
+                selectedNames += obj.areaName + ", ";
+                obj.options.set("fillColor", "#FF0000");
+            }
+        });
+        $("#selected-areas").text(selectedNames);
+    }
+    
+    @* Парсит строку идентификаторов и возвращает ее в виде массива *@
+    function parseIdsStr(str) {
+        var parts = str.split(',');
+        var result = [];
+        $.each(parts, function(index, item) {
+            if (item != "") {
+                result.push(parseInt(item));
+            }
+        });
+        return result;
+    }
+    
+    @* Байндим изменение города *@
+    $("#city-id-field").change(function() {
+        var val = $(this).val();
+        $("#areas-fields-wrapper").hide();
+        if (val == -1) {
+            $("#district-fields-wrapper").hide();
+        } else {
+            $("#district-fields-wrapper").show().find("#district-names-field").remove();
+            $("#district-fields-wrapper").find(".ui-multiselect").remove();
+            $.ajax({
+                type: 'GET',
+                url: '/search/districts-selector',
+                data: {
+                    cityId: val
+                },
+                dataType: 'html',
+                success: function(responseText) {
+                    $("#districtIds-hidden").val("").after(responseText);
+                    $("#district-names-field").multiselect({
+                        noneSelectedText: 'Выберите значения из списка',
+                        selectedList: 4,
+                        maxWidth: 240
+                    });
+                },
+                error: function() {
+                    alert("Ошибка на сервере. Обновите страницу");
+                }
+            });
+        }
+    });
+    @* Байндим изменение района *@
+    $("#district-names-field").live("change", function() {
+        var val = $(this).val();
+        var ids = "";
+        if (val == null) {
+            val = [];
+        }
+        $.each(val, function(index, item) {
+            ids += item + ",";
+        });
+        $("#districtIds-hidden").val(ids);
+        $("#area-ids-hidden").val("");
+        if (val != null && val.length == 1) {
+            $("#areas-fields-wrapper").show();
+            $("#area-names-field").remove();
+            $("#areas-fields-wrapper").find(".ui-multiselect").remove();
+            $.ajax({
+                type: 'GET',
+                url: '/search/areas-selector',
+                data: {
+                    districtId: val[0]
+                },
+                dataType: 'html',
+                success: function(responseText) {
+                    $("#area-ids-hidden").val("").after(responseText);
+                    $("#area-names-field").multiselect({
+                        noneSelectedText: 'Выберите значения из списка',
+                        selectedList: 4,
+                        maxWidth: 240
+                    });
+                },
+                error: function() {
+                    alert("Ошибка на сервере. Обновите страницу");
+                }
+            });
+        } else {
+            $("#areas-fields-wrapper").hide();
+        }
+    });
+    @* Байндинг селектора массивов *@
+    $("#area-names-field").live("change", function() {
+        var val = $(this).val();
+        if (val == null) {
+            val = [];
+        }
+        var ids = "";
+        $.each(val, function(index, item) {
+            ids += item + ",";
+        });
+        $("#area-ids-hidden").val(ids);
+    });
+
+</script>

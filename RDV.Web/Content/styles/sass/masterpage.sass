@@ -1,0 +1,355 @@
+body
+	background-color: $main-bg-color
+	font-family: $content-main-font
+	min-width: $content-width
+
+	.clear
+		clear : both
+
+.header
+	background-color: $header-bg-color
+	width: 100%
+	border-bottom: 1px solid white
+	height: $header-height
+
+	.header-content
+		margin: 0 auto
+		width: $content-width
+		position: relative
+
+		#header-logo-wrapper
+			position: relative
+			float: left
+			width: 425px
+			z-index: 1
+
+			#rdv-header-logo
+				width: 1070px
+				height: 199px
+				left: -275px
+				position: absolute
+				background: url(../../images/masterpage/rdv-header-logo.png) left top no-repeat
+				z-index: 1
+
+				#header-clickable-wrapper
+					position: relative
+
+					#header-clickable
+						position: absolute
+						left: 280px
+						top: 10px
+						width: 350px
+						height: 180px
+						z-index: 50
+						background-color: transparent
+						cursor: pointer
+
+		#header-contacts
+			float: left
+			color: white
+			margin-left: 425px
+			z-index: 100
+			position: relative
+
+			#header-contacts-title
+				margin-top: 50px
+				margin-bottom: 10px
+				font-weight: bold
+				font-size: 13px
+
+			#header-contacts-content
+				font-size: 13px
+				line-height: 1.25
+
+				a
+					color: white
+
+					&:hover
+						text-decoration: underline
+
+			#header-rgr-logo
+				width: 114px
+				height: 44px
+				background: url(../../images/masterpage/rgr-header-logo.png) left top no-repeat
+				margin-top: 5px
+
+		#header-personal
+			float: left
+			position: relative
+			z-index: 100
+			margin-left: 45px
+
+			#header-personal-login
+				height: 90px
+
+				#header-personal-title
+					color: white
+					margin-top: 50px
+					margin-bottom: 10px
+					font-weight: bold
+					font-size: 13px
+
+				#header-personal-auth-form
+					float: left
+
+				#header-personal-auth-links
+					float: left
+					margin-left: 10px
+
+					.header-personal-auth-link
+						margin-bottom: 10px
+
+						.personal-link-bullet
+							width: 9px
+							height: 11px
+							background: url(../../images/masterpage/personal-link-bullet.png) left top no-repeat
+							line-height: 13px
+
+						a
+							color: white
+							text-decoration: none
+							font-size: 13px
+
+							&:hover
+								text-decoration: underline
+
+
+				#header-personal-name, #header-personal-role
+					font-size: 12px
+					margin-top: 5px
+					font-weight: bold
+					text-align: right
+					font-weight: bold
+					color: white
+					width: 280px
+
+					a
+						color: white
+						text-decoration:  underline
+
+						&:hover
+							text-decoration: none
+
+
+				#header-personal-name
+					color: yellow
+					font-size: 13px
+
+				#header-personal-links
+					text-align: right
+					margin-top: 10px
+
+					a
+						margin-top: 5px
+						color: white
+						text-decoration: none
+						font-size: 12px
+
+						&:hover
+							text-decoration: underline
+
+
+			#header-hotline-wrapper
+				position: relative
+
+				#header-hot-line
+					position: absolute
+					font-size: 13px
+					color: white
+					white-space: nowrap
+					left: -50px
+
+					.large
+						font-family: $content-header-font
+						font-size: 20px
+
+					.extra-large
+						font-family: $content-header-font
+						font-size: 30px
+
+#header-shadow
+	width: 931px
+	height: 26px
+	background: url(../../images/masterpage/header-shadow.png) left top no-repeat
+	margin: 0 auto
+	z-index: 1000
+
+#main-menu
+	width: $content-width
+	margin: 0 auto
+	text-align: center
+	position: relative
+	height: 15px
+
+	ul
+		position: absolute
+		top: -15px
+		left: -3px
+
+		li
+			display: inline-block
+			margin: 0 7px
+
+			a
+				color: #292929
+				font-size: 14px
+				text-decoration: none
+
+				&:hover
+					text-decoration: underline
+
+	#main-menu-top-shadow
+		width: 877px
+		height: 24px
+		position: absolute
+		margin-top: 20px
+		background: url(../../images/mainpage/estate-operations-top-shadow.png) left top no-repeat
+		z-index: 1000
+
+#UINotificator
+	position: relative
+	z-index: 1
+	width: $content-width
+	margin: 0 auto
+
+	.notification-group
+		border-radius: 3px
+		padding: 5px
+		margin-bottom: 1px
+
+		ul
+			li
+				font-size: 13px
+				padding: 3px
+				padding-left: 10px
+
+	.success-notification
+		border: 2px solid green
+		background-color: #beffa9
+		color: #006400
+
+	.warning-notification
+		border: 2px solid yellow
+		background-color: #fffebb
+		color: #b8860b
+
+	.error-notification
+		border: 2px solid red
+		background-color: #FFE3E3
+		color: #800
+
+
+#main-content
+	margin: 0 auto
+	position: relative
+	width: $content-width
+	min-height: 50px
+
+	&.streched
+		width: 99% !important
+		margin: 0px auto !important
+
+#footer-shadow
+	width: 931px
+	height: 28px
+	background: url(../../images/masterpage/footer-shadow.png) left top no-repeat
+	margin: 0 auto
+
+.footer
+	background-color: $header-bg-color
+	border-top: 1px solid white
+	min-height: 142px
+
+	.footer-content
+		margin: 0 auto
+		width: $content-width
+
+		#footer-logo-wrapper
+			position: relative
+			z-index: 1
+
+			#footer-rdv-logo
+				position: absolute
+				width: 980px
+				height: 142px
+				background: url(../../images/masterpage/rdv-footer-logo.png) left top no-repeat
+
+		#copyrights
+			text-align: center
+			color: white
+			font-size: 13px
+			position: relative
+			z-index: 10
+			padding-top: 65px
+
+		#developers
+			margin-top: 8px
+			text-align: center
+			color: white
+			font-size: 13px
+			position: relative
+			z-index: 10
+
+			a
+				color: white
+				text-decoration: none
+
+				&:hover
+					text-decoration: underline
+
+#bug-report
+	position: fixed
+	background-color: #34dd6b
+	font-size: 14px
+	font-weight: bold
+	border:  1px solid #00dd77
+	color:  white
+	padding: 2px 5px
+	cursor: pointer
+	border-top-left-radius: 5px
+	border-top-right-radius: 5px
+
+#ajax-overlay
+	position: absolute
+	left: 0px
+	top: 0px
+	background-color: black
+	opacity: 0.2
+	display: none
+
+
+
+.block-overlay
+	display: none
+	position: absolute
+	background-color: black
+	opacity: 0.8
+	z-index: 999
+	left: 0px
+	top: 0px
+
+.block-window
+	display: none
+	font-size: 13px
+	position: fixed
+	height: 200px
+	width: 500px
+	border: 1px solid gray
+	background-color: white
+	border-radius: 3px
+	padding: 15px
+	z-index: 1000
+
+	ul
+		color: black
+		margin-top: 10px
+
+		li
+			padding: 3px
+
+		a, a:hover
+			color: black
+			text-decoration: underline
+
+	button
+		margin-top: 30px

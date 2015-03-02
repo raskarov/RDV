@@ -1,0 +1,151 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Account.Profile.ProfileInfoModel
+<div style="float: left; margin-right: 15px;">
+    <div style="width: 150px; height: auto; text-align: center; overflow: hidden; max-height: 300px; margin-bottom: 15px">
+        <img src="@Model.RealImageUrl" alt="Фото пользователя" width="150"/>
+    </div>
+</div>
+<div>
+    <fieldset>
+        <div class="legend">
+            Системные данные
+        </div>
+        <div class="editor-label">
+            Email адрес
+        </div>
+        <div class="editor-field">
+            <input type="email" class="round field" id="profile-email-field" name="Email" placeholder="Введите свой Email" maxlength="255" value="@Model.Email" readonly="readonly" value="@Model.Email"/>
+        </div>
+        <div class="editor-label">
+            Роль: <b>@Model.Role.Name</b>
+        </div>
+        <div class="editor-label">
+            Статус: <b>@(((UserStatuses)Model.Status).GetEnumMemberName())</b>
+        </div>
+        <div class="editor-label">
+            @Model.AdditionalInformation
+        </div>
+    </fieldset>
+    <fieldset>
+        <div class="legend">
+            Личные данные</div>
+        <table width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Имя
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="profile-name-field" name="FirstName" maxlength="255" value="@Model.FirstName" readonly="readonly"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Отчество
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="profile-surname-field" name="SurName" maxlength="255" value="@Model.SurName" readonly="readonly"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="editor-label">
+                            Фамилия
+                        </div>
+                        <div class="editor-field">
+                            <input style="width: 343px" type="text" class="round" id="profile-lastname-field" name="LastName" maxlength="255" value="@Model.LastName" readonly="readonly"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Контактный телефон
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small phone-field" id="profile-phone-field" name="Phone" maxlength="255" value="@Model.Phone" readonly="readonly"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дополнительный телефон
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small phone-field" id="profile-phone2-field" name="Phone2" maxlength="255" value="@Model.Phone2" readonly="readonly"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Номер ICQ
+                        </div>
+                        <div class="editor-field">
+                            <input type="number" class="round field-small" id="profile-icq-field" name="ICQ" maxlength="12" value="@Model.ICQ" readonly="readonly"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дата рождения
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small datepicker" id="profile-birth-date-field" value="@Model.Birthdate.FormatDate()" name="Birthdate" readonly="readonly"/>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+</div>
+<div class="clear">
+</div>
+<div>
+    <fieldset>
+        <div class="legend">
+            Профессиональные данные
+        </div>
+        <table id="company-fields" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Должность
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="profile-appointment-field" name="Appointment" maxlength="255" value="@Model.Appointment" readonly="readonly"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дата начала стажа
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small datepicker" id="profile-seniority-start-date-field" value="@Model.SeniorityStartDate.FormatDate()" name="SeniorityStartDate" readonly="readonly"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Номер сертификата
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="profile-certificate-number-field" name="CertificateNumber" maxlength="255" value="@Model.CertificateNumber" readonly="readonly"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дата выдачи сертификата
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small datepicker" id="profile-certification-date-field" value="@Model.CertificationDate.FormatDate()" name="CertificationDate" readonly="readonly"/>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+</div>

@@ -1,0 +1,96 @@
+﻿@using RDV.Domain.Core
+@model IList<RDV.Domain.Entities.Article>
+<div class="block">
+    <div class="block-header">
+        <div class="block-icon">
+            <img src="@Url.Content("/Content/images/mainpage/calendaricon.png")" alt="Icon"/>
+        </div>
+        <div class="block-title">
+            Календарь мероприятий
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <table width="100%" id="calendar-holder">
+                <tbody>
+                    <tr>
+                        <td id="calendar">
+                            @for (var i = 1; i <= 12; i++)
+                            {
+                                var date = new DateTime(DateTimeZone.Now.Year, i, 1);
+                                @Html.Partial("MonthCalendar", date)
+                            }
+                        </td>
+                        <td id="calendar-day-events">
+                            @{
+                                var nearestEvent = Model.OrderBy(e => e.PublicationDate).FirstOrDefault();
+                            }
+                            <div id="calendar-events-holder">
+                                @if (nearestEvent != null)
+                                {
+                                    <div id="calendar-change-wrapper">
+                                        <div id="calendar-day-wrapper">
+                                            <span id="calendar-day">@nearestEvent.PublicationDate.Day</span>
+                                        </div>
+                                        <div id="calendar-day-info">
+                                            <span id="calendar-month-name">@nearestEvent.PublicationDate.ToString("MMM")</span>
+                                            <span id="calendar-year">@nearestEvent.PublicationDate.Year года</span>
+                                        </div>
+                                        <div class="clear">
+                                        </div>
+                                        <div id="calendar-event-description">
+                                            <a href="/articles/view/@nearestEvent.Id">@nearestEvent.Title</a>
+                                        </div>
+                                    </div>
+                                }
+                                <div id="calendar-total-events-wrapper">
+                                    Всего мероприятий: @Model.Count
+                                </div>
+                                <div id="calendar-all-events-wrapper">
+                                    <a href="/articles/events">Все мероприятия</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        var month = new Date().getMonth() + 1;
+        $("[month='" + month + "']").addClass("active");
+
+        $(".next-month").click(function () {
+            var curMonth = parseInt($(".month-calendar.active").attr("month"));
+            if (curMonth < 12) {
+                curMonth += 1;
+                $(".month-calendar").removeClass("active");
+                $("[month='" + curMonth + "']").addClass("active");
+            }
+        });
+
+        $(".prev-month").click(function () {
+            var curMonth = parseInt($(".month-calendar.active").attr("month"));
+            if (curMonth > 1) {
+                curMonth -= 1;
+                $(".month-calendar").removeClass("active");
+                $("[month='" + curMonth + "']").addClass("active");
+            }
+        });
+        
+        // Аяксовая смена значений календаря
+        $(".day").click(function () {
+            var date = $(this).data("date");
+            if (date == undefined) {
+                return false;
+            }
+            $("#calendar-change-wrapper").load("/change-calendar?date=" + date);
+            return false;
+        });
+    });
+</script>

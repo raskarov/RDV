@@ -1,0 +1,1284 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Domain.Core
+@using RDV.Web.Classes.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Account.ObjectsList.ObjectsListViewModel
+@{
+    var currentUser = ViewContext.CurrentUser();
+    var dictionariesRep = Locator.GetService<IDictionariesRepository>();
+    var companiesRep = Locator.GetService<ICompaniesRepository>();
+    var canChangeStatus = true;
+    switch (Model.ListLocation)
+    {
+        case ObjectsListLocation.MyObjects:
+            canChangeStatus = currentUser.HasPermission(Permission.ChangeOwnObjectsStatus);
+            break;
+        case ObjectsListLocation.Favourites:
+            canChangeStatus = false;
+            break;
+        case ObjectsListLocation.CompanyObjects:
+            canChangeStatus = currentUser.HasPermission(Permission.ChangeCompanyObjectsStatus);
+            break;
+        case ObjectsListLocation.AllObjects:
+            canChangeStatus = currentUser.HasPermission(Permission.ChangeAllObjectsStatus);
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+}
+<script type="text/javascript" type='text/javascript'>
+    $("#main-content").addClass("");
+</script>
+<div id="objects-table-wrapper">
+    <div id="objects-tabs-header">
+        <div class="header-tab active">
+            <a href="#draft-tab" sharp="drafts">Черновики (@Model.LoadedObjects.Count(o => o.Status == EstateStatuses.Draft))</a>
+        </div>
+        <div class="header-tab">
+            <a href="#active-tab" sharp="active">Активные (@Model.LoadedObjects.Count(o => o.Status == EstateStatuses.Active))</a>
+        </div>
+        @if (currentUser.HasPermission(Permission.ViewAdvanceObjectsList))
+        {
+        <div class="header-tab">
+            <a href="#advance-tab" sharp="advance">Внесен аванс (@Model.LoadedObjects.Count(o => o.Status == EstateStatuses.Advance))</a>
+        </div>    
+        }
+        @if (currentUser.HasPermission(Permission.ViewDealObjectsList))
+        {
+        <div class="header-tab">
+            <a href="#deal-tab" sharp="deal">Сделка (@Model.LoadedObjects.Count(o => o.Status == EstateStatuses.Deal))</a>
+        </div>    
+        }
+        @if (currentUser.HasPermission(Permission.ViewWithdrawObjectsList))
+        {
+        <div class="header-tab">
+            <a href="#withdraw-tab" sharp="withdrawn">Снято с продажи (@Model.LoadedObjects.Count(o => o.Status == EstateStatuses.Withdrawn))</a>
+        </div>    
+        }
+        @if (currentUser.HasPermission(Permission.ViewTemporaryWithdrawObjectsList))
+        {
+        <div class="header-tab">
+            <a href="#temopary-withdraw-tab" sharp="temp-withdrawn">Снято временно (@Model.LoadedObjects.Count(o => o.Status == EstateStatuses.TemporarilyWithdrawn))</a>
+        </div>    
+        }
+        <div class="clear">
+        </div>
+    </div>
+    <div id="objects-tabs">
+        <div class="object-tab object-tab-active" id="draft-tab">
+            @{
+                Model.CustomStatusFilter = EstateStatuses.Draft;
+            }
+            <div class="filter-info" style="display: none">
+                Фильтр: <span class="filter-info-data"></span>
+            </div>
+            <div class="table-wrapper">
+                @Html.Partial("ObjectsTableContent", Model)
+            </div>
+            <div class="object-filter-dialog-wrapper">
+                <div id="draft-tab-filter-dialog" class="object-filter-dialog" title="Фильтр объектов" style="display: none">
+                    <input type="hidden" value="@((short)Model.CustomStatusFilter.Value)" class="status-filter"/>
+                    <div class="objects-filter-tree">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="object-tab" id="active-tab" style="display: none">
+            @{
+                Model.CustomStatusFilter = EstateStatuses.Active;
+            }
+            <div class="filter-info" style="display: none">
+                Фильтр: <span class="filter-info-data"></span>
+            </div>
+            <div class="table-wrapper">
+                @Html.Partial("ObjectsTableContent", Model)
+            </div>
+            <div class="object-filter-dialog-wrapper">
+                <div id="active-tab-filter-dialog" class="object-filter-dialog" title="Фильтр объектов" style="display: none">
+                    <input type="hidden" value="@((short)Model.CustomStatusFilter.Value)" class="status-filter"/>
+                    <div class="objects-filter-tree">
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (currentUser.HasPermission(Permission.ViewAdvanceObjectsList))
+        {
+        <div class="object-tab" id="advance-tab" style="display: none">
+            @{
+                Model.CustomStatusFilter = EstateStatuses.Advance;
+            }
+            <div class="filter-info" style="display: none">
+                Фильтр: <span class="filter-info-data"></span>
+            </div>
+            <div class="table-wrapper">
+                @Html.Partial("ObjectsTableContent", Model)
+            </div>
+            <div class="object-filter-dialog-wrapper">
+                <div id="advance-tab-filter-dialog" class="object-filter-dialog" title="Фильтр объектов" style="display: none">
+                    <input type="hidden" value="@((short)Model.CustomStatusFilter.Value)" class="status-filter"/>
+                    <div class="objects-filter-tree">
+                    </div>
+                </div>
+            </div>
+        </div>    
+        }
+        @if (currentUser.HasPermission(Permission.ViewDealObjectsList))
+        {
+        <div class="object-tab" id="deal-tab" style="display: none">
+            @{
+                Model.CustomStatusFilter = EstateStatuses.Deal;
+            }
+            <div class="filter-info" style="display: none">
+                Фильтр: <span class="filter-info-data"></span>
+            </div>
+            <div class="table-wrapper">
+                @Html.Partial("ObjectsTableContent", Model)
+            </div>
+            <div class="object-filter-dialog-wrapper">
+                <div id="deal-tab-filter-dialog" class="object-filter-dialog" title="Фильтр объектов" style="display: none">
+                    <input type="hidden" value="@((short)Model.CustomStatusFilter.Value)" class="status-filter"/>
+                    <div class="objects-filter-tree">
+                    </div>
+                </div>
+            </div>
+        </div>    
+        }
+        @if (currentUser.HasPermission(Permission.ViewWithdrawObjectsList))
+        {
+        <div class="object-tab" id="withdraw-tab" style="display: none">
+            @{
+                Model.CustomStatusFilter = EstateStatuses.Withdrawn;
+            }
+            <div class="filter-info" style="display: none">
+                Фильтр: <span class="filter-info-data"></span>
+            </div>
+            <div class="table-wrapper">
+                @Html.Partial("ObjectsTableContent", Model)
+            </div>
+            <div class="object-filter-dialog-wrapper">
+                <div id="withdraw-tab-filter-dialog" class="object-filter-dialog" title="Фильтр объектов" style="display: none">
+                    <input type="hidden" value="@((short)Model.CustomStatusFilter.Value)" class="status-filter"/>
+                    <div class="objects-filter-tree">
+                    </div>
+                </div>
+            </div>
+        </div>    
+        }
+        @if (currentUser.HasPermission(Permission.ViewTemporaryWithdrawObjectsList))
+        {
+        <div class="object-tab" id="temopary-withdraw-tab" style="display: none">
+            @{
+            Model.CustomStatusFilter = EstateStatuses.TemporarilyWithdrawn;
+            }
+            <div class="table-wrapper">
+                @Html.Partial("ObjectsTableContent", Model)
+            </div>
+            <div class="filter-dialog-wrapper">
+                <div id="temopary-withdraw-tab-filter-dialog" class="object-filter-dialog" title="Фильтр объектов" style="display: none">
+                    <input type="hidden" value="@((short)Model.CustomStatusFilter.Value)" class="status-filter"/>
+                    <div class="objects-filter-tree">
+                    </div>
+                </div>
+            </div>
+        </div>    
+        }
+    </div>
+</div>
+@* Диалог изменения статуса объекта *@
+<div id="change-objects-status-dialog" title="Изменение статуса объектов" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/account/objects/change-status" method="POST" id="change-object-status-form">
+    <input type="hidden" name="objectIds" id="object-status-ids-field" value="-1" />
+    <input type="hidden" name="location" value="@((short)Model.ListLocation)"/>
+    <input type="hidden" name="statusSection" value="drafts" class="statusSection"/>    
+    <div class="editor-label">
+        Новый статус
+    </div>
+    <div class="editor-field">
+        <select id="objects-status-field" name="newStatus" class="field round">
+            <option value="-1">Без изменений</option>
+            @if (canChangeStatus)
+            {
+                foreach (EstateStatuses status in Enum.GetValues(typeof(EstateStatuses)))
+                {
+                    <option value="@((short)status)">@status.GetEnumMemberName()</option>
+                }
+            }
+            else if (Model.ListLocation == ObjectsListLocation.MyObjects)
+            {
+                <option value="0">Черновик</option>   
+                <option value="1">Активный</option>   
+            }
+        </select>
+    </div>
+    <div id="removal-reason-wrapper">
+        <div class="editor-label">
+            Причина снятия
+        </div>
+        <div class="editor-field">
+            <select id="removal-reason-field" name="removalReason" class="field round">
+                @foreach (var reason in dictionariesRep.GetDictionaryByName("removal_reasons").GetValues())
+                {
+                    <option value="@reason.Id">@reason.Value</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div id="delay-date-field-wrapper">
+        <div class="editor-label">
+            Дата, до которой отложено
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round datepicker" id="delay-date-field" name="delayDate" value="@DateTimeZone.Now.AddDays(14).FormatDate()"/>
+        </div>
+    </div>
+    <div id="counter-agent-type-wrapper">
+        <div class="editor-label">
+            Тип контрагента
+        </div>
+        <div class="editor-field">
+            <select id="counter-agent-type-field" name="counteragentType" class="field round">
+                <option value="1">Компания - член РДВ</option>
+                <option value="2">Компания - не член РДВ</option>
+                <option value="3">Физическое лицо</option>
+            </select>
+        </div>
+    </div>
+    <div id="rdv-counter-agent-company-field-wrapper">
+        <div class="editor-label">
+            Компания контрагента (член РДВ)
+        </div>
+        <div class="editor-field">
+            <select id="rdv-counter-agent-company-field" name="rdvCounterAgentCompany" class="field round">
+                @foreach (var comp in companiesRep.GetActiveCompanies().Where(c => c.Id != currentUser.CompanyId))
+                {
+                    <option value="@comp.Id">@comp.Name</option>
+                }
+            </select>
+        </div>
+        <div class="editor-label">
+            Агент компании
+        </div>
+        <div class="editor-field" id="rdv-agent-field-wrapper">
+            <select id="rdv-agent-id-field" name="rdvAgentId">
+                <option value="-1">Дефолт</option>
+            </select>
+        </div>
+    </div>
+    <div id="counter-agent-company-field-wrapper">
+        <div class="editor-label">
+            Компания контрагента (не член РДВ)
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="counter-agent-company-field" name="counterAgentCompany"
+                   placeholder="Введите наименование компании контрагента" />
+        </div>
+        <div class="editor-label">
+            Агент компании
+        </div>
+        <div class="editor-field">
+            <input type="hidden" name="nonRdvAgentId" value="-1"/>
+            <input type="text" class="round field" id="non-rdv-agent-field" placeholder="Начните вводить имя агента"/>
+        </div>
+    </div>
+    <div id="counter-agent-client-field-wrapper">
+        <div class="editor-label">
+            Физическое лицо (клиент)
+        </div>
+        <div class="editor-field">
+            <input type="hidden" id="counter-agent-client-id-field" name="clientId" value="-1" />
+            <input type="text" class="round field client-field" id="counter-agent-client-field"
+                placeholder="Начните вводить имя клиента" />
+        </div>
+    </div>
+    <div id="advance-date-field-wrapper">
+        <div class="editor-label">
+            Дата аванса
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round datepicker" id="advance-date-field" name="advanceDate" value="@DateTimeZone.Now.FormatDate()"/>
+        </div>
+        <div class="editor-label">
+            Дата завершения аванса
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round datepicker" id="advance-end-date-field" name="advanceEndDate" value="@DateTimeZone.Now.AddDays(7).FormatDate()"/>
+        </div>
+    </div>
+    <div id="deal-date-field-wrapper">
+        <div class="editor-label">
+            Дата сделки
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round datepicker" id="deal-date-field" name="dealDate" value="@DateTimeZone.Now.FormatDate()"/>
+        </div>
+    </div>
+    <div id="real-price-field-wrapper">
+        <div class="editor-label">
+            Окончательная стоимость
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round" id="real-price-field" name="realPrice" value="" />
+        </div>
+    </div>
+    <div id="mortage-bank-field-wrapper">
+        <div class="editor-label">
+            Ипотека банка
+        </div>
+        <div class="editor-field">
+            <select id="mortage-bank-field" name="mortageBank" class="field round">
+                <option value="-1">Собственные средства</option>
+                @foreach (var bank in dictionariesRep.GetDictionaryByName("banks").GetValues())
+                {
+                    <option value="@bank.Id">@bank.Value</option>
+                }
+            </select>
+        </div>
+    </div>
+    </form>
+</div>
+@* Диалог изменения агента у объекта *@
+<div id="change-objects-agent-dialog" title="Изменение агента объектов" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/account/objects/change-agent" method="POST" id="change-object-agent-form">
+    <input type="hidden" name="objectIds" id="object-agent-ids-field" value="-1" />
+    <input type="hidden" name="location" value="@((short)Model.ListLocation)"/>
+    <input type="hidden" name="statusSection" value="drafts" class="statusSection"/>  
+    <div class="editor-label">
+        Новый агент
+    </div>
+    <div class="editor-field">
+        <select id="objects-agent-field" name="newAgentId" class="field round">
+            <option value="-1">Без изменений</option>
+            @foreach (RDV.Domain.Entities.User user in Model.CompanyAgents)
+            {
+                <option value="@(user.Id)">@user.ToString()</option>
+            }
+        </select>
+    </div>
+    </form>
+</div>
+@* Диалог добавления объекта *@
+<div id="new-object-dialog" title="Новый объект" class="dialog" style="display: none;">
+    <form action="/objects/add" method="POST" id="new-object-form">
+    <div class="editor-label">
+        Тип объекта
+    </div>
+    <div class="editor-field">
+        <select id="new-object-type-field" name="type" class="field round">
+            @foreach (EstateTypes objectType in Enum.GetValues(typeof(EstateTypes)))
+            {
+                <option value="@((short)objectType)">@objectType.GetEnumMemberName()</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        Операция
+    </div>
+    <div class="editor-field">
+        <select id="new-object-operation-field" name="operation" class="field round">
+            @*
+            @foreach (EstateOperations operations in Enum.GetValues(typeof(EstateOperations)))
+            {
+                <option value="@((short)operations)">@operations.GetEnumMemberName()</option>
+            }*@
+            <option value="@((short)EstateOperations.Selling)">Продажа</option>
+        </select>
+    </div>
+    </form>
+</div>
+@* Диалог информации о статусе объекта *@
+<div id="status-info-dialog" title="Информация о статусе" class="dialog" style="display: none;">
+    
+</div>
+<div id="delete-objects-dialog" title="Удаление объектов" class="dialog" style="display: none">
+    <p>
+        Вы действительно хотите безвозвратно удалить эти объекты? Это действие нельзя будет
+        отменить, объекты будут удалены навсегда.</p>
+</div>
+<div id="change-price-dialog" title="Изменение цены" class="dialog" style="display: none">
+    <form id="change-price-form" method="post" action="/account/change-object-price">
+        <input type="hidden" name="objectId"/>
+        <input type="hidden" name="location" value="@((short)Model.ListLocation)"/>
+        <input type="hidden" name="statusSection" value="drafts" class="statusSection"/>  
+        <div class="editor-label">
+            Цена хозяина
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round" name="ownerPrice" placeholder="Введите цену хозяина"/>
+        </div>
+        <div class="editor-label">
+            Цена
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round" name="price" placeholder="Введите цену объект"/>
+        </div>
+    </form>
+</div>
+@* Диалог добавления нового агента не члена РДВ *@
+<div class="dialog" style="display: none" title="Создание нового агента не члена рдв" id="new-non-rdv-agent-dialog">
+    <form action="/account/new-non-rdv-agent" id="new-non-rdv-agent-form" method="POST">
+    <div class="editor-label">
+        Фамилия
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="nonrdvagent-last-name-field" maxlength="255"
+            name="LastName" placeholder="Введите фамилию агента" />
+    </div>
+    <div class="editor-label">
+        Имя
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field field-required" id="nonrdvagent-first-name-field"
+            maxlength="255" name="FirstName" placeholder="Введите имя агента" />
+    </div>
+    <div class="editor-label">
+        Отчество
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="nonrdvagent-sur-name-field" maxlength="255"
+            name="SurName" placeholder="Введите отчество агента" />
+    </div>
+    <div class="editor-label">
+        Контактный телефон для связи
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field field-required phone-field" id="nonrdvagent-phone-field" maxlength="255"
+            name="Phone" placeholder="Введите телефон агента" />
+    </div>
+    </form>
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function() {
+            // Байндим валидацию
+            validators.bindNonRdvAjaxFormValidators(submitNewNonRdvAgentForm);
+
+            function showNewNonRdvAgentDialog(clientEditor) {
+                var dialog = $("#new-non-rdv-agent-dialog").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    modal: true,
+                    width: 400,
+                    buttons: {
+                        "Сохранить": function () {
+                            $("#new-non-rdv-agent-form").get(0).editor = clientEditor;
+                            $("#new-non-rdv-agent-form").submit();
+                        },
+                        "Отмена": function () {
+                            dialog.dialog("close");
+                            $(clientEditor).val("");
+                            $(clientEditor).parent().find("input[type='hidden']").val(-1);
+                        }
+                    }
+                });
+            }
+            function submitNewNonRdvAgentForm(form) {
+                $("#new-non-rdv-agent-form").ajaxSubmit({
+                    dataType: 'json',
+                    success: function (data) {
+                        var editor = $("#new-non-rdv-agent-form").get(0).editor;
+                        $(editor).parent().find("input[type='hidden']").val(data.id);
+                        $(editor).val(data.name);
+                        $("#new-non-rdv-agent-dialog").dialog("close");
+                    },
+                    error: function () {
+                        alert("Ошибка при сохранении формы");
+                    }
+                });
+            }
+        
+            // Байндинг автокомплита
+            $("#non-rdv-agent-field").autocomplete({
+                minLength: 3,
+                source: '/account/company/non-rdv-agents-autocomplete',
+                select: function (event, ui) {
+                    if (ui.item.id == -1) {
+                        showNewNonRdvAgentDialog(this);
+                    } else {
+                        $(this).val(ui.item.name);
+                        $(this).parent().find("input[type='hidden']").val(ui.item.id);
+                    }
+                    return false;
+                }
+            }).data("autocomplete")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .data("item.autocomplete", item)
+                    .append("<a>" + item.name + "</a>")
+                    .appendTo(ul);
+            };
+        });
+    </script>
+</div>
+<script language="javascript" type="text/javascript">
+    function updateStatusFields() {
+        var val = $("#objects-status-field").val();
+        $("#removal-reason-wrapper").hide();
+        $("#delay-date-field-wrapper").hide();
+        $("#counter-agent-type-wrapper").hide();
+        $("#rdv-counter-agent-company-field-wrapper").hide();
+        $("#counter-agent-company-field-wrapper").hide();
+        $("#counter-agent-client-field-wrapper").hide();
+        $("#deal-date-field-wrapper").hide();
+        $("#advance-date-field-wrapper").hide();
+        $("#real-price-field-wrapper").hide();
+        $("#mortage-bank-field-wrapper").hide();
+        if (val == "4") {
+            $("#removal-reason-wrapper").show();
+        }
+        if (val == "3") {
+            $("#delay-date-field-wrapper").show();
+        }
+        if (val == "2" || val == "5") {
+            $("#counter-agent-type-wrapper").show();
+            $("#mortage-bank-field-wrapper").show();
+            $("#real-price-field-wrapper").show();
+            if (val == "2") {
+                $("#advance-date-field-wrapper").show();
+            } else if (val == "5") {
+                $("#deal-date-field-wrapper").show();
+            }
+            updateCustomerTypeFields();
+        }
+    }
+    
+    function updateCustomerTypeFields() {
+        var val = $("#counter-agent-type-field").val();
+        $("#rdv-counter-agent-company-field-wrapper").hide();
+        $("#counter-agent-company-field-wrapper").hide();
+        $("#counter-agent-client-field-wrapper").hide();
+        if (val == "1") {
+            $("#rdv-counter-agent-company-field-wrapper").show();
+            updateRdvAgentsList();
+        } else if (val == "2") {
+            $("#counter-agent-company-field-wrapper").show();
+        } else if (val == "3") {
+            $("#counter-agent-client-field-wrapper").show();
+        }
+    }
+
+    function updateRdvAgentsList() {
+        $("#rdv-agent-field-wrapper").load("/account/rdv-agents-list", { id: $("#rdv-counter-agent-company-field").val() });
+    }
+
+    $("#rdv-counter-agent-company-field").change(function() {
+        updateRdvAgentsList();
+    });
+
+    $("#objects-status-field").change(function () {
+        updateStatusFields();
+    });
+    $("#counter-agent-type-field").change(function () {
+        updateCustomerTypeFields();
+    });
+
+    @* Автокомплит для контрагентов компаний не членов РДВ *@
+    $("#counter-agent-company-field").autocomplete({
+        minLength: 3,
+        source: '/account/clients/counter-agent-companies'
+    });
+    
+    @* Переключение закладок у объекта *@
+    $("#objects-tabs-header .header-tab a").click(function() {
+        $("#objects-tabs-header .header-tab").removeClass("active");
+        $("#objects-tabs").find(".object-tab").removeClass("object-tab-active").hide();
+        var target = $(this).attr("href");
+        $(this).parent().addClass("active");
+        $(target).addClass("object-tab-active").show();
+        $(".statusSection").val($(this).attr("sharp"));
+        return false;
+    });
+
+    validators.bindChangeObjectStatusFormValidators();
+    validators.bindChangeObjectPriceValidators();
+    
+    @* Скрипты табличной части *@
+    function contentTableScripts() {
+        @* Установка подгрузки детальной информации по объектам *@
+        $(".icon-details").unbind("click").click(function() {
+            var self = this;
+            var tr = $(this).parent().parent();
+            var id = tr.data("item-id");
+            // Проверяем может мы уже загружали данные
+            if (tr.hasClass("expanded")) {
+                tr.next().hide();
+                tr.removeClass("expanded");
+                $(this).parent().removeClass("no-bottom");
+            } else if (tr.hasClass("loaded")) {
+                tr.next().show();
+                tr.addClass("expanded");
+                $(this).parent().addClass("no-bottom");
+            } else {
+                // Создаем новый ряд таблицы и вставляем его после текущего ряда
+                var colSpan = $(this).parents("table").last().find("tbody").find("tr").first().find("td").length;
+                var nextTr = $("<tr style='display: none'><td class='no-top' colspan='"+colSpan+"'></td></tr>");
+                tr.after(nextTr);
+                tr.find(".ajax-indicator").show();
+                $(this).hide();
+                nextTr.find("td").load("/account/objects/get-details/" + id, { }, function() {
+                    tr.addClass("loaded expanded");
+                    if (tr.hasClass("even")) {
+                        tr.next().addClass("even");
+                    }
+                    $(self).parent().addClass("no-bottom");
+                    nextTr.show();
+                    tr.find(".ajax-indicator").hide();
+                    tr.find(".icon-details").show();
+                });
+            }
+        });
+        
+        @* Отображает диалог изменения статуса *@
+        function showChangeObjectsStatusDialog(objectIds) {
+            // Сбрасываем форму
+            $("#object-status-ids-field").val(objectIds);
+            $("#objects-status-field").val(-1);
+            updateStatusFields();
+            // Отображаем диалог
+            var dialog = $("#change-objects-status-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Сохранить": function () {
+                        if ($("#objects-status-field").val() == "-1") {
+                            dialog.dialog("close");    
+                        } else {
+                            $("#change-object-status-form").submit();
+                        }
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        
+                @* Отображает диалог изменения агента *@
+        function showChangeObjectsAgentDialog(objectIds) {
+            // Сбрасываем форму
+            $("#object-agent-ids-field").val(objectIds);
+            $("#objects-agent-field").val(-1);
+            // Отображаем диалог
+            var dialog = $("#change-objects-agent-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Сохранить": function () {
+                        if ($("#object-agent-field").val() == "-1") {
+                            dialog.dialog("close");    
+                        } else {
+                            $("#change-object-agent-form").submit();
+                        }
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        
+        @* Диалог создания нового объекта *@
+        function showNewObjectDialog() {
+            $("#new-object-dialog").find("#new-object-type-field").val(2);
+            var dialog = $("#new-object-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Сохранить": function () {
+                        $("#new-object-form").submit();
+                        
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        
+        @* Диалог создания нового объекта *@
+        function showDeleteObjectsDialog(objIds) {
+            var dialog = $("#delete-objects-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Да": function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/account/objects/delete',
+                            data: {
+                                objectIds: objIds
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                document.location.reload();
+                            },
+                            error: function () {
+                                alert("Не удалось удалить объекты");
+                            }
+                        });
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+
+        @* Отображает диалог смены статуса объекта при клике по панели инструментов *@
+        $("#add-object-action").unbind("click").click(function(e) {
+            showNewObjectDialog();
+            return false;
+        });
+
+        @* Отображает диалог смены статуса объекта при клике по панели инструментов *@
+        $("#change-object-status-action").unbind("click").click(function(e) {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            var idsStr = "";
+            $.each(ids, function(index, item) {
+                idsStr += item + ',';
+            });
+            showChangeObjectsStatusDialog(idsStr);
+            return false;
+        });
+        
+        @* Отображает диалог смены агента объекта при клике по панели инструментов *@
+        $("#change-objects-agent-action").unbind("click").click(function(e) {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            var idsStr = "";
+            $.each(ids, function(index, item) {
+                idsStr += item + ',';
+            });
+            showChangeObjectsAgentDialog(idsStr);
+            return false;
+        });
+        
+        @* Выполняет переход на страницу сравнения объектов *@
+        $("#compare-objects-action").unbind("click").click(function(e) {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            if (ids.length > 4) {
+                alert("Нельзя сравнить больше чем 4 объекта");
+                return false;
+            }
+            var idsStr = "";
+            $.each(ids, function(index, item) {
+                idsStr += item + ',';
+            });
+            window.location.href='/account/objects/compare?objectIds='+idsStr;
+            return false;
+        });
+        
+        @* Отображает диалог удаления объектов *@
+        $("#delete-objects-action").unbind("click").click(function(e) {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            var idsStr = "";
+            $.each(ids, function(index, item) {
+                idsStr += item + ',';
+            });
+            showDeleteObjectsDialog(idsStr);
+            return false;
+        });
+        
+        @* Байндим событие клика по просмотру *@
+        $(".icon-view").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+           // window.location.href = "/objects/" + id + "/card";
+        });
+        
+        @* Байндим событие клика по редактору *@
+        $(".icon-edit").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+            window.location.href = "/objects/" + id + "/service";
+        });
+
+                @* Меняем статус по клику на иконку в таблице *@
+        $(".icon-change-state").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+            showChangeObjectsStatusDialog(id);
+        });
+        
+        @* Меняем агента по клику на иконку в таблице *@
+        $(".icon-change-agent").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+            showChangeObjectsAgentDialog(id);
+        });
+
+                @* Байндим кнопку отображения фотографий *@
+        $(".icon-photos").unbind("click").click(function (e) {
+            var id = $(this).parent().parent().data("item-id");
+            $.ajax({
+                url: '/objects/get-photos/' + id,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.count > 0) {
+                        $.fancybox.open(data.images);
+                    }
+                },
+                failure: function () {
+                    alert('Ошибка при получении фотографий');
+                }
+            });
+        });
+
+        @* Байндим кнопку просмотра истории по объекту *@
+        $(".icon-history").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+            window.location.href = '/objects/' + id + "/history";
+        });
+
+        @* Байндим кнопку просмотра информации по текущему статусу объекта *@
+        $(".icon-status-info").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+            $("#status-info-dialog").load("/objects/get-status-info", { id: id }, function() {
+                var dialog = $("#status-info-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "OK": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+            });
+        });
+        
+        @* Меняем агента по клику на иконку в таблице *@
+        $(".icon-money").unbind("click").click(function(e) {
+            var id = $(this).parent().parent().data("item-id");
+            showChangePriceDialog(id);
+        });
+        
+        @* Диалог создания нового объекта *@
+        function showChangePriceDialog(objId) {
+            $.post("/account/get-object-price", { id: objId }, function(data) {
+                $("#change-price-dialog").find("[name='ownerPrice']").val(data.ownerPrice);
+                $("#change-price-dialog").find("[name='price']").val(data.price);
+                $("#change-price-dialog").find("[name='objectId']").val(data.id);
+                var dialog = $("#change-price-dialog").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    modal: true,
+                    buttons: {
+                        "Изменить": function () {
+                            $("#change-price-form").submit();
+                        },
+                        "Отмена": function () {
+                            dialog.dialog("close");
+                        }
+                    }
+                });    
+            }, "json");
+        }
+    }
+    $(document).ready(function () {
+        contentTableScripts();
+    });
+
+    // Переключаем глобальную функцию получения выбранных элементов в таблице
+    getSelectedTableItems = function() {
+        var result = [];
+        $(".object-tab-active .content-table tbody tr input:checked").each(function (index, item) {
+            result.push($(item).parent().parent().data("item-id"));
+        });
+        return result;
+    };
+    
+    // Фильтры ообъектов
+    @* Отображает диалог фильтра объектов *@
+        function showObjectFilterDialog() {
+            var selector = "#"+$(".object-tab-active").attr("id") + "-filter-dialog";
+            var target = $(selector);
+            var dialog = target.dialog({
+                minWidth: 300,
+                minHeight: 300,
+                modal: true,
+                autoOpen: true,
+                resizable: true,
+                buttons: {
+                    "Применить": function() {
+                        // Получаем список всех выбранных узлов
+                        var checkedNodes = $.jstree._reference($(target).find(".objects-filter-tree").first()).get_checked(null, true);
+                        var checkedNodesStr = "";
+                        var filterData = "";
+                        checkedNodes.each(function(index, item) {
+                            var id = $(item).attr("id");
+                            var title = $(item).find("a").first().text();
+                            checkedNodesStr += id+",";
+                            filterData += title + ', ';
+                            if (id == "all") {
+                                return false;
+                            }
+                        });
+                        $(".object-tab-active").find(".filter-info").show().find(".filter-info-data").text(filterData);
+                        
+                        // Подгатавливаем данные к отправке
+                        var params = {
+                            section: @((short)Model.ListLocation),
+                            filter: checkedNodesStr,
+                            statusFilter: $(selector).find(".status-filter").val()
+                        };
+                        
+                        // Выполняем загрузку
+                        global.ajaxLoad($(".object-tab-active .table-wrapper"), "POST", "/Account/ObjectsFilter", params, function() {
+                            // Возможно придется выполнить какой либо код
+                            contentTableScripts();
+                        });
+                        dialog.dialog("close");
+                    },
+                    "Закрыть": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        
+        @* Байндинг экшена выбор фильтра *@
+        $("#object-filter-action").click(function() {
+            showObjectFilterDialog();
+            return false;
+        });
+        
+        @* байндинг переключений вкладок на основании статуса объекта *@
+        var sharpIdx = window.location.href.indexOf("#");
+        if (sharpIdx != -1) {
+            var sharpData = window.location.href.substr(sharpIdx + 1);
+            $("[sharp='" + sharpData + "']").click();
+        }
+
+        @* Инициализация древа *@
+        $(".objects-filter-tree").jstree({
+            "json_data": {
+                "data": [
+                    {
+                        "data": "Все объекты",
+                        "attr": {
+                            "id": "all"
+                        },
+                        "state": "closed",
+                        "children": [
+                            {
+                                "data": "Продажа",
+                                "attr": {
+                                    "id": "selling"
+                                },
+                                "state": "closed",
+                                "children": [
+                                    {
+                                        "data": "Комнаты",
+                                        "attr": {
+                                            "id": "selling_rooms"
+                                        }
+                                    },
+                                    {
+                                        "data": "Квартиры",
+                                        "attr": {
+                                            "id": "selling_flat"
+                                        },
+                                        "state": "closed",
+                                        "children": [
+                                            {
+                                                "data": "1",
+                                                "attr": {
+                                                    "id": "selling_flat_1"
+                                                }
+                                            },
+                                            {
+                                                "data": "2",
+                                                "attr": {
+                                                    "id": "selling_flat_2"
+                                                }
+                                            },
+                                            {
+                                                "data": "3",
+                                                "attr": {
+                                                    "id": "selling_flat_3"
+                                                }
+                                            },
+                                            {
+                                                "data": ">=4",
+                                                "attr": {
+                                                    "id": "selling_flat_4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": "Дома / Коттеджи",
+                                        "attr": {
+                                            "id": "selling_houses"
+                                        }
+                                    },
+                                    {
+                                        "data": "ЗУ",
+                                        "attr": {
+                                            "id": "selling_land"
+                                        }
+                                    },
+                                    {
+                                        "data": "Коммерческая недвижимость",
+                                        "attr": {
+                                            "id": "selling_office"
+                                        }
+                                    },
+                                    {
+                                        "data": "Гаражи / стояночные места",
+                                        "attr": {
+                                            "id": "selling_garages"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "data": "Покупка",
+                                "attr": {
+                                    "id": "buying"
+                                },
+                                "state": "closed",
+                                "children": [
+                                    {
+                                        "data": "Комнаты",
+                                        "attr": {
+                                            "id": "buying_rooms"
+                                        }
+                                    },
+                                    {
+                                        "data": "Квартиры",
+                                        "attr": {
+                                            "id": "buying_flat"
+                                        },
+                                        "state": "closed",
+                                        "children": [
+                                            {
+                                                "data": "1",
+                                                "attr": {
+                                                    "id": "buying_flat_1"
+                                                }
+                                            },
+                                            {
+                                                "data": "2",
+                                                "attr": {
+                                                    "id": "buying_flat_2"
+                                                }
+                                            },
+                                            {
+                                                "data": "3",
+                                                "attr": {
+                                                    "id": "buying_flat_3"
+                                                }
+                                            },
+                                            {
+                                                "data": ">=4",
+                                                "attr": {
+                                                    "id": "buying_flat_4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": "Дома / Коттеджи",
+                                        "attr": {
+                                            "id": "buying_houses"
+                                        }
+                                    },
+                                    {
+                                        "data": "ЗУ",
+                                        "attr": {
+                                            "id": "buying_land"
+                                        }
+                                    },
+                                    {
+                                        "data": "Коммерческая недвижимость",
+                                        "attr": {
+                                            "id": "buying_office"
+                                        }
+                                    },
+                                    {
+                                        "data": "Гаражи / стояночные места",
+                                        "attr": {
+                                            "id": "buying_garages"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "data": "Сдача в аренду",
+                                "attr": {
+                                    "id": "lising"
+                                },
+                                "state": "closed",
+                                "children": [
+                                    {
+                                        "data": "Комнаты",
+                                        "attr": {
+                                            "id": "lising_rooms"
+                                        }
+                                    },
+                                    {
+                                        "data": "Квартиры",
+                                        "attr": {
+                                            "id": "lising_flat"
+                                        },
+                                        "state": "closed",
+                                        "children": [
+                                            {
+                                                "data": "1",
+                                                "attr": {
+                                                    "id": "lising_flat_1"
+                                                }
+                                            },
+                                            {
+                                                "data": "2",
+                                                "attr": {
+                                                    "id": "lising_flat_2"
+                                                }
+                                            },
+                                            {
+                                                "data": "3",
+                                                "attr": {
+                                                    "id": "lising_flat_3"
+                                                }
+                                            },
+                                            {
+                                                "data": ">=4",
+                                                "attr": {
+                                                    "id": "lising_flat_4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": "Дома / Коттеджи",
+                                        "attr": {
+                                            "id": "lising_houses"
+                                        }
+                                    },
+                                    {
+                                        "data": "ЗУ",
+                                        "attr": {
+                                            "id": "lising_land"
+                                        }
+                                    },
+                                    {
+                                        "data": "Коммерческая недвижимость",
+                                        "attr": {
+                                            "id": "lising_office"
+                                        }
+                                    },
+                                    {
+                                        "data": "Гаражи / стояночные места",
+                                        "attr": {
+                                            "id": "lising_garages"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "data": "Съем в аренду",
+                                "attr": {
+                                    "id": "rent"
+                                },
+                                "state": "closed",
+                                "children": [
+                                    {
+                                        "data": "Комнаты",
+                                        "attr": {
+                                            "id": "rent_rooms"
+                                        }
+                                    },
+                                    {
+                                        "data": "Квартиры",
+                                        "attr": {
+                                            "id": "rent_flat"
+                                        },
+                                        "state": "closed",
+                                        "children": [
+                                            {
+                                                "data": "1",
+                                                "attr": {
+                                                    "id": "rent_flat_1"
+                                                }
+                                            },
+                                            {
+                                                "data": "2",
+                                                "attr": {
+                                                    "id": "rent_flat_2"
+                                                }
+                                            },
+                                            {
+                                                "data": "3",
+                                                "attr": {
+                                                    "id": "rent_flat_3"
+                                                }
+                                            },
+                                            {
+                                                "data": ">=4",
+                                                "attr": {
+                                                    "id": "rent_flat_4"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": "Дома / Коттеджи",
+                                        "attr": {
+                                            "id": "rent_houses"
+                                        }
+                                    },
+                                    {
+                                        "data": "ЗУ",
+                                        "attr": {
+                                            "id": "rent_land"
+                                        }
+                                    },
+                                    {
+                                        "data": "Коммерческая недвижимость",
+                                        "attr": {
+                                            "id": "rent_office"
+                                        }
+                                    },
+                                    {
+                                        "data": "Гаражи / стояночные места",
+                                        "attr": {
+                                            "id": "rent_garages"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "themes": {
+                "theme": "classic",
+                "url": "@Url.Content("/Content/jquery-themes/jsTree/style.css")",
+                "icons": true
+            },
+            "ui": {
+                "select_limit": 1
+            },
+            "core": {
+                "strings": {
+                    "loading": "Идет загрузка..."
+                }
+            },
+            "plugins": ["themes", "json_data", "ui", "checkbox"]
+        });
+</script>

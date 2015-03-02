@@ -1,0 +1,186 @@
+﻿@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.Book>
+
+@{
+    ViewBag.Title = "Редактирование списка книг";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Content-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Книги
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/content/add-book" id="add-book-action">Добавить</a> </li>
+                                    <li><a href="#" id="edit-book-action">Редактировать</a> </li>
+                                    <li><a href="#" id="delete-book-action">Удалить</a> </li>
+                                    <div class="separator">
+                                    </div>
+                                    <li><a href="/administration/content/menu">Меню</a> </li>
+                                    <li><a href="/administration/content/news">Публикации</a> </li>
+                                    <li><a href="/administration/content/banners">Баннера</a> </li>
+                                    <li><a href="/administration/content/notifications">Рассылки</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            ИД
+                                        </th>
+                                        <th>
+                                            Заголовок
+                                        </th>
+                                        <th>
+                                            Автор
+                                        </th>
+                                        <th>
+                                            Цена
+                                        </th>
+                                        <th>
+                                            Издатель
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach (var book in Model)
+                                        {
+                                            <tr data-item-id="@book.Id">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@book.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="Id">@book.Id</td>
+                                                <td field="Title">@book.Title</td>
+                                                <td field="Author">@book.Author</td>
+                                                <td field="Price">@String.Format("{0:C}",book.Price)</td>
+                                                <td field="Publisher">@book.Publisher</td>
+                                                <td>
+                                                    <span class="edit-row icon-edit" title="Редактировать"></span>&nbsp;<span class="delete-row icon-delete"
+                                                                                                                              title="Удалить"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    } else
+                                    {
+                                        <tr>
+                                            <td colspan="7">
+                                                <p align="center">Нет книг в учебном центре</p>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог удаления *@
+<div class="dialog" id="delete-pages-dialog" title="Удаление страниц" style="margin-top: 20px; display: none">
+    <div class="info">Вы действительно хотите удалить эти книги из системы? Эту операцию нельзя будет отменить.</div>
+</div>
+<script language="javascript" type="text/javascript">
+    
+    @* Отображает диалог удаления пермишеннов с указанными идентификаторами *@
+    function deleteBooksDialog(bookIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-pages-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/administration/content/delete-books',
+                        data: {
+                            bookIds: bookIds
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить книги");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Байндинг действия редактирования компании *@
+    $("#edit-book-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            window.location.href='/administration/content/edit-book/'+tr.first().data("item-id");
+        }
+        return false;
+    });
+    
+    @* Обработка удаления страниц *@
+    $("#delete-book-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteBooksDialog(idsStr);
+        return false;
+    });
+    
+    @* Редактирование страницы *@
+    $(".edit-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        window.location.href = "/administration/content/edit-book/" + id;
+    });
+
+    @* Удаление страницы *@
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deleteBooksDialog(id);
+    });
+</script>

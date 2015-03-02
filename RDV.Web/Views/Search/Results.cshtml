@@ -1,0 +1,155 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.MainPage
+@using RDV.Web.Models.Objects
+@using RDV.Web.Models.Search
+@model RDV.Web.Models.Search.SearchResultsModel
+@{
+    ViewBag.Title = "Результаты поиска";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-search-content">
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" class="unscroll" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Поиск объектов
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="add-criteria-action">Добавить критерий</a> </li>
+                                    <li><a href="#" id="delete-criterias-action">Удалить критерий</a> </li>@*
+                                    <div class="separator"></div>
+                                    <li>
+                                        <a href="#" id="save-search-action">Сохранить поиск</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="load-search-action">Загрузить поиск</a>
+                                    </li>*@
+                                    @if (ViewContext.IsAuthentificated())
+                                    {
+                                        <div class="separator"></div>
+                                        <li><a href="#" id="search-request-action">Сохранить запрос</a> </li>
+                                    }
+                                    <div class="separator">
+                                    </div>
+                                    <li><a href="#" id="export-search-action">Экспорт результатов</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма поиска *@
+                            @Html.Partial("SearchForm", Model.SearchData)
+                            <div class="clear">
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            @* Результаты поиска *@
+            <a name="results"></a>
+            <div id="search-results-wrapper">
+                <div class="block">
+                    <div class="block-header">
+                        <div class="block-title">
+                            Результаты поиска</div>
+                    </div>
+                    <div class="block-content">
+                        <div class="block-inner-content">
+                            @if (Model.SearchResults.Count == 0)
+                            {
+                                <div id="no-search-result">
+                                    К сожалению, поиск не дал результатов
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="search-results">
+                                    @switch (Model.SearchData.ObjectType)
+                                    {
+                                        case -1:
+                                            @Html.Partial("CommonSearchResultsTable", Model)
+                                            break;
+                                        case (short)EstateTypes.Flat:
+                                        case (short)EstateTypes.Room:
+                                            @Html.Partial("RoomFlatResultsTable", Model)
+                                            break;
+                                        case (short)EstateTypes.Garage:
+                                            @Html.Partial("GarageSearchResultsTable", Model)
+                                            break;
+                                        case (short)EstateTypes.Land:
+                                            @Html.Partial("LandSearchResultsTable", Model)
+                                            break;
+                                        case (short)EstateTypes.House:
+                                            @Html.Partial("HouseSearchResultsTable", Model)
+                                            break;
+                                        case (short)EstateTypes.Office:
+                                            @Html.Partial("OfficeSearchResultsTable", Model)
+                                            break;
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* Диалог сохранения поискового запроса *@
+            @if (ViewContext.IsAuthentificated())
+            {
+                <div id="search-request-dialog" class="dialog" style="display: none" title="Сохранение запроса">
+                    <form>
+                    <div class="editor-label">
+                        Наименование запроса
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" id="request-name-field" class="field round" placeholder="Введите наименование поискового запроса"/>
+                    </div>
+                    </form>   
+                </div>
+            }
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+            $("#search-request-action").click(function () {
+                var dialog = $("#search-request-dialog").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    modal: true,
+                    width: 350,
+                    buttons: {
+                        "Сохранить": function () {
+                            var name = $("#request-name-field").val();
+                            if (name == null || name == "") {
+                                alert("Введите наименование запроса");
+                                return;
+                            }
+                            $("#request-name-hidden").val(name);
+                            $("#search-form").attr("action", "/search/save-search-request");
+                            yaCounter23575690.reachGoal("new_request");
+                            $("#search-form").submit();
+                        },
+                        "Отмена": function () {
+                            dialog.dialog("close");
+                        }
+                    }
+                });
+                return false;
+            });
+
+            location.hash = "#results";
+        });
+        
+    </script>
+</div>

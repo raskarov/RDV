@@ -1,0 +1,127 @@
+﻿@using System.Text
+@using System.Web.UI.WebControls
+@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.SearchRequests.RequestObjectsListModel
+
+@Html.DevExpress().Menu(menuRequest =>
+{
+    menuRequest.Name = String.Format("RDV_request_objects_menu_request_{0}_{1}", Model.Request.Id, (short)Model.Status);
+    if (Model.Status == SearchRequestObjectStatus.New)
+    {
+        menuRequest.Items.Add(item =>
+        {
+            item.Name = "miAcceptObjects";
+            item.Text = "Перенести";
+            item.NavigateUrl = "javascript: acceptObjects()";
+        });
+
+        menuRequest.Items.Add(item =>
+        {
+            item.Name = "miDeclineObjects";
+            item.Text = "Отклонить";
+            item.NavigateUrl = "javascript: declineObjects()";
+        });
+    }
+    else if (Model.Status == SearchRequestObjectStatus.Accepted)
+    {
+        menuRequest.Items.Add(item =>
+        {
+            item.Name = "miDeclineObjects";
+            item.Text = "Отклонить";
+            item.NavigateUrl = "javascript: declineObjects()";
+        });
+    }
+}).GetHtml()
+
+@Html.DevExpress().GridView(innerSettings =>
+{
+    // Общая конфигурация
+    innerSettings.Name = String.Format("RDV_request_objects_grid_view_{0}_{1}", Model.Request.Id, (short)Model.Status);
+    innerSettings.CallbackRouteValues = new { Controller = "SearchRequests", Action = "SearchRequestObjectsPartial", status = Model.Status, id = Model.Request.Id };
+    innerSettings.Width = Unit.Percentage(100);
+
+    innerSettings.SettingsPager.PageSize = 30;
+    innerSettings.SettingsPager.AlwaysShowPager = true;
+    innerSettings.Settings.ShowGroupPanel = true;
+    innerSettings.Settings.ShowFilterRow = true;
+    innerSettings.Settings.ShowFilterRowMenu = true;
+
+    innerSettings.KeyFieldName = "Id";
+    innerSettings.Columns.Add(col =>
+    {
+        col.SetDataItemTemplateContent(c =>
+        {
+            Html.DevExpress().CheckBox(checkboxSettings =>
+            {
+                checkboxSettings.Name = "cb_" + c.KeyValue.ToString();
+                checkboxSettings.Attributes["data-id"] = Model.Request.Id.ToString();
+                checkboxSettings.Attributes["data-value"] = c.KeyValue.ToString();
+                checkboxSettings.Attributes["data-name"] = "cb_Choose";
+            }).Render();
+        });
+    });
+    innerSettings.Columns.Add(col =>
+    {
+        col.Caption = "Код";
+        col.FieldName = "ObjectId";
+        col.SetDataItemTemplateContent(c =>
+        {
+            var builder = new StringBuilder();
+            builder.AppendFormat("<a target='_blank' href='/objects/{0}/card' title='Карточка объекта'/>{0}</a>", c.Text);
+
+            ViewContext.Writer.Write(builder.ToString());
+        });
+    });
+    innerSettings.Columns.Add("Status", "Статус");
+    innerSettings.Columns.Add("Company", "Компания");
+    innerSettings.Columns.AddBand(band =>
+    {
+        band.Caption = "Местоположение";
+        band.Columns.Add("City", "Город");
+        band.Columns.Add("District", "Район");
+        band.Columns.Add("Area", "Массив");
+        band.Columns.Add("Street", "Улица");
+        band.Columns.Add("House", "№ дома");
+    });
+    innerSettings.Columns.Add("Price", "Цена, руб.").PropertiesEdit.DisplayFormatString = "0";
+    innerSettings.Columns.Add("RegistrationDate", "Дата регистрации").PropertiesEdit.DisplayFormatString = "dd.MM.yyyy";
+    if (Model.Status != SearchRequestObjectStatus.Declined)
+    {
+        innerSettings.Columns.Add("DatePriceChanged", "Дата изменения цены").PropertiesEdit.DisplayFormatString = "dd.MM.yyyy";
+        innerSettings.Columns.Add("OldPrice", "Старая цена").PropertiesEdit.DisplayFormatString = "c";
+    }
+    else
+    {
+        innerSettings.Columns.Add("DeclineDate", "Дата отклонения").PropertiesEdit.DisplayFormatString = "dd.MM.yyyy";
+        innerSettings.Columns.Add("DeclineReason", "Причина отклонения");
+    }
+    innerSettings.Columns.Add("BonusType", "Тип бонуса");
+    innerSettings.Columns.Add("BonusSize", "Размер бонуса");
+
+    // Дополнительные строки
+    innerSettings.Columns.Add(col =>
+    {
+        col.ColumnType = MVCxGridViewColumnType.ButtonEdit;
+        col.Caption = "Действия";
+        col.Width = Unit.Pixel(60);
+        col.SetDataItemTemplateContent(c =>
+        {
+            var builder = new StringBuilder();
+            long objId = (long)c.KeyValue;
+            var requestObj = Model.Request.GetRequestObjects().First(ro => ro.Id == objId);
+            if (Model.Status != SearchRequestObjectStatus.Accepted && requestObj.EstateObject.Status == (short)EstateStatuses.Active)
+            {
+                builder.AppendFormat("<a href='javascript:acceptObject({0},{1})' data-type='accept' title='Принять объект'/><img src='/Content/images/common/icon-accept.png'/></a>", Model.Request.Id, c.KeyValue);
+            }
+            if (Model.Status != SearchRequestObjectStatus.Declined)
+            {
+                builder.AppendFormat("<a href='javascript:declineObject({0},{1})' data-type='decline' title='Отклонить объект'/><img src='/Content/images/common/icon-decline.png'/></a>", Model.Request.Id, c.KeyValue);
+            }
+            builder.AppendFormat("<a href='javascript:writeComments({0},{1})' title='Написать комментарий'><img src='/Content/images/common/icon-comments.png'/></a>", Model.Request.Id, c.KeyValue);
+
+            ViewContext.Writer.Write(builder.ToString());
+        });
+    });
+}).Bind(Model.Data).GetHtml()

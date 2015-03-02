@@ -1,0 +1,37 @@
+﻿@model RDV.Web.Models.Account.ObjectsList.ObjectsListViewModel
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Объекты компании";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "CompanyObjects-tab" })
+            
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            @Html.Partial("ObjectsActionMenu",Model)
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            @Html.Partial("ObjectsTable",Model)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

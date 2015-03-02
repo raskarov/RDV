@@ -1,0 +1,124 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div id="about-navigation">
+        <div class="rdv-nav">
+            <div class="rdv-nav-inner">
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header">
+                        <a href="/about">О нас</a>
+                    </div>
+                    <ul class="rdv-nav-content">
+                        <li>
+                            <a href="/about/rieltors">Риэлторам</a>
+                        </li>
+                        <li>
+                            <a href="/about/clients">Клиентам</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header">
+                        <a href="/about/structure">Структура</a>
+                    </div>
+                    <ul class="rdv-nav-content">
+                        <li>
+                            <a href="/about/structure/common">Общее собрание</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/president">Президент</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/budget">Комитет по бюджетной и финансовой деятельности</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/development">Комитет по риэлторской деятельности, образованию и сертификации</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/etics">Комиссия по этике</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/training">Учебный центр</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/membership">Комиссия по членству</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/ross">РОСС</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/it">Комитет по IT</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/it/system">Комиссия по разработке и развитию сайта НП РДВ</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/partners">Комитет по работе с партнерами</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/partners/banks">Комиссия по работе с банками</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/partners/bonus">Комиссия по работе с партнерами по программе "Бонус ПЛЮС"</a>
+                        </li>
+                        <li>
+                            <a href="/about/structure/partners/legal">Комиссия по работе с гос. органами</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header collapsed">
+                        <a href="/about/docs">Нормативные документы</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="about-navigation-menu"></div>
+    </div>
+    <div id="about-content">
+        <div id="about-inner-content">
+            <div style="margin-bottom: 20px">
+                <img src="/Content/images/mainpage/rdv-logo-standalone.png" style="float: right"/>
+                <div class="slogan" style="font-family: 'Times New Roman'; font-size: 24px; font-weight: bold; padding-top: 25px">
+                    Сотрудничество с Нами - Гарантия успеха
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="static-content">
+                @RenderBody()    
+            </div>
+            
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".rdv-nav-section-header").click(function (e) {
+            if (e.target.name != "A") {
+                $(this).toggleClass("collapsed");
+                $(this).parent().find(".rdv-nav-content").stop(true, true).slideToggle("slow");
+            }
+        });
+        // Устанавливаем активный элемент
+        var relativeUrl = "@Request.Url.LocalPath";
+        $(".rdv-nav a").each(function (index, item) {
+            var rl = relativeUrl.toLowerCase();
+            var al = $(item).attr("href").toLowerCase();
+            if (rl == al) {
+                if ($(item).parent().hasClass("rdv-nav-section-header")) {
+                    $(this).addClass("active");
+                    return;
+                }
+                $(item).parent().addClass("active").parent().slideDown("slow").prev().removeClass("collapsed");
+            }
+        });
+    });
+    
+</script>

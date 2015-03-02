@@ -1,0 +1,18 @@
+﻿@model RDV.Web.Models.Objects.ObjectFormModel
+
+@{
+    ViewBag.Title = string.Format("Редактирование объекта №{0} - Системная информация", Model.EstateObject.Id);
+    Layout = "ObjectsLayout.cshtml";
+    ViewBag.ObjectId = Model.EstateObject.Id;
+}
+
+<div class="object-form-wrapper">
+    <h1>Системные реквизиты</h1>
+    @* Сама форма редактирования объекта *@
+    @Html.Partial("ObjectForm",Model)
+</div>
+
+<script language="javascript" type="text/javascript">
+    $("#system-properties").addClass("active");
+    $("#object-form").attr("action", "/objects/savemaininfo");
+</script>

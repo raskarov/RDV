@@ -1,0 +1,196 @@
+﻿@using RDV.Domain.Interfaces.Infrastructure
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@model RDV.Domain.Entities.ServiceType
+@{
+    var dictRep = Locator.GetService<IDictionariesRepository>();
+    var compRep = Locator.GetService<ICompaniesRepository>();
+    var geoManager = Locator.GetService<IGeoManager>();
+}
+<form action="/administration/services/save-service" method="POST" id="edit-service-form"
+      enctype="multipart/form-data">
+    <input type="hidden" name="Id" value="@Model.Id"/>
+    <div class="editor-label">
+        Название
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="service-name-field" maxlength="255" name="ServiceName" value="@Model.ServiceName" placeholder="Введите название услуги"/>
+    </div>
+    <div class="editor-label">
+        Провайдер
+    </div>
+    <div class="editor-field">
+        <select id="provider-id-field" name="ProvidedId" class="field round">
+            <option value="-2">Не выбран</option>
+            <option value="-1">Новый провайдер</option>
+            @foreach (var comp in compRep.GetActiveCompanies().Where(a => a.IsServiceProvider))
+            {
+                <option value="@comp.Id" @(Model.ProvidedId == comp.Id ? "selected=selected" : "")>@comp.Name</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        Тариф, руб.
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="service-tax-field" maxlength="255" name="Tax" value="@Model.Tax" placeholder="Введите стоимость услуги на единицу измерения"/>
+    </div>
+    <div class="editor-label">
+        Единицы измерения
+    </div>
+    <div class="editor-field">
+        <select id="measure-field" name="Measure" class="field round">
+            @foreach (var val in dictRep.GetDictionaryByName("service_measure").GetValues())
+            {
+                <option value="@val.Id" @(Model.Measure == val.Id ? "selected=selected" : "")>@val.Value</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        Описание
+    </div>
+    <div class="editor-field">
+        <textarea class="field round" id="service-desc-field" name="Description" placeholder="Введите описание услуги">@Model.Description</textarea>
+    </div>
+    <div class="editor-label">
+        Субъект
+    </div>
+    <div class="editor-field">
+        <select id="subject-field" name="Subject" class="field round">
+            @foreach (var val in dictRep.GetDictionaryByName("service_subject").GetValues())
+            {
+                <option value="@val.Id" @(Model.Subject == val.Id ? "selected=selected" : "")>@val.Value</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        География
+    </div>
+    <div class="editor-field">
+        @{
+            var cIds = (Model.Geo ?? "").Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(s => Convert.ToInt64(s)).ToList();
+        }
+        <input type="hidden" name="Geo" value="@Model.Geo" id="geo-field"/>
+        <select id="geo-selector-field" multiple="multiple" class="round field">
+            @foreach (var city in geoManager.CitiesRepository.FindAll())
+            {
+                <option value="@city.Id" @(cIds.Contains(city.Id) ? "selected=selected" : "")>@city.Name</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        % РДВ
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="rdv-tax-field" maxlength="255" name="RDVShare" value="@Model.RDVShare" placeholder="Введите комиссию РДВ, в процентах"/>
+    </div>
+    <div class="editor-label">
+        Регламент
+    </div>
+    <div class="editor-field">
+        <textarea class="field round" id="service-rules-field" name="Rules" placeholder="Введите регламент предоставления услуги">@Model.Rules</textarea>
+    </div>
+    <div class="editor-label">
+        Образцы (файл с образцами)
+    </div>
+    <div class="editor-field">
+        <input type="file" name="ExamplesImage" />
+    </div>
+    <div class="editor-label">
+        Файл скана договора
+    </div>
+    <div class="editor-field">
+        <input type="file" name="ContractScanImage" />
+    </div>
+    <div class="editor-label">
+        Номер договора
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="service-contract-number-field" maxlength="255" name="ContractNumber" value="@Model.ContractNumber" placeholder="Введите номер договора"/>
+    </div>
+    <div class="editor-label">
+        Дата заключения договора
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field datepicker" id="service-contract-date-field" maxlength="255" name="ContractDate" value="@Model.ContractDate.FormatDate()" placeholder="Введите дату заключения договора"/>
+    </div>
+    <div id="submit-button-wrapper">
+        <span id="submit-button" onclick="$('#edit-service-form').submit();"></span> <a style="position: relative; top: -10px" href="javascript:history.back()">Отмена</a>
+    </div>
+</form>
+@* Диалог добавления компании *@
+<div class="dialog" id="edit-company-dialog" title="Создание новой компании" style="display: none;">
+    @Html.Partial("EditCompanyForm")
+</div>
+<script type="text/javascript">
+    validators.bindEditServiceFormValidators();
+    $("#geo-selector-field").change(function () {
+        var ids = "";
+        var vals = $(this).val();
+        for (var i = 0; i < vals.length; i++) {
+            ids += vals[i] + ",";
+        }
+        $("#geo-field").val(ids);
+    }).multiselect({
+        noneSelectedText: 'Выберите значения из списка',
+        selectedList: 4,
+        maxWidth: 368
+    });
+
+    $("#provider-id-field").change(function() {
+        if ($(this).val() == "-1") {
+            newCompanyDialog();
+        }
+    });
+    
+    validators.bindCompanyFormValidators(submitCompanyForm);
+    
+    @* Функция отображающая диалог нового пользователя *@
+    function newCompanyDialog() {
+        // Очищаем форму
+        $("#edit-company-form label.error").hide();
+        $("#edit-company-form [name]").removeClass("error").removeClass("valid").val("");
+        $("#inactive-field").val("true");
+        $("#inactive-hidden").val("false");
+        $("#provider-field").val("true");
+        $("#provider-hidden").val("true");
+        $("#nds-field").val("true");
+        $("#nds-hidden").val("false");
+        // Отображаем диалог
+        $("#edit-company-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            maxHeight: window.innerHeight*0.8,
+            buttons: {
+                "Добавить": function () {
+                    $("#edit-company-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#edit-company-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Выполняет аяксовую отсылку формы создания новой роли *@
+    function  submitCompanyForm(form) {
+        $("#edit-company-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+    
+    @* Автокомплит названий услуг *@
+    $("#service-name-field").autocomplete({
+        minLength: 3,
+        source: '/administration/services/names',        
+    });
+</script>

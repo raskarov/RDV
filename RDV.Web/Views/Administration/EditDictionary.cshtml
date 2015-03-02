@@ -1,0 +1,322 @@
+﻿@model RDV.Web.Models.Administration.Dictionaries.EditDictionaryModel
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.Administration
+@using RDV.Web.Models.Administration.Roles
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Редактирование справочника "+Model.ToString();
+    var allPermissions = (IList<PermissionModel>) ViewBag.allPermissions;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Dictionaries-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Справочник
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="rename-dictionary-action">Переименовать</a> </li>
+                                    <li><a href="#" id="add-dictionary-value-action">Добавить значение</a> </li>
+                                    <li><a href="#" id="edit-dictionary-value-action">Редактировать значение</a> </li>
+                                    <li><a href="#" id="delete-dictionary-value-action">Удалить значение</a> </li>
+                                    <li><a href="#" id="export-dictionary-value-action">Экспортировать</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            ИД
+                                        </th>
+                                        <th>
+                                            Значение
+                                        </th>
+                                        <th>
+                                            Сокращение
+                                        </th>
+                                        <th>
+                                            Создано
+                                        </th>
+                                        <th>
+                                            Изменено
+                                        </th>
+                                        <th>
+                                            Автор изменений
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.DictionaryValues.Count > 0)
+                                    {
+                                        foreach (var dictionaryValue in Model.DictionaryValues)
+                                        {
+                                            <tr data-item-id="@dictionaryValue.Id">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@dictionaryValue.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="Id">@dictionaryValue.Id</td>
+                                                <td field="Value">@dictionaryValue.Value</td>
+                                                <td field="ShortValue">@dictionaryValue.ShortValue</td>
+                                                <td field="DateCreated">@dictionaryValue.DateCreated.FormatDateTime()</td>
+                                                <td field="DateModified">@dictionaryValue.DateModified.FormatDateTime()</td>
+                                                <td field="ModifiedBy"><a href="/administration/users/edit/@dictionaryValue.CreatedBy">@IdObjectsCache.GetUserLogin(dictionaryValue.ModifiedBy)</a></td>
+                                                <td>
+                                                    <span class="edit-row icon-edit" title="Редактировать"></span>&nbsp;<span class="delete-row icon-delete" title="Удалить"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else {
+                                        <tr>
+                                            <td colspan="8">
+                                                <div style="text-align: center">В данном справочнике нет ни одного значения</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог переименования роли *@
+<div class="dialog" id="rename-dictionary-dialog" title="Переименование справочника" style="display: none; padding-top: 30px">
+    <form action="/administration/dictionaries/rename-dictionary" method="POST" id="rename-dictionary-form">
+        <input type="hidden" name="Id" value="@Model.Id"/>
+        <div class="editor-label">
+            Новое системное имя справочника
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="SystemName" maxlength="255" id="dictionary-system-name-field" value="@Model.SystemName" />
+        </div>
+        <div class="editor-label">
+            Новое название справочника
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="DisplayName" maxlength="255" id="dictionary-display-name-field" value="@Model.DisplayName" />
+        </div>
+    </form>
+</div>
+@* Диалог создания / редактирования значения справочника *@
+<div class="dialog" id="edit-dictionary-value-dialog" title="Диалог редактирования значения справочников" style="display: none; margin-top: 20px;">
+    <form action="/administration/dictionaries/save-dictionary-value" method="POST" id="edit-dictionary-value-form">
+        <input type="hidden" name="Id" id="dictionary-value-id-field" value="-1"/>
+        <input type="hidden" name="DictionaryId" id="dictionary-id-field" value="@Model.Id"/>
+        <div class="editor-label">
+            Значение
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Value" maxlength="4000" id="dictionary-value-content-field" value="" />
+        </div>
+        <div class="editor-label">
+            Сокращение
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="ShortValue" maxlength="4000" id="dictionary-short-value-content-field" value="" />
+        </div>
+    </form>
+</div>
+@* диалог удаления пермишеннов *@
+<div class="dialog" title="Удаление значений справочников" id="delete-dictionary-values-dialog" style="display: none; margin-top: 20px">
+    <p>Вы действительно хотите удалить эти значения справочников? Внимание, если какое из полей объектов системы ссылается на это поле, произойдет неконтролируемая потеря данных и нарушение ссылочной целостности.</p>
+</div>
+
+<script language="javascript" type="text/javascript">
+    validators.bindRenameDictionaryFormValidators(submitRenameDictionaryForm);
+    validators.bindEditDictionaryValueFormValidators(submitEditDictionaryValueForm);
+    
+    @* Функция отображающая диалог переименования справочника *@
+    function renameDictionaryDialog() {
+        $("#rename-dictionary-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Переименовать": function () {
+                    $("#rename-dictionary-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#rename-dictionary-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    @* Выполняет аяксовую отсылку формы переименования справочника *@
+    function  submitRenameDictionaryForm(form) {
+        $("#rename-dictionary-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+
+    @* Диалог добавления нового значения к справочнику *@
+    function addDictionaryValueDialog() {
+        $("#dictionary-value-id-field").val(-1);
+        $("#edit-dictionary-value-form [name='Value']").val("");
+        $("#edit-dictionary-value-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            title: "Добавление нового значения",
+            modal: true,
+            width: 300,
+            buttons: {
+                "Добавить": function () {
+                    $("#edit-dictionary-value-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#edit-dictionary-value-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    @* Диалог редактирования выбранного значения справочника *@
+    function editDictionaryValueDialog(tableRow) {
+        // Устанавливаем переменные
+        var id = $(tableRow).data("item-id");
+         $("#dictionary-value-id-field").val(id);
+        $("#dictionary-value-content-field").val($(tableRow).find("td[field='Value']").text());
+        // Отображаем диалог
+        $("#edit-dictionary-value-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            title: "Редактирование значения справочника",
+            modal: true,
+            width: 400,
+            buttons: {
+                "Сохранить": function () {
+                    $("#edit-dictionary-value-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#edit-dictionary-value-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отправляет форму пермишенна на сервер *@
+    function submitEditDictionaryValueForm() {
+        $("#edit-dictionary-value-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+    
+    @* Отображает диалог удаления пермишеннов с указанными идентификаторами *@
+    function deleteDictionaryValuesDialog(valuesIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-dictionary-values-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/administration/dictionaries/delete-dictionary-values',
+                        data: {
+                            valuesIds: valuesIds,
+                            dictionaryId: $("#dictionary-id-field").val()
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить значения");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    $("#delete-dictionary-values-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    $("#rename-dictionary-action").click(function() {
+        renameDictionaryDialog();
+        return false;
+    });
+
+    $("#add-dictionary-value-action").click(function() {
+        addDictionaryValueDialog();
+        return false;
+    });
+
+    $("#edit-dictionary-value-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            editDictionaryValueDialog(tr.first());
+        }
+        return false;
+    });
+    
+    $("#delete-dictionary-values-dialog").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteDictionaryValuesDialog(idsStr);
+        return false;
+    });
+
+    $(".edit-row").click(function(e) {
+        var tr = $(this).parent().parent();
+        editDictionaryValueDialog(tr);
+    });
+
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deleteDictionaryValuesDialog(id);
+    });
+</script>

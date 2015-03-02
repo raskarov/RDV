@@ -1,0 +1,19 @@
+﻿@using RDV.Web.Classes
+@using RDV.Web.Classes.Extensions
+@model RDV.Domain.Entities.Article
+
+<div class="publication">
+    <div class="publication-date">
+        @Model.PublicationDate.ToString("dd MMMM yyyy")
+    </div>
+    <div class="publication-content">
+        <div class="publication-header">
+            <a href="/traning-center/view-news/@Model.Id">
+                @Model.Title
+            </a>
+        </div>
+        <div class="publication-annotation static-content">
+            @Html.Raw(@Model.ShortContent)
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+﻿@using RDV.Web.Classes.Extensions
+@using RDV.Web.Classes.Forms.Fields
+@model RDV.Web.Classes.Forms.FieldsList
+@{
+    IEnumerable<ObjectFormField> allFields = Model;    
+    if (!ViewContext.IsAuthentificated())
+    {
+        allFields = allFields.Where(f => !f.Name.Contains("multilisting-bonus")).Where(f => !f.Name.Contains("agreement-number")).Where(f => !f.Name.Contains("agreement-end-date")).Where(f => !f.Name.Contains("agreement-start-date")).Where(f => !f.Name.Contains("agreement-type"));
+    }
+}
+<select id="search-criteria-field" class="round field">
+    @foreach(var group in allFields.GroupBy(s => s.Category))
+    {
+        <optgroup label="@group.Key">
+            @foreach(var field in group.OrderBy(f => f.Caption))
+            {
+                <option value="@field.Name">@field.Caption</option>         
+            }
+        </optgroup>
+    }    
+</select>

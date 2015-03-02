@@ -1,0 +1,55 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.Search
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Расширенный поиск";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-search-content">
+            
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Поиск объектов
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li>
+                                        <a href="#" id="add-criteria-action">Добавить критерий</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="delete-criterias-action">Удалить критерий</a>
+                                    </li>
+                                    @*<div class="separator"></div>
+                                    <li>
+                                        <a href="#" id="save-search-action">Сохранить поиск</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="load-search-action">Загрузить поиск</a>
+                                    </li>*@
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма поиска *@
+                            @Html.Partial("SearchForm",new SearchFormModel())
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

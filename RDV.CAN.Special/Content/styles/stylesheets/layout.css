@@ -1,0 +1,119 @@
+/* line 1, ../sass/layout.sass */
+body {
+  background-color: white;
+  font-family: Arial;
+  font-size: 13px;
+}
+/* line 6, ../sass/layout.sass */
+body a {
+  text-decoration: underline;
+}
+/* line 9, ../sass/layout.sass */
+body a:hover {
+  text-decoration: none;
+}
+/* line 12, ../sass/layout.sass */
+body #header {
+  height: 141px;
+  background-color: #e5e5e5;
+  background: url(../../images/layout/headerbg.png) top center repeat;
+}
+/* line 17, ../sass/layout.sass */
+body #header #header-content {
+  width: 960px;
+  margin: 0px auto;
+  padding-top: 10px;
+}
+/* line 22, ../sass/layout.sass */
+body #header #header-content #call-info {
+  float: right;
+  text-align: right;
+  margin-right: 5px;
+}
+/* line 27, ../sass/layout.sass */
+body #header #header-content #call-info .info-line {
+  line-height: 1.15;
+  font-size: 13pt;
+  font-family: Tahoma;
+  color: black;
+  font-weight: bold;
+}
+/* line 34, ../sass/layout.sass */
+body #header #header-content #call-info .info-line-large {
+  font-size: 28px;
+  font-weight: bold;
+  font-style: italic;
+  color: black;
+  margin-top: 5px;
+}
+/* line 41, ../sass/layout.sass */
+body #header #header-content #call-info .buttons {
+  margin-top: 10px;
+}
+/* line 44, ../sass/layout.sass */
+body #header #header-content #call-info .buttons #callback-button {
+  width: 173px;
+  height: 45px;
+  cursor: pointer;
+  margin-right: 5px;
+  background: url(../../images/layout/callback.png) left top no-repeat;
+}
+/* line 51, ../sass/layout.sass */
+body #header #header-content #call-info .buttons #feedback-button {
+  width: 122px;
+  height: 45px;
+  cursor: pointer;
+  margin-right: 0px;
+  background: url(../../images/layout/feedback.png) left top no-repeat;
+}
+/* line 58, ../sass/layout.sass */
+body #footer {
+  background-color: #222222;
+  padding: 35px;
+  height: 60px;
+  text-align: center;
+  font-style: italic;
+  color: #f4ce22;
+  font-size: 16px;
+}
+/* line 67, ../sass/layout.sass */
+body #footer .name {
+  margin-top: 10px;
+  font-size: 23px;
+  font-weight: bold;
+}
+/* line 72, ../sass/layout.sass */
+body #content {
+  margin: 10px 0px;
+}
+/* line 75, ../sass/layout.sass */
+body #content #content-wrapper {
+  width: 960px;
+  margin: 0px auto;
+}
+
+/* line 80, ../sass/layout.sass */
+.dialog .editor-label {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: black;
+}
+/* line 86, ../sass/layout.sass */
+.dialog .editor-field {
+  margin-bottom: 5px;
+}
+/* line 89, ../sass/layout.sass */
+.dialog .editor-field input[type='text'], .dialog .editor-field textarea, .dialog .editor-field input[type='password'] {
+  border: 1px solid #a9a9a9;
+  border-radius: 3px;
+  padding: 6px;
+  width: 220px;
+}
+/* line 95, ../sass/layout.sass */
+.dialog .editor-field label.error {
+  display: block;
+  color: red;
+  margin-top: 5px;
+  font-size: 11px;
+}

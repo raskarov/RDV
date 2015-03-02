@@ -1,0 +1,177 @@
+﻿@model RDV.Web.Models.Objects.ObjectFormModel
+
+@{
+    ViewBag.Title = string.Format("Редактирование объекта №{0} - Сервисная информация", Model.EstateObject.Id);
+    Layout = "ObjectsLayout.cshtml";
+    ViewBag.ObjectId = Model.EstateObject.Id;
+}
+
+<div class="object-form-wrapper">
+    <h1>Сервисные реквизиты</h1>
+    @* Сама форма редактирования объекта *@
+    @Html.Partial("ObjectForm",Model)
+</div>
+
+<script language="javascript" type="text/javascript">
+    var elems = $("[name='multiselect_contact-person-field']").parents("ul").find("span");
+    $.each(elems, function (index, value) {
+        var contactHtmls = $(value).html();
+        while (contactHtmls.indexOf("|es|") != -1) {
+            contactHtmls = contactHtmls.replace("|es|", "<br />");
+        }
+        $(value).html(contactHtmls);
+    });
+    
+    var elems = $("#contact-person-field-wrapper button span");
+    $.each(elems, function (index, value) {
+        var contactHtmls = $(value).html();
+        while (contactHtmls.indexOf("|es|") != -1) {
+            contactHtmls = contactHtmls.replace("|es|", "<br />");
+        }
+        $(value).html(contactHtmls);
+    });
+
+    $("#service-properties").addClass("active");
+    $("#object-form").attr("action", "/objects/saveserviceinfo");
+    $("#form-prev-action").hide();
+
+    // Скрипты для взаимодействия полей
+    function updateExchangeConditions() {
+        var show = $("#exchange-required-field").attr("checked") == "checked";
+        if (show) {
+            $("#exchange-description-field-wrapper").show();
+        } else {
+            $("#exchange-description-field-wrapper").hide();
+        }
+    }
+    $("#exchange-required-field").change(function () {
+        updateExchangeConditions();
+    });
+    updateExchangeConditions();
+    
+    function updateSpecialOffer() {
+        var show = $("#special-offer-field").attr("checked") == "checked";
+        if (show) {
+            $("#special-offer-text-field-wrapper").show();
+        } else {
+            $("#special-offer-text-field-wrapper").hide();
+        }
+    }
+    $("#special-offer-field").change(function () {
+        updateSpecialOffer();
+    });
+    updateSpecialOffer();
+
+    function updateSetNumberAgency() {
+        var show = $("#set-number-agency-field").attr("checked") == "checked";
+        if (show) {
+            $("#contact-person-field-wrapper").show();
+        } else {
+            $("#contact-person-field-wrapper").hide();
+        }
+    }
+    $("#set-number-agency-field").change(function () {
+        updateSetNumberAgency();
+    });
+    updateSetNumberAgency();
+    
+    function updateMultilistingFields() {
+        var dogovor = $("#agreement-type-field").val();
+        if (dogovor == "354") {
+            $("#multilisting-bonus-field-wrapper").show();
+            $("#multilisting-bonus-type-field-wrapper").show();
+        } else {
+            $("#multilisting-bonus-field-wrapper").hide();
+            $("#multilisting-bonus-type-field-wrapper").hide();
+        }
+    }
+    
+    // Нужно чтобы они были красными, но у них своя проверка, поэтому через C# не сделать
+    $("#multilisting-bonus-field-wrapper").find("div.editor-label").addClass("required-label");
+    $("#multilisting-bonus-field").addClass("field-required");
+    $("#multilisting-bonus-type-field-wrapper").find("div.editor-label").addClass("required-label");
+
+    function updateAgreementFields() {
+        var dogovor = $("#agreement-type-field").val();
+        if (dogovor != "" && dogovor != "265") {
+            $("#agreement-number-field-wrapper").show();
+            $("#agreement-start-date-field-wrapper").show();
+            $("#agreement-end-date-field-wrapper").show();
+        } else {
+            $("#agreement-number-field-wrapper").hide();
+            $("#agreement-start-date-field-wrapper").hide();
+            $("#agreement-end-date-field-wrapper").hide();
+        }
+    }
+
+    $("#agreement-number-field-wrapper").find("div.editor-label").addClass("required-label");
+    $("#agreement-number-field").addClass("field-required");
+    $("#agreement-start-date-field-wrapper").find("div.editor-label").addClass("required-label");
+    $("#agreement-start-date-field").addClass("field-required");
+    $("#agreement-end-date-field-wrapper").find("div.editor-label").addClass("required-label");
+    $("#agreement-end-date-field").addClass("field-required");
+
+    updateAgreementFields();
+
+    updateMultilistingFields();
+    $("#agreement-type-field").change(function () {
+        updateMultilistingFields();
+        updateAgreementFields();
+        $("#agreement-number-field").val("");
+        $("#agreement-start-date-field").val("");
+        $("#agreement-end-date-field").val("");
+        $("#multilisting-bonus-type-field").val(355);
+    });
+
+    var customValidate = function () {
+        var dogovor = $("#agreement-type-field").val();
+        if (dogovor == "266" || dogovor == "354") {
+            var dovNum = $("#agreement-number-field").val();
+            var dovStart = $("#agreement-start-date-field").val();
+            var dovEnd = $("#agreement-end-date-field").val();
+            if (dovNum == null || dovNum == "") {
+                alert("Введите номер договора");
+                return false;
+            }
+            if (dovStart == null || dovStart == "") {
+                alert("Введите дату заключения договора");
+                return false;
+            }
+            if (dovEnd == null || dovEnd == "") {
+                alert("Введите дату окончания действия договора");
+                return false;
+            }
+        }
+        if (dogovor == "354") {
+            var bonusType = $("#multilisting-bonus-type-field").val();
+            var bonus = $("#multilisting-bonus-field").val();
+            if (bonus == "" || bonus == undefined) {
+                alert("Введите размер бонуса");
+                return false;
+            }
+            if (bonusType == "") {
+                alert("Выберите тип бонуса");
+                return false;
+            }
+            if (bonusType == "355") {
+                var str = bonus.replace(',', ".");
+                var size = parseFloat(str);
+                if (size < 0.01 || bonus > 99.99) {
+                    alert("Введите правильный размер бонусной комиссии в процентах");
+                    return false;
+                }
+            }
+            if (bonusType == "356") {
+                var str = bonus.replace(',', ".");
+                var size = parseFloat(str);
+                var price = parseInt($("#price-field").val());
+                if (size < 0 || bonus > price) {
+                    alert("Введите правильный размер бонусной комиссии в рублях");
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+</script>

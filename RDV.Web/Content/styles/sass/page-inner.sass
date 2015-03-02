@@ -1,0 +1,455 @@
+#page
+	width: 100%
+	margin-top: 15px
+
+	.page-header
+		min-height: 25px
+		margin-bottom: 6px
+
+		.page-title
+			margin-left: 5px
+			font-size: 20px
+			color: #333333
+			font-family: $content-header-font
+			padding-top: 3px
+
+		#navigation-chain
+			margin-top: 3px
+			display: inline-block !important
+			margin-left: 5px
+
+			li.navigation-chain-item
+				display: inline-block !important
+				margin-right: 5px
+				font-size: 13px
+				color: #7f7f7f
+
+				.chain-bullet
+					margin-right: 5px
+
+				a
+					color: #7f7f7f
+
+					&:hover
+						text-decoration: underline
+
+	.page-content
+		border: 1px solid #cacaca
+		border-radius: $block-border-radius
+
+		a
+			color: #0a8149
+			text-decoration: none
+
+			&:hover
+				text-decoration: underline
+
+		.page-inner-content, .static-page-content
+			min-height: 50px
+			border: 1px solid white
+			background-color: #f0f0f0
+			border-radius: $block-border-radius
+			position: relative
+			font-size: 12px
+			padding: 20px
+
+			p
+				margin: 10px 0px
+				line-height: 1.5
+
+			b
+				font-weight: bold
+				font-size: 1.2em
+
+
+	#page-registration
+		width: 100%
+
+		#registration-info
+			float: left
+			width: 60%
+
+			p
+				margin-left: 30px
+				margin-top: 5px
+				margin-bottom: 10px
+				text-align: justify
+				color: #323232
+
+		#registration-form
+			float: left
+			width: 40%
+
+		.reg-field
+			width: 220px
+
+	#rules
+		p
+			text-align: justify
+			margin: 10px 0px
+			color: #323232
+
+			&:first-child
+				margin-top: 0px
+
+			&:last-child
+				margin-top: 0px
+
+			b
+				font-weight: bold
+
+		ul
+			list-style-type: disc !important
+			list-style-position: inside
+
+			li
+				list-style-type: disc !important
+
+
+		.title
+			margin-top: 20px
+			margin-bottom: 10px
+			font-size: 14px
+			font-weight: bold
+
+	#companies
+		.company
+			margin-bottom: 15px
+
+			.company-photo
+				float: left
+				width: 100px
+				height: 100px
+				overflow: hidden
+				text-align: center
+				margin-right: 10px
+				cursor: pointer
+
+				img
+					width: 100px
+					height: auto
+
+			.company-info
+				padding-top: 2px
+				
+				.company-title
+					font-size: 15px
+
+				.company-line
+					font-size: 13px
+					margin-top: 5px
+
+				.company-director
+					font-size: 14px
+					margin-top: 5px
+
+	.company-full-info, .user-full-info
+		.company-title, .user-title
+			font-size: 24px
+			font-weight: bold
+			margin-bottom: 10px
+
+		.company-director, .company-address, .company-phones, .user-line
+			font-size: 13px
+			margin-bottom: 10px
+
+		.company-agents
+			margin-top: 15px
+
+			.agents-title
+				font-size: 18px
+				font-weight: bold
+				margin-bottom: 10px
+
+			.agent
+				margin-bottom: 15px
+				.agent-photo
+					float: left
+					width: 80px
+					height: 80px
+					margin-right: 10px
+					overflow: hidden
+					border-radius: 10px
+					text-align: center
+
+					img
+						width: 80px
+						height: auto
+
+				.agent-info
+					padding-top: 4px
+
+					.agent-name
+						font-size: 14px
+
+					.agent-line
+						font-size: 13px
+						margin-top: 4px
+
+	#articles
+
+
+		.article
+			margin-bottom: 20px
+
+			.article-header
+				margin-bottom: 5px
+				font-size: 14px
+
+				a
+					color: #2a2a2a
+					text-decoration: none
+
+					&:hover
+						text-decoration: underline
+
+			.article-preview
+				text-align: justify
+				font-size: 10px
+				color: #919698
+
+	#about-navigation
+		display: inline-block
+		vertical-align: top
+		width:  250px
+		overflow: hidden
+		text-overflow: ellipsis
+
+		#about-navigation-menu
+			background-color: transparent !important
+
+			a
+				font-size: 13px
+
+	#about-content
+		width: 700px
+		display: inline-block
+		vertical-align: top
+		border: 1px solid #cacaca
+		border-radius: $block-border-radius
+
+		#about-inner-content
+			min-height: 50px
+			border: 1px solid white
+			background-color: #f0f0f0
+			border-radius: $block-border-radius
+			position: relative
+			font-size: 12px
+			padding: 20px
+
+			a
+				color: green
+
+				&:hover
+					text-decoration: underline
+
+			p
+				margin: 4px 0px
+
+			.block
+				margin-bottom: 15px
+
+				.block-inner-content
+					min-height: 10px !important
+					padding: 15px
+
+
+			#ask-question, #callback
+				display: inline-block
+				vertical-align: top
+				color: white
+				font-weight: bold
+				border: 1px solid green
+				background-color: #56b769
+				border-radius: 5px
+				padding: 7px
+				margin-right: 10px
+				margin-bottom: 15px
+				margin-top: 15px
+				cursor: pointer
+
+			.members-list
+				.member
+					margin-bottom: 20px
+
+					.member-photo
+						width: 80px
+						height: 80px
+						float: left
+						margin-right: 10px
+						background-color: #a9a9a9
+						overflow: hidden
+						text-align: center
+
+						img
+							width: 80px
+							height: auto
+
+					.member-info
+						padding-top: 5px
+
+						.member-info-item
+							margin-bottom: 5px
+
+#training-center-news
+	margin-top: 20px
+
+	.month
+		margin: 20px 0px
+
+		.month-header
+			font-size: 20px
+			font-weight: bold
+			border-bottom: 3px solid darkgray
+			margin-bottom: 15px
+			padding-bottom: 10px
+			color: #6d6d6d
+
+		.pubs
+			margin-bottom: 25px
+
+			.publication
+				margin-bottom: 25px
+
+				.publication-date
+					display: inline-block
+					vertical-align: top
+					width: 15%
+					margin-right: 15px
+					font-size: 13px
+					font-weight: bold
+
+				.publication-content
+					display: inline-block
+					vertical-align: top
+					width: 80%
+
+					.publication-header
+						margin-bottom: 10px
+
+						a
+							font-weight: bold
+
+					.publication-annotation
+
+	#publication
+
+		#publication-date
+			font-size: 20px
+			font-weight: bold
+			border-bottom: 3px solid darkgray
+			margin-bottom: 15px
+			padding-bottom: 10px
+			color: #6d6d6d
+
+		#publication-content
+			.title
+				font-weight: bold
+				margin-bottom: 20px
+
+#teachers
+	margin-top: 25px
+
+	.teacher
+		margin-bottom: 20px
+
+		.teacher-photo
+			display: inline-block
+			vertical-align: top
+			width: 90px
+			height: 115px
+			text-align: center
+			overflow: hidden
+			cursor: pointer
+
+			img
+				width: 90px
+				height: auto
+
+		.teacher-info
+			display: inline-block
+			vertical-align: top
+			margin-left: 10px
+
+			.info-item
+				margin-bottom: 10px
+
+				.info-title
+					display: inline-block
+					vertical-align: top
+					text-align: left
+					width: 130px
+
+				.info-content
+					display: inline-block
+					vertical-align: top
+					text-align: left
+					width: 400px
+					font-weight: bold
+					margin-left: 20px
+
+.book
+	margin: 15px 0px
+	border-bottom: 2px solid #a9a9a9
+	padding-bottom: 15px
+
+	.book-preview
+		display: inline-block
+		vertical-align: top
+		width: 90px
+		height: 115px
+		text-align: center
+		overflow: hidden
+		cursor: pointer
+
+		img
+			width: 90px
+			height: auto
+
+
+
+	.book-info
+		display: inline-block
+		vertical-align: top
+		margin-left: 10px
+
+		.book-info-item
+			margin-bottom: 10px
+
+			.book-info-caption
+				display: inline-block
+				vertical-align: top
+				text-align: left
+				width: 130px
+
+			.book-info-value
+				display: inline-block
+				vertical-align: top
+				text-align: left
+				width: 400px
+				font-weight: bold
+				margin-left: 20px
+
+		.book-annotation
+			margin-top: 10px
+			padding: 10px
+			border: 1px dashed gray
+
+		.book-button
+			margin-top: 5px
+			text-align: right
+
+			span
+				display: inline-block
+				vertical-align: top
+				color: white
+				font-weight: bold
+				border: 1px solid green
+				background-color: #56b769
+				border-radius: 5px
+				padding: 7px
+				cursor: pointer
+
+
+
+

@@ -1,0 +1,149 @@
+/* line 1, ../sass/main.sass */
+.btitle {
+  font-family: "Impact";
+  font-size: 28px;
+  color: #222222;
+  margin-bottom: 10px;
+}
+
+/* line 7, ../sass/main.sass */
+.block {
+  border-radius: 5px;
+  background-color: #222222;
+  padding: 25px;
+}
+/* line 12, ../sass/main.sass */
+.block .ytitle {
+  font-family: "Impact";
+  font-size: 24px;
+  color: #f7c900;
+  margin-bottom: 10px;
+}
+/* line 18, ../sass/main.sass */
+.block #izoplan-column {
+  display: inline-block;
+  vertical-align: top;
+  width: 530px;
+  border-radius: 5px;
+  margin-right: 25px;
+}
+/* line 25, ../sass/main.sass */
+.block #izoplan-column #izoplan {
+  height: 230px;
+  background-color: #b8860b;
+  cursor: pointer;
+}
+/* line 30, ../sass/main.sass */
+.block #map-column {
+  display: inline-block;
+  vertical-align: top;
+  width: 350px;
+  border-radius: 5px;
+}
+/* line 36, ../sass/main.sass */
+.block #map-column #map {
+  height: 230px;
+  background-color: #b8860b;
+}
+
+/* line 40, ../sass/main.sass */
+#tour {
+  border-radius: 5px;
+  overflow: hidden;
+  height: 325px;
+  background-color: gray;
+  margin: 10px 0px;
+}
+
+/* line 47, ../sass/main.sass */
+.content-block {
+  background-color: #222222;
+  border-radius: 5px;
+}
+/* line 51, ../sass/main.sass */
+.content-block .content-block-title {
+  font-family: "Impact";
+  font-size: 18px;
+  color: #f7c900;
+  padding: 10px 25px;
+}
+/* line 57, ../sass/main.sass */
+.content-block .sub-object {
+  position: relative;
+  border-radius: 5px;
+  clear: both;
+  background: #cdcdcd url(../../images/layout/titlebg.png) left -1px no-repeat;
+}
+/* line 63, ../sass/main.sass */
+.content-block .sub-object .sub-object-title {
+  font-family: "Impact";
+  font-size: 18px;
+  color: #f7c900;
+  position: absolute;
+  top: 20px;
+  left: 35px;
+}
+/* line 71, ../sass/main.sass */
+.content-block .sub-object .sub-object-description {
+  padding-top: 78px;
+  margin-left: 40px;
+  font-family: Tahoma;
+  line-height: 1.4;
+  font-size: 13px;
+  padding-bottom: 10px;
+}
+/* line 79, ../sass/main.sass */
+.content-block .sub-object .sub-object-description b {
+  font-weight: bold;
+}
+/* line 82, ../sass/main.sass */
+.content-block .sub-object .sub-object-description p {
+  margin: 5px 0px;
+}
+/* line 87, ../sass/main.sass */
+.content-block .sub-object .sub-object-gallery {
+  margin-top: 30px;
+  margin-left: 15px;
+  float: right;
+  width: 437px;
+  margin-right: 20px;
+}
+/* line 94, ../sass/main.sass */
+.content-block .sub-object .sub-object-gallery .sub-object-section {
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #e6e6e6;
+  margin-bottom: 5px;
+}
+/* line 100, ../sass/main.sass */
+.content-block .sub-object .sub-object-gallery .sub-object-section .sub-object-gallery-title {
+  display: inline-block;
+  vertical-align: top;
+  width: 40px;
+  text-align: center;
+  margin-top: 30px;
+  color: #222222;
+  font-size: 11px;
+}
+/* line 109, ../sass/main.sass */
+.content-block .sub-object .sub-object-gallery .sub-object-section .sub-object-gallery-item {
+  display: inline-block;
+  vertical-align: top;
+  width: 68px;
+  height: 68px;
+  background-color: #222222;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-right: 6px;
+  overflow: hidden;
+}
+/* line 120, ../sass/main.sass */
+.content-block .sub-object .sub-object-gallery .sub-object-section .sub-object-gallery-item img {
+  width: 68px;
+  height: 68px;
+  cursor: pointer;
+}
+/* line 125, ../sass/main.sass */
+.content-block .sub-object .sub-object-gallery .sub-object-section .sub-object-gallery-item:last-child {
+  margin-right: 0px !important;
+}

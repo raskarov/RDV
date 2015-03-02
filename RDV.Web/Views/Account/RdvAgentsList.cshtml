@@ -1,0 +1,8 @@
+﻿@model System.Collections.Generic.List<RDV.Domain.Entities.User>
+
+<select id="rdv-agent-id-field" name="rdvAgentId">
+    @foreach (var agent in Model)
+    {
+        <option value="@agent.Id">@agent.ToString()</option>
+    }
+</select>

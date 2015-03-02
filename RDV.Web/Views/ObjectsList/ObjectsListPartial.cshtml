@@ -1,0 +1,185 @@
+﻿@using System.Text
+@using System.Web.UI.WebControls
+@using DevExpress.Data
+@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Objects.ObjectListModel
+     
+
+@Html.DevExpress().GridView(settings =>
+    {
+        // Общая конфигурация
+        settings.Name = String.Format("RDV_grid_view_{0}_{1}_{2}", (short) Model.EstateType, (short) Model.Section, (short) Model.Status);
+        settings.CallbackRouteValues = new {Controller = "ObjectsList", Action = "ObjectsListPartial", EstateType = Model.EstateType, Section = Model.Section, Status = Model.Status};
+        settings.Width = Unit.Percentage(100);
+
+        settings.SettingsPager.PageSize = 100;
+        settings.SettingsPager.AlwaysShowPager = true;
+        settings.Settings.ShowGroupPanel = true;
+        settings.Settings.ShowFilterRow = true;
+        settings.Settings.ShowFilterRowMenu = true;
+        settings.SettingsDetail.AllowOnlyOneMasterRowExpanded = false;
+        settings.SettingsDetail.ShowDetailRow = true;
+        
+        // Конфигурация столбцов
+        settings.Columns.Add(col =>
+        {
+            col.SetDataItemTemplateContent(c =>
+            {
+                Html.DevExpress().CheckBox(checkboxSettings =>
+                {
+                    checkboxSettings.Name = "cb_" + c.KeyValue.ToString();
+                    checkboxSettings.Attributes["data-id"] = c.KeyValue.ToString();
+                    //checkboxSettings.Properties.ClientSideEvents.CheckedChanged = "OnCheckedChanged";
+                }).Render();
+            });
+        });
+        
+        
+        settings.KeyFieldName = "Id";
+        settings.Columns.Add("Id", "Код");
+        settings.Columns.AddBand(band =>
+        {
+            band.Caption = "Местоположение";
+            band.Columns.Add("City", "Город");
+            band.Columns.Add("District", "Район");
+            band.Columns.Add("Area", "Массив");
+            band.Columns.Add("Street", "Улица");
+            if (Model.EstateType != EstateTypes.Garage)
+            {
+                band.Columns.Add("House", "№ дома");
+            }
+        });
+
+        switch (Model.EstateType)
+        {
+            case EstateTypes.Flat:
+            case EstateTypes.Room:
+                settings.Columns.Add("RoomsCount", "Кол-во комнат");
+                settings.Columns.Add("HouseType", "Тип дома");
+                settings.Columns.Add("FloorNumber", "Этаж");
+                settings.Columns.Add("TotalFloors", "Этажность");
+                settings.Columns.AddBand(band =>
+                {
+                    band.Caption = "Площади";
+
+                    band.Columns.Add("TotalArea", "О");
+                    band.Columns.Add("LivingArea", "Ж");
+                    band.Columns.Add("KitchenArea", "К");
+                });
+                break;
+            case EstateTypes.House:
+                settings.Columns.Add("BuildingMaterial", "Материал постройки");
+                settings.Columns.Add("TotalFloors", "Этажность");
+                settings.Columns.AddBand(band =>
+                {
+                    band.Caption = "Площади";
+
+                    band.Columns.Add("TotalArea", "О");
+                    band.Columns.Add("LivingArea", "Ж");
+                    band.Columns.Add("KitchenArea", "К");
+                });
+                settings.Columns.Add("LandArea", "Площадь участка");
+                settings.Columns.Add("Legal", "Право на участок");
+                break;
+            case EstateTypes.Land:
+                settings.Columns.Add("LandArea", "Площадь участка");
+                break;
+            case EstateTypes.Office:
+                settings.Columns.Add("Assigment", "Назначение");
+                settings.Columns.Add("TotalArea", "Площадь");
+                break;
+            case EstateTypes.Garage:
+                settings.Columns.Add("BuildingMaterial", "Материал постройки");
+                settings.Columns.Add("TotalArea", "Площадь");
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        settings.Columns.Add("Price", "Цена, руб.").PropertiesEdit.DisplayFormatString = "0";
+        if (Model.Section == ObjectsListSection.CompanyObjects || Model.Section == ObjectsListSection.AllObjects)
+        {
+            settings.Columns.Add("UserName", "Агент");
+        }
+        if (Model.Section == ObjectsListSection.AllObjects)
+        {
+            settings.Columns.Add("CompanyName", "Компания");
+        }
+        
+        // Дополнительные строки
+        settings.Columns.Add(col =>
+        {
+            col.ColumnType = MVCxGridViewColumnType.ButtonEdit;
+            col.Caption = "Действия";
+            col.Width = Unit.Pixel(90);
+            col.SetDataItemTemplateContent(c =>
+            {
+                var builder = new StringBuilder();
+                long objId = (long) c.KeyValue;
+
+                builder.AppendFormat("<div class='btn-group pull-right'><button onclick='tglDropMenuGrid(this, {0}, -70)' data-toggle='dropdown' class='btn dropdown-toggle' style='padding: 4px 4px 4px 4px'>Действия<span class='caret'></span></button><ul class='dropdown-menu dropdown-default'>", c.KeyValue);
+
+                builder.AppendFormat("<li><a data-toggle-a='link' href='/objects/{0}/card' title='Карточка объекта'/><img src='/Content/images/common/icon-object-card.png'/>&nbsp;Карточка объекта</a></li>", c.KeyValue);
+
+                if (ViewContext.CurrentUser().CanEditObject(objId))
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='/objects/{0}/service' title='Редактировать объект' target='_blank'><img src='/Content/images/common/icon-edit.png'/>&nbsp;Редактировать объект</a></li>", c.KeyValue);
+                }
+                
+                if (ViewContext.CurrentUser().CanChangeStatus(objId))
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='javascript:changeObjectStatus({0})' title='Изменить статус объекта'><img src='/Content/images/common/icon-object-change-status.png'/>&nbsp;Изменить статус объекта</a></li>", c.KeyValue);
+                }
+
+                if (ViewContext.CurrentUser().HasPermission(Permission.ChangeObjectAgent))
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='javascript:changeObjectAgent({0})' title='Изменить агента объекта'><img src='/Content/images/common/icon-object-change-agent.png'/>&nbsp;Изменить агента объекта</a></li>", c.KeyValue);
+                }
+
+                builder.AppendFormat("<li><a data-toggle-a='link' href='/objects/{0}/history' target='_blank' title='История изменения статусов'><img src='/Content/images/common/icon-history.png'/>&nbsp;История изменения статусов</a></li>", c.KeyValue);
+
+                if (ViewContext.CurrentUser().CanDeleteObject(objId))
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='javascript:deleteObjects({0})' title='Удалить объект'><img src='/Content/images/common/icon-delete.png'/>&nbsp;Удалить объект</a></li>", c.KeyValue);    
+                }
+
+                if (Model.Status == EstateStatuses.Draft || Model.Status == EstateStatuses.Active)
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='javascript:changePrice({0})' title='Изменение цены на указанный объект'><img src='/Content/images/common/icon-money.png'/>&nbsp;Изменение цены</a></li>", c.KeyValue);
+                    if (Model.Status == EstateStatuses.Active)
+                    {
+                        builder.AppendFormat("<li><a data-toggle-a='link' href='javascript:refreshObjects({0})' title='Обновить объект'><img src='/Content/images/common/icon-refresh.png'/>&nbsp;Обновить объект</a></li>", c.KeyValue);    
+                    }
+                }
+
+                if (Model.Status == EstateStatuses.Advance || Model.Status == EstateStatuses.Deal || Model.Status == EstateStatuses.Withdrawn || Model.Status == EstateStatuses.TemporarilyWithdrawn)
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='javascript:showStatusInfo({0})' title='Информация о текущем статусе'><img src='/Content/images/common/icon-status-info.png'/>&nbsp;Информация о статусе</a></li>", c.KeyValue);    
+                }
+
+                if (Model.Status == EstateStatuses.Active)
+                {
+                    builder.AppendFormat("<li><a data-toggle-a='link' href='/search-requests/by-object/{0}' title='Поисковые запросы, подходящие под этот объект' target='_blank'><img src='/Content/images/common/icon-requests.png'/>&nbsp;Поисковые запросы</a></li>", c.KeyValue);    
+                }
+
+                builder.AppendFormat(@"</ul></div>");
+                
+                ViewContext.Writer.Write(builder.ToString());
+            });
+        });
+        
+        // Распотрошение информации
+        settings.SetDetailRowTemplateContent(c =>
+        {
+            Html.RenderAction("GetObjectDetails","Account",new {id = c.KeyValue});
+        });
+
+        // Суммари
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Count, "Id").DisplayFormat = "Всего: {0:0}";
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Min, "Price").DisplayFormat = "Мин.: {0:C0}";
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Average, "Price").DisplayFormat = "Сред.: {0:C0}";
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Max, "Price").DisplayFormat = "Макс.: {0:C0}";
+        settings.Settings.ShowFooter = true;
+    }).Bind(Model.Data).GetHtml()

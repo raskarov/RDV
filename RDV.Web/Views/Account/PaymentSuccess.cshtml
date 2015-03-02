@@ -1,0 +1,26 @@
+﻿@using RDV.Web.Models.UI
+@model RDV.Domain.Entities.Payment
+
+@{
+    ViewBag.Title = "Успешное зачисление средств";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            <div class="info">
+                Платеж номер @Model.Id был успешно обработан. На ваш лицевой счет было успешно зачислено @Model.Amount рублей. Спасибо.
+            </div>
+        </div>
+    </div>
+</div>

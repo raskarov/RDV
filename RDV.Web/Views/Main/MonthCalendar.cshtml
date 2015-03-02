@@ -1,0 +1,136 @@
+﻿@using System.Globalization
+@using RDV.Domain.Interfaces.Repositories.Content
+@using RDV.Domain.IoC
+@using RDV.Domain.Core
+@using RDV.Web.Classes.Extensions
+@model System.DateTime
+@{
+    var articlesRep = Locator.GetService<IArticlesRepository>();
+}
+<div class="month-calendar" month="@Model.Month">
+    <div class="calendar-header">
+        <div class="prev-month">
+        </div>
+        <div class="current-month">
+            @Model.ToString("MMMM") @Model.ToString("yyyy")</div>
+        <div class="next-month">
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+    <div class="calendar-content">
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>
+                        Пн
+                    </th>
+                    <th>
+                        Вт
+                    </th>
+                    <th>
+                        Ср
+                    </th>
+                    <th>
+                        Чт
+                    </th>
+                    <th>
+                        Пт
+                    </th>
+                    <th>
+                        Сб
+                    </th>
+                    <th>
+                        Вс
+                    </th>
+                </tr>
+            </thead>
+        <tbody>
+            @{
+                var currentDay = 1;
+            }
+            @for (var i = 0; i < 6; i++)
+            {
+                <tr>
+                    @if (i == 0)
+                    {
+                        var startDay = DateUtils.GetDayNumberOnAWeek(DateUtils.FirstDayOfMonth(Model).DayOfWeek);
+                        for (var d = 1; d < startDay; d++)
+                        {
+                        <td>
+                            <div class="day outside">
+                                &nbsp;
+                            </div>
+                        </td>
+                        }
+                        for (var d = 8 - startDay; d != 0; d--)
+                        {
+                            var date = new DateTime(Model.Year, Model.Month, currentDay);
+                            var hasEvent = articlesRep.HasEvents(date);
+                            var isActive = date.Date == DateTimeZone.Now.Date; 
+                        <td>
+                            <div class="day @(hasEvent ? "hasEvents" : "") @(isActive ? "active" : "")" data-date="@date.FormatDate()">
+                                @Html.ActionLink(currentDay.ToString(CultureInfo.InvariantCulture), "Events", "Articles", new { date = date }, null)
+                            </div>
+                        </td>
+                           currentDay++;
+                        }
+                    }
+                    else if (i == 5)
+                    {
+                        if (currentDay > DateUtils.LastDayOfMonth(Model))
+                        {
+                            break;
+                        }
+                        var counter = 1;
+                        for (var d = currentDay; d <= DateUtils.LastDayOfMonth(Model); d++)
+                        {
+                            var date = new DateTime(Model.Year, Model.Month, currentDay);
+                            var hasEvent = articlesRep.HasEvents(date);
+                            var isActive = date.Date == DateTimeZone.Now.Date; 
+                        <td>
+                            <div class="day @(hasEvent ? "hasEvents" : "") @(isActive ? "active" : "")" data-date="@date.FormatDate()">
+                                @Html.ActionLink(currentDay.ToString(CultureInfo.InvariantCulture), "Events", "Articles", new { date = date }, null)
+                            </div>
+                        </td>
+                           counter++;
+                        }
+                        for (var d = 7 - counter; d != 0; d--)
+                        {
+                        <td>
+                            &nbsp;
+                        </td>
+                        }
+                    }
+                    else
+                    {
+                        var start = currentDay;
+                        var end = currentDay + 7;
+                        for (var d = start; d < end; d++)
+                        {
+                            if (d > DateUtils.LastDayOfMonth(Model))
+                            {
+                        <td>
+                            <div class="day outside">
+                                &nbsp;
+                            </div>
+                        </td>
+                                continue;
+                            }
+                            var date = new DateTime(Model.Year, Model.Month, currentDay);
+                            var hasEvent = articlesRep.HasEvents(date);
+                            var isActive = date.Date == DateTimeZone.Now.Date; 
+                        <td>
+                            <div class="day @(hasEvent ? "hasEvent" : "") @(isActive ? "active" : "")" data-date="@date.FormatDate()">
+                                @Html.ActionLink(currentDay.ToString(CultureInfo.InvariantCulture), "Events", "Articles", new { date = date }, null)
+                            </div>
+                        </td>
+                           currentDay++;
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+        </table>
+    </div>
+</div>

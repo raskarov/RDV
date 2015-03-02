@@ -1,0 +1,176 @@
+﻿.btn-group:first-child {
+}
+.pull-right {
+    float: right;
+}
+.btn-group {
+    display: inline-block;
+    font-size: 0;
+    position: relative;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.btn-group > .btn:first-child {
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-left: 0;
+}
+.btn-group > .btn:last-child, .btn-group > .dropdown-toggle {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.btn-group > .btn, .btn-group > .dropdown-menu, .btn-group > .popover {
+    font-size: 14px;
+}
+.btn-group > .btn {
+    border-radius: 0;
+    position: relative;
+}
+.btn {
+    background-color: #f7f7f7;
+    background-image: none;
+    border: 1px solid #dddddd;
+    border-radius: 2px;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Roboto Slab","Calisto MT","Bookman Old Style",Bookman,"Goudy Old Style",Garamond,"Hoefler Text","Bitstream Charter",Georgia,serif;
+    line-height: 1.1em;
+    margin-bottom: 0;
+    padding: 8px 15px;
+    text-shadow: none;
+    vertical-align: middle;
+}
+.btn {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #f5f5f5;
+    background-image: linear-gradient(to bottom, #fff, #e6e6e6);
+    background-repeat: repeat-x;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) #b3b3b3;
+    border-image: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: #333;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 0;
+    padding: 4px 12px;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    vertical-align: middle;
+}
+.btn .caret {
+    margin-left: 3px;
+    margin-top: 8px;
+}
+.caret {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #000;
+    content: "";
+    display: inline-block;
+    height: 0;
+    vertical-align: top;
+    width: 0;
+}
+.btn-group > .btn, .btn-group > .dropdown-menu, .btn-group > .popover {
+    font-size: 14px;
+}
+.pull-right > .dropdown-menu {
+    left: auto;
+    right: 0;
+}
+.dropdown-menu {
+    background-clip: padding-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    float: left;
+    left: 0;
+    list-style: outside none none;
+    margin: 2px 0 0;
+    min-width: 160px;
+    padding: 5px 0;
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+}
+ul, ol {
+    margin: 0 0 10px 25px;
+    padding: 0;
+}
+.dropdown-menu > li > a {
+    clear: both;
+    color: #333;
+    display: block;
+    font-weight: normal;
+    line-height: 12px;
+    font-size: 12px;
+    padding: 3px 20px;
+    white-space: nowrap;
+}
+a:link {
+    outline: medium none;
+}
+a {
+    color: #08c;
+    text-decoration: none;
+}
+a [class^="icon-"], a [class*=" icon-"], a [class^="icon-"]:before, a [class*=" icon-"]:before {
+    display: inline;
+}
+.icon-pencil:before {
+    content: "";
+}
+[class^="icon-"]:before, [class*=" icon-"]:before {
+    display: inline-block;
+    text-decoration: inherit;
+}
+a [class^="icon-"], a [class*=" icon-"], a [class^="icon-"]:before, a [class*=" icon-"]:before {
+    display: inline;
+}
+[class^="icon-"], [class*=" icon-"] {
+    background-image: none;
+    background-position: 0 0;
+    background-repeat: repeat;
+    display: inline;
+    height: auto;
+    line-height: normal;
+    margin-top: 0;
+    vertical-align: baseline;
+    width: auto;
+}
+[class^="icon-"], [class*=" icon-"] {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+.icon-pencil {
+    background-position: 0 -72px;
+}
+[class^="icon-"], [class*=" icon-"] {
+    background-image: url("../img/glyphicons-halflings.png");
+    background-position: 14px 14px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 14px;
+    line-height: 14px;
+    margin-top: 1px;
+    vertical-align: text-top;
+    width: 14px;
+}
+.dropdown-menu img {
+    vertical-align: middle;
+}

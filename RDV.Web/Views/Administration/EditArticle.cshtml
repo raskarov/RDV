@@ -1,0 +1,100 @@
+﻿@model RDV.Web.Models.Administration.Content.ArticleModel
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = Model.Id <= 0 ? "Создание публикации" : "Редактирование публикации " + Model.Title;
+}
+<script src="/Content/ckeditor/ckeditor.js" type="text/javascript"></script>
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Content-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Разделы
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/content/menu">Меню</a> </li>
+                                    <li><a href="/administration/content/">Страницы</a> </li>
+                                    <li><a href="/administration/content/banners">Банера</a> </li>
+                                    <li><a href="/administration/content/partners">Партнеры</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма редактирования таблицы *@
+                            <div class="page-form-container">
+                                <form action="/administration/content/save-news" method="POST" id="edit-news-form">
+                                    <input type="hidden" name="Id" value="@Model.Id" />
+                                    <div class="editor-label">
+                                        Заголовок публикации
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="page-title-field" maxlength="255" name="Title" value="@Model.Title" placeholder="Введите заголовок публикации"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Тип публикации
+                                    </div>
+                                    <div class="editor-field">
+                                        <select name="ArticleType" class="round field-small" id="article-type-field">
+                                            @foreach(ArticleTypes @type in Enum.GetValues(typeof(ArticleTypes)))
+                                            {
+                                                <option value="@((short)@type)" @(Model.ArticleType == @type ? "selected=\"selected\"": string.Empty)>@type.GetEnumMemberName()</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="editor-label">
+                                        Дата публикации/события
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small datepicker" name="PublicationDate" id="news-date-field" placeholder="Введите дату публикации этой статьи" value="@Model.PublicationDate.FormatDate()"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Аннотация
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea class="round field-large" id="page-short-content-field" name="ShortContent" placeholder="Введите краткую аннотацию к публикации">@Model.ShortContent</textarea>
+                                    </div>
+                                    <div class="editor-label">
+                                        Содержимое (HTML)
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea class="ckeditor" id="page-full-content-field" name="FullContent" placeholder="Введите полное содержание этой публикации">@Model.FullContent</textarea>
+                                    </div>
+                                    <div class="editor-label">
+                                        Ссылка на видео (YouTube)
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-large" id="page-video-field" maxlength="4000" name="VideoLink" value="@Model.VideoLink" placeholder="Введите полный путь к видеозаписи на видеохостинге"/>
+                                    </div>
+                                    <div id="submit-button-wrapper" onclick="$('#edit-news-form').submit();">
+                                        <span id="submit-button"></span>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    validators.bindEditNewsFormValidators();
+</script>

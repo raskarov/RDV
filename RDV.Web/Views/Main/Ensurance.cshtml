@@ -1,0 +1,8 @@
+﻿@using RDV.Web.Classes.Caching
+
+@{
+    ViewBag.Title = "Страховым компаниям";
+    Layout = "AboutLayout.cshtml";
+}
+
+@Html.Raw(StaticPageExtractor.Extract("about-ensurance-page"))

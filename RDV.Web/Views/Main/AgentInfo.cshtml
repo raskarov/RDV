@@ -1,0 +1,434 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model RDV.Web.Models.Account.Profile.ProfileInfoModel
+@{
+    ViewBag.Title = "Профиль агента";
+    var imagesRep = Locator.GetService<IStoredFilesRepository>();
+    Layout = "MembersLayout.cshtml";
+}
+@if (!String.IsNullOrEmpty(Model.PhotoUrl))
+{
+    <img src="@imagesRep.ResolveFileUrl(Model.PhotoUrl)" alt="@Model.LastName" style="float: right; width: 100px; height: auto"/>
+}
+<div id="agent-info">
+    <p style="font-size: 16px; font-weight: bold; margin-bottom: 10px">
+        @Model.ToString()
+    </p>
+    <p>
+        @Model.Company.Name
+    </p>
+    <p>
+        @Model.Appointment
+    </p>
+    <p>
+        @Model.Phone.FormatPhoneNumber(), @Model.Phone2.FormatPhoneNumber()
+    </p>
+    <p>
+        <a href="mailto:@Model.Email">@Model.Email</a>
+    </p>
+</div>
+<div class="clear">
+</div>
+<div id="ask-question">
+    Задать вопрос</div>
+<div id="callback">
+    Заказать звонок</div>
+@if (!String.IsNullOrEmpty(Model.AdditionalInformation))
+{
+    <div class="block">
+        <div class="block-content">
+            <div class="block-inner-content">
+                @Model.AdditionalInformation
+            </div>
+        </div>
+    </div>
+}
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Сертификация
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Номер сертификата
+                        </th>
+                        <th>
+                            Дата выдачи
+                        </th>
+                        <th>
+                            Срок действия
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            @Model.CertificateNumber&nbsp;
+                        </td>
+                        <td>
+                            @Model.CertificationDate.FormatDate()
+                        </td>
+                        <td>
+                            @Model.CertificateEndDate.FormatDate()
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Повышение квалификации
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Название программы
+                        </th>
+                        <th>
+                            Дата прохождения
+                        </th>
+                        <th>
+                            Организатор
+                        </th>
+                        <th>
+                            Место проведения
+                        </th>
+                        <th>
+                            Сертификат
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Programs.Count > 0)
+                    {
+                        foreach (var program in Model.Programs)
+                        {
+                            var url = !String.IsNullOrEmpty(program.CertificateFile) && program.CertificateFile.StartsWith("file://") ? imagesRep.ResolveFileUrl(program.CertificateFile) : "";
+                            <tr>
+                                <td>
+                                    @program.ProgramName
+                                </td>
+                                <td>
+                                    @program.TrainingDate.FormatDate()
+                                </td>
+                                <td>
+                                    @program.Organizer
+                                </td>
+                                <td>
+                                    @program.TrainingPlace
+                                </td>
+                                <td>
+                                    @if (!String.IsNullOrEmpty(url))
+                                    {
+                                        <span class="icon-photos" onclick="$.fancybox.open({href: '@url'});"></span>    
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5">
+                                Нет данных
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Достижения
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Наименование
+                        </th>
+                        <th>
+                            Дата получения
+                        </th>
+                        <th>
+                            Организатор
+                        </th>
+                        <th>
+                            Сертификат
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.GetAchievments().Count > 0)
+                    {
+                        foreach (var achievment in Model.GetAchievments())
+                        {
+                            var url = !String.IsNullOrEmpty(achievment.ScanUrl) && achievment.ScanUrl.StartsWith("file://") ? imagesRep.ResolveFileUrl(achievment.ScanUrl) : "";
+                            <tr>
+                                <td>
+                                    @achievment.Title
+                                </td>
+                                <td>
+                                    @achievment.ReachDate.FormatDate()
+                                </td>
+                                <td>
+                                    @achievment.Organizer
+                                </td>
+                                <td>
+                                    @if (!String.IsNullOrEmpty(url))
+                                    {
+                                        <span class="icon-photos" onclick="$.fancybox.open({href: '@url'});"></span>    
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                Нет данных
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div class="block-header">
+        <div class="block-title">
+            Отзывы и рекомендации
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Дата отзыва
+                        </th>
+                        <th>
+                            Операция
+                        </th>
+                        <th>
+                            Сертификат
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.GetClientReviews().Count > 0)
+                    {
+                        foreach (var review in Model.GetClientReviews())
+                        {
+                            var url = !String.IsNullOrEmpty(review.ScanUrl) && review.ScanUrl.StartsWith("file://") ? imagesRep.ResolveFileUrl(review.ScanUrl) : "";
+                            <tr>
+                                <td>
+                                    @review.ReviewDate.FormatDate()
+                                </td>
+                                <td>
+                                    @review.Description
+                                </td>
+                                <td>
+                                    @if (!String.IsNullOrEmpty(url))
+                                    {
+                                        <span class="icon-photos" onclick="$.fancybox.open({href: '@url'});"></span>    
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                Нет данных
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="dialogs" style="display: none">
+    <div id="callback-dialog" title="Заказать обратный звонок" class="dialog">
+        <p class="info">
+            Пожалуйста, напишите ваш номер телефона, в ближайшее время с вами свяжется агент.</p>
+        <form action="/members/callback" method="POST" id="callback-form">
+        <input type="hidden" name="id" value="@Model.Id"/>
+        <div class="editor-label">
+            Ваше имя
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round required" maxlength="15" name="name" placeholder="Введите ваше имя" />
+        </div>
+        <div class="editor-label">
+            Ваш номер телефона
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round required" maxlength="15" name="phone" placeholder="Введите ваш номер" />
+        </div>
+        </form>
+    </div>
+    <div id="callback-success-dialog" title="Звонок заказан" class="dialog">
+        <p class="info">
+            Спасибо. Ваш заказ на звонок был отправлен агенту. Он свяжется с вами в ближайшее
+            время.</p>
+    </div>
+    <div class="dialog" id="question-dialog" title="Задать вопрос">
+        <p class="info">
+            Вы можете задать вопрос этому риэлтору. Напиши ваше имя и ваш адрес для того чтобы
+            риэлтор смог вам ответить.
+        </p>
+        <form action="/members/question" method="POST" id="question-form">
+        <input type="hidden" name="id" value="@Model.Id"/>
+        <div class="editor-label">
+            Ваше имя
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round required" maxlength="15" name="name" placeholder="Введите ваше имя" />
+        </div>
+        <div class="editor-label">
+            Ваш email
+        </div>
+        <div class="editor-field">
+            <input type="text" class="field round required" maxlength="50" name="email" placeholder="Введите ваш email" />
+        </div>
+        <div class="editor-label">
+            Ваш вопрос
+        </div>
+        <div class="editor-field">
+            <textarea class="field round required" maxlength="255" name="question" placeholder="Введите текст вашего вопроса"></textarea>
+        </div>
+        </form>
+    </div>
+    <div id="question-success-dialog" title="Вопрос задан" class="dialog">
+        <p class="info">
+            Спасибо. Ваш вопрос был отправлен риэлтору. Он ответит вам на него в ближайшее время.</p>
+    </div>
+</div>
+<script type="text/javascript">
+
+   @* Отображает диалог заказа звонка *@
+   function showCallbackDialog() {
+       var dialog = $("#callback-dialog").dialog({
+           autoOpen: true,
+           resizable: false,
+           modal: true,
+           buttons: {
+               "Отправить": function () {
+                   $("#callback-form").submit();
+                   dialog.dialog("close");
+               },
+               "Отмена": function () {
+                   dialog.dialog("close");
+               }
+           }
+       });
+   }
+   function showCallbackSuccessDialog() {
+       var dialog = $("#callback-success-dialog").dialog({
+           autoOpen: true,
+           resizable: false,
+           modal: true,
+           buttons: {
+               "ОК": function () {
+                   dialog.dialog("close");
+               }
+           }
+       });
+   }
+
+   @* Отображает диалог вопроса *@
+   function showQuestionkDialog() {
+       var dialog = $("#question-dialog").dialog({
+           autoOpen: true,
+           resizable: false,
+           modal: true,
+           buttons: {
+               "Отправить": function () {
+                   $("#question-form").submit();
+                   dialog.dialog("close");
+               },
+               "Отмена": function () {
+                   dialog.dialog("close");
+               }
+           }
+       });
+   }
+   function showCallbackSuccessDialog() {
+       var dialog = $("#question-success-dialog").dialog({
+           autoOpen: true,
+           resizable: false,
+           modal: true,
+           buttons: {
+               "ОК": function () {
+                   dialog.dialog("close");
+               }
+           }
+       });
+   }
+
+    $(document).ready(function () {
+        $("#callback").click(function() {
+            showCallbackDialog();
+        });
+        $("#ask-question").click(function() {
+            showQuestionkDialog();
+        });
+        $("#callback-form").validate({
+            rules: {
+                phone: {
+                    required: true
+                }
+            },
+            submitHandler: function (form) {
+                $(form).ajaxSubmit({
+                    success: function () {
+                        showCallbackSuccessDialog();
+                    }
+                });
+            }
+        });
+        $("#question-form").validate({
+            rules: {
+                email: {
+                    required: true,
+                    email: true
+                }
+            },
+            submitHandler: function (form) {
+                $(form).ajaxSubmit({
+                    success: function () {
+                        showCallbackSuccessDialog();
+                    }
+                });
+            }
+        });
+    });
+</script>

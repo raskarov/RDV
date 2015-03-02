@@ -1,0 +1,15 @@
+﻿@using RDV.Domain.Enums
+@model System.Collections.Generic.IEnumerable<RDV.Domain.Entities.Article>
+<div id="articles">
+    @foreach (var news in Model)
+    {
+        <div class="article">
+            <div class="article-header">
+                <a href="/articles/view/@news.Id">@news.Title</a>
+            </div>
+            <div class="article-preview">
+                @news.ShortContent
+            </div>
+        </div>
+    }
+</div>

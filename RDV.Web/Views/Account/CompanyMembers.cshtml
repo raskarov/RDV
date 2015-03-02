@@ -1,0 +1,378 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.User>
+@{
+    ViewBag.Title = "Сотрудники компании";
+    var availableRoles = (IEnumerable<Role>)ViewBag.availableRoles;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Staff-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Сотрудники
+                                </div>
+                                <ul id="action-menu-content">
+                                    @if (ViewContext.CurrentUser().HasPermission(StandartPermissions.EditCompanyAgents))
+                                    {
+                                        <li><a href="#" id="change-user-status-action">Изменить статус</a></li>    
+                                        @*<li><a href="#" id="change-user-role-action">Изменить роль</a></li>   *@
+                                        if (ViewContext.CurrentUser().HasPermission(Permission.EditUserAppointment))
+                                        {
+                                            <li><a href="#" id="change-user-appointment-action">Изменить должность</a></li>       
+                                        }
+                                        if (ViewContext.CurrentUser().HasPermission(Permission.EditUserCertification))
+                                        {
+                                            <li><a href="#" id="change-user-certification-data">Изменить сертификацию</a></li>    
+                                        }
+                                    }
+                                    <div class="separator">
+                                    </div>
+                                    <li><a href="#" id="export-user-action">Экспорт в Excel</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            Email
+                                        </th>
+                                        <th>
+                                            Полное имя
+                                        </th>
+                                        <th>
+                                            Телефон
+                                        </th>
+                                        <th>
+                                            Должность
+                                        </th>
+                                        <th>
+                                            Статус
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model)
+                                    {
+                                        <tr data-item-id="@user.Id">
+                                            <td class="checkbox-wrapper">
+                                                <input type="checkbox" id="select-@user.Id-checkbox" value="true"/>
+                                            </td>
+                                            <td field="Login">
+                                                <a href="#" onclick="getUserInfo(@user.Id);return false;">@user.Login</a>
+                                            </td>
+                                            <td field="FullName">@user.ToString()
+                                            </td>
+                                            <td field="Phone">@user.Phone.FormatPhoneNumber()
+                                            </td>
+                                            <td field="RoleName">@user.Appointment
+                                            </td>
+                                            <td field="Status">
+                                                @(((UserStatuses)user.Status).GetEnumMemberName())
+                                            </td>
+                                            <td>
+                                                @if (ViewContext.CurrentUser().HasPermission(Permission.EditCompanyAgents))
+                                                {
+                                                    <span class="icon-edit edit-row">&nbsp;</span>    
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* диалог изменения статуса выбранных пользователей *@
+<div class="dialog" title="Изменение статуса" id="change-user-status-dialog" style="display: none;
+    margin-top: 20px">
+    <form action="/account/company/change-user-status" method="POST" id="change-user-status-form">
+    <input type="hidden" id="change-user-status-ids-field" value="-1" name="userIds" />
+    <div class="editor-label">
+        Новый статус пользователя(ей)
+    </div>
+    <div class="editor-field">
+        <select class="round field" id="new-user-status-field" name="newUsersStatus">
+            <option value="-1" selected="selected">Без изменений</option>
+            @foreach (UserStatuses status in Enum.GetValues(typeof(UserStatuses)))
+            {
+                <option value="@((short)status)">@status.GetEnumMemberName()</option>
+            }
+        </select>
+    </div>
+    </form>
+</div>
+@* диалог изменения роли выбранных пользователей *@
+<div class="dialog" title="Изменение роли" id="change-user-role-dialog" style="display: none;
+    margin-top: 20px">
+    <form action="/account/company/change-user-role" method="POST" id="change-user-role-form">
+    <input type="hidden" id="change-user-role-ids-field" value="-1" name="userIds" />
+    <div class="editor-label">
+        Новая роль пользователя(ей)
+    </div>
+    <div class="editor-field">
+        <select class="round field" id="new-user-role-field" name="newUsersRole">
+            <option value="-1" selected="selected">Без изменений</option>
+            @foreach (Role availableRole in availableRoles)
+            {
+                <option value="@availableRole.Id">@availableRole.Name</option>
+            }
+        </select>
+    </div>
+    </form>
+</div>
+@* Диалог сведений о пользователе *@
+<div class="dialog" title="Сведения о пользователе" id="user-info-dialog" style="display: none;">
+    <form>
+        <div id="user-info-container">
+        </div>
+    </form>
+</div>
+@* Диалог изменения должности пользователя *@
+<div class="dialog" title="Изменение должности" id="change-appointment-dialog" style="display: none">
+    <form action="/account/company/change-user-appointment" id="change-user-appointment-form" method="POST">
+        <input type="hidden" value="" name="userId"/>
+        <div class="editor-label">
+            Новая должность
+        </div>
+        <div class="editor-field">
+            <input type="text" id="new-appointment-field" class="round field" placeholder="Введите новую должность пользователя" name="appointment"/>
+        </div>
+    </form>
+</div>
+@* Диалог изменения данных о сертифкации пользователя *@
+<div class="dialog" title="Изменение данных сертификации" id="change-certification-dialog" style="display: none" title="Редактирование данных о сертификации">
+    <form action="/account/company/change-user-certification" id="change-user-certification-form" method="POST">
+        <input type="hidden" value="" name="userId"/>
+        <div class="editor-label">
+            Номер сертификата
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" placeholder="Введите номер сертификата пользователя" name="certificateNumber"/>
+        </div>
+        <div class="editor-label">
+            Дата выдачи
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field datepicker" placeholder="Введите дату" name="certificationStartDate"/>
+        </div>
+        <div class="editor-label">
+            Дата окончания действия
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field datepicker" placeholder="Введите дату" name="certificationEndDate"/>
+        </div>
+    </form>
+</div>
+<script language="javascript" type="text/javascript">
+    @* Отображает диалог изменения статусов у пользователей *@
+    function changeUserStatusDialog(userIds) {
+        // Сбрасываем форму
+        $("#change-user-status-ids-field").val(userIds);
+        $("#new-user-status-field").val(-1);
+        // Отображаем диалог
+        var dialog = $("#change-user-status-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Сохранить": function () {
+                    if ($("#new-user-status-field").val() == "-1") {
+                        $("#change-user-status-dialog").dialog("close");    
+                    } else {
+                        $("#change-user-status-form").submit();
+                    }
+                },
+                "Отмена": function () {
+                    $("#change-user-status-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог изменения ролей у пользователей *@
+    function changeUserRoleDialog(userIds) {
+        // Сбрасываем форму
+        $("#change-user-role-ids-field").val(userIds);
+        $("#new-user-role-field").val(-1);
+        // Отображаем диалог
+        var dialog = $("#change-user-role-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Сохранить": function () {
+                    if ($("#new-user-role-field").val() == "-1") {
+                        $("#change-user-role-dialog").dialog("close");    
+                    } else {
+                        $("#change-user-role-form").submit();
+                    }
+                },
+                "Отмена": function () {
+                    $("#change-user-role-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог изменения должности у пользователей *@
+    function changeUserAppointmentDialog(userIds) {
+        // Сбрасываем форму
+        $("#change-user-appointment-form input[type='hidden']").val(userIds);
+        // Отображаем диалог
+        var dialog = $("#change-appointment-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Сохранить": function () {
+                    $("#change-user-appointment-form").submit();
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог изменения данных о сертификации *@
+    function changeUserCertificationDialog(userIds) {
+        // Сбрасываем форму
+        $("#change-certification-dialog input[type='hidden']").val(userIds);
+        $.ajax({
+            type: 'GET',
+            url: '/account/company/get-user-certification-data/'+userIds,
+            dataType: 'json',
+            success: function (data) {
+                // Перебираем данные и устанавливаем их в форму
+                for(var property in data) {
+                    var selector = "#change-user-certification-form [name='"+property+"']";
+                    var ctrl = $(selector);
+                    if (ctrl.length > 0) {
+                        ctrl.val(data[property]);
+                    }
+                }
+                // Отображаем диалог
+                var dialog = $("#change-user-certification-form").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    modal: true,
+                    title: 'Редактирование данных о сертификации',
+                    buttons: {
+                        "Сохранить": function () {
+                            $("#change-user-certification-form").submit();
+                        },
+                        "Отмена": function () {
+                            dialog.dialog("close");
+                        }
+                    }
+                });
+            },
+            error: function () {
+                alert("Не удалось получить данные пользователя");
+            }
+        });
+        
+    }
+    
+    @* Аяксом загружает информацию об указанном пользователе *@
+    function getUserInfo(id) {
+        $("#user-info-container").load("/account/user-info/" + id, null, function() {
+            var dialog = $("#user-info-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                width: 400,
+                maxHeight: 800,
+                buttons: {
+                    "Закрыть": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    }
+    
+    @* Байндим действие изменения статуса *@
+    $("#change-user-status-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        changeUserStatusDialog(idsStr);
+    });
+    
+    @* Байндим действие изменения роли *@
+    $("#change-user-role-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        changeUserRoleDialog(idsStr);
+    });
+    
+    @* Байндим действие изменения должности *@
+    $("#change-user-appointment-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var idsStr = [];
+        $.each(ids, function(index, item) {
+            idsStr.push(item);
+        });
+        changeUserAppointmentDialog(idsStr[0]);
+    });
+    
+    @* Байндим действие изменения сертификации *@
+    $("#change-user-certification-data").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return;
+        }
+        var idsStr = [];
+        $.each(ids, function(index, item) {
+            idsStr.push(item);
+        });
+        changeUserCertificationDialog(idsStr[0]);
+    });
+</script>

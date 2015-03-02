@@ -1,0 +1,205 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.Client>
+@{
+    ViewBag.Title = "Клиенты компании";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Clients-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Клиенты
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/account/company/clients/add" id="add-client-action">Добавить</a></li>
+                                    <li><a href="#" id="edit-client-action">Редактировать</a></li>
+                                    <li><a href="#" id="delete-client-action">Удалить</a></li>
+                                    <div class="separator"></div>
+                                    <li><a href="#" id="export-user-action">Экспорт в Excel</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            Полное имя
+                                        </th>
+                                        <th>
+                                            Email
+                                        </th>
+                                        <th>
+                                            Телефон
+                                        </th>
+                                        <th>
+                                            ICQ
+                                        </th>
+                                        <th>
+                                            №. договора
+                                        </th>
+                                        <th>
+                                            Дата заключения договора
+                                        </th>
+                                        <th>
+                                            Дата окончания договора
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach (var client in Model)
+                                        {
+                                            <tr data-item-id="@client.Id">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@client.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="FIO"><a href="/account/company/clients/edit/@client.Id"></a>@client.ToString()
+                                                </td>
+                                                <td field="Email">@client.Email
+                                                </td>
+                                                <td field="Phone">@client.Phone.FormatPhoneNumber()
+                                                </td>
+                                                <td field="ICQ">@client.ICQ
+                                                </td>
+                                                <td field="AgreementNumber">@client.AgreementNumber
+                                                </td>
+                                                <td field="AgreementDate">@client.AgreementDate.FormatDate()
+                                                </td>
+                                                <td field="AgreementEndDate">@client.AgreementEndDate.FormatDate()
+                                                </td>
+                                                <td class="icons">
+                                                    <span class="icon-edit edit-row" title="Редактировать"></span>
+                                                    <span class="icon-delete delete-row" title="Удалить"></span>
+                                                    <span class="icon-objects" title="Список объектов"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="9">
+                                                <div style="text-align: center">
+                                                    Нет информации о клиентах</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* диалог удаления выбранных клиентов *@
+<div class="dialog" title="Удаление клиентов" id="delete-clients-dialog" style="display: none; margin-top: 20px">
+    <p>Вы действительно хотите удалить этих клиентов (это действое нельзя будет отменить)? Если с клиентом связан, какой либо объект, удаление клиента не состоиться.</p>
+</div>
+<script language="javascript" type="text/javascript">
+    @* Отображает диалог удаления клиентов с указанными идентификаторами *@
+    function deleteClientsDialog(clientIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-clients-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/account/company/clients/delete',
+                        data: {
+                            clientIds: clientIds
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить клиентов, вероятно, с одним из клиентов уже имеются связанные объекты.");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    $("#edit-client-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            var id = tr.first().data("item-id");
+            window.location.href = "/account/company/clients/edit/" + id;
+        }
+        return false;
+    });
+    
+    $("#delete-client-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteClientsDialog(idsStr);
+        return false;
+    });
+
+    $(".edit-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        window.location.href = "/account/company/clients/edit/" + id;
+    });
+
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deleteClientsDialog(id);
+    });
+    
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deleteClientsDialog(id);
+    });
+    
+    $(".icon-objects").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        window.location.href = "/account/company/clients/objects/" + id;
+    });
+</script>

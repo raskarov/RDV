@@ -1,0 +1,16 @@
+﻿@model System.Collections.Generic.IEnumerable<RDV.Web.Classes.Forms.Fields.ObjectFormField>
+
+@{
+    var grouped = Model.GroupBy(f => f.Category);
+}
+<select id="search-criteria-field">
+    @foreach (var group in grouped)
+    {
+        <optgroup label="@group.Key">
+            @foreach (var field in group.OrderBy(f => f.Caption))
+            {
+                <option value="@field.Name">@field.Caption</option>
+            }
+        </optgroup>
+    }
+</select>

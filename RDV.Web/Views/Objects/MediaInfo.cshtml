@@ -1,0 +1,173 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Objects.MediaPageModel
+@{
+    ViewBag.Title = string.Format("Редактирование объекта №{0} - Фото и видео", Model.EstateObject.Id);
+    Layout = "ObjectsLayout.cshtml";
+    ViewBag.ObjectId = Model.EstateObject.Id;
+}
+<div class="object-form-wrapper">
+
+    @* Форма редактирования медиа для объекта *@
+    <form method="POST" id="object-form" enctype="multipart/form-data">
+        <input type="hidden" id="object-id-field" name="id" value="@Model.EstateObject.Id"/>
+        <input type="hidden" id="submit-action-field" name="action" value="finish" />
+        
+        @* Таблица со списком того что загружено *@
+        <h1>Загруженные медиа элементы</h1>
+        <table class="content-table">
+            <thead>
+                <tr>
+                    <th>Удалить</th>
+                    <th>Превью</th>
+                    <th>Тип</th>
+                    <th>Размер</th>
+                    <th>Примечания</th>
+                    <th>Порядок следования</th>
+                    <th>Главная</th>
+                    <th>Дата загрузки</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model.MediaList.Count > 0)
+                {
+                    var rep = Locator.GetService<IStoredFilesRepository>();
+                    foreach (var media in Model.MediaList.OrderByDescending(d => d.IsMain).ThenBy(d => d.Position))
+                    {
+                        <tr data-item-id="@media.Id">
+                            <td>
+                                <input type="checkbox" name="delete-@media.Id"/>
+                            </td>
+                            <td>
+                                @if (media.MediaType == ObjectMediaTypes.Photo)
+                                {
+                                    <img style="cursor: pointer" class="image-open" src="@rep.ResolveFileUrl(media.MediaUrl)" width="60" height="auto"/>    
+                                }
+                            </td>
+                            <td>@media.MediaType.GetEnumMemberName()</td>
+                            <td>@media.MediaFile.GetSize()</td>
+                            <td>
+                                <input type="text" class="field-textbox round observable" name="title-@media.Id" size="40" maxlength="255" value="@media.Title" placeholder="Введите описание"/>
+                            </td>
+                            <td>
+                                <input type="text" class="field-textbox round observable" name="position-@media.Id" size="10" maxlength="5" value="@media.Position" placeholder="Порядок следования"/>
+                            </td>
+                            <td>
+                                <input type="radio" name="mainid" @(media.IsMain ? "checked=checked":"") value="@media.Id"/>
+                            </td>
+                            <td>@media.DateUploaded.FormatDateTime()</td>
+                        </tr>
+                    }
+                } else
+                {
+                    <tr>
+                        <td colspan="6"><p align="center">Не загружено медиа элементов для объекта</p></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        
+        <h1 style="margin-bottom: 10px">Загрузка фотографий</h1>
+        @*<div class="editor-label">
+            Выберите один или несколько файлов для загрузки на сервер
+        </div>
+        <div class="editor-field">
+            <input type="file" class="round observable" name="MediaFile" id="media-file-field" multiple="multiple"/>
+        </div>
+        
+        <h1>Файлы на загрузку</h1>
+        <table class="content-table">
+            <thead>
+                <tr>
+                    <th>Имя файла</th>
+                    <th>Тип</th>
+                    <th>Размер в байтах</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="no-files-selected">
+                    <td colspan="3">
+                        <p align="center">Не выбрано файлов</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>*@
+        <span class="link" onclick="showFlashUploader()">Начать загрузку фотографий</span>
+    
+        <div class="form-buttons-wrapper">
+            <span class="form-button" id="form-prev-action"></span>
+            <span class="form-button" id="form-next-action"></span>
+            <span class="form-button" id="form-finish-action"></span>
+        </div>
+    </form>
+    <div class="dialog" id="save-changes-dialog" title="Обнаружены несохраненные изменения"
+         style="display: none">
+        <p>
+            В данном разделе обнаружены несохраненные изменения. Вы хотите их сохранить перед
+            переходом в другой раздел?</p>
+    </div>
+    <div class="dialog" id="flash-upload-dialog" title="Расширенная загрузка фотографий" style="display: none">
+        <div id="flashContent">
+			<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="705" height="446" id="forma" align="middle">
+				<param name="movie" value="forma.swf" />
+				<param name="quality" value="high" />
+				<param name="FlashVars" value="urlpath=http://www.nprdv.ru/Objects/SaveMediaInfoEx&amp;link1=@Model.EstateObject.Id&amp;maxphoto=15" />
+				<!--[if !IE]>-->
+				<object type="application/x-shockwave-flash" data="/Content/flash/forma.swf" width="705" height="446">
+					<param name="movie" value="forma.swf" />
+					<param name="quality" value="high" />
+					<param name="FlashVars" value="urlpath=http://www.nprdv.ru/Objects/SaveMediaInfoEx&amp;link1=@Model.EstateObject.Id&amp;maxphoto=15" />
+					
+				<!--<![endif]-->
+					<a href="http://www.adobe.com/go/getflash">
+						<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Загрузить Adobe Flash Player" />
+					</a>
+				<!--[if !IE]>-->
+				</object>
+				<!--<![endif]-->
+			</object>
+		</div>
+
+    </div>
+    @Html.Partial("ObjectFormScripts")
+</div>
+<script language="javascript" type="text/javascript">
+    $("#media-properties").addClass("active");
+    $("#object-form").attr("action", "/objects/savemediainfo");
+    $("#form-next-action").hide();
+
+    // Отображаем пользовательские файлы, выбранные в инпуте выбора файлов
+    $("#media-file-field").change(function () {
+        var mediaFiles = $(this).get(0).files;
+        $(".media-file").remove();
+        if (mediaFiles.length > 0) {
+            $("#no-files-selected").hide();
+            $.each(mediaFiles, function (i, file) {
+                var html = "<tr class='media-file'><td>" + file.name + "</td><td>" + file.type + "</td><td>" + file.size + "</td></tr>";
+                $("#no-files-selected").after(html);
+            });
+        } else {
+            $("#no-files-selected").show();
+        }
+    });
+    
+    function showFlashUploader(){
+        var dialog = $("#flash-upload-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 725,
+            buttons: {
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+
+    $(".image-open").click(function () {
+        $.fancybox.open({ href: $(this).attr("src") });
+    });
+</script>

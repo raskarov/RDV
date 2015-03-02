@@ -1,0 +1,168 @@
+﻿@model RDV.Web.Models.Account.Company.EditClientModel
+@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = Model.Id <= 0 ? "Создание нового клиента" : "Редактирование клиента " + Model.ToString();
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Clients-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Клиенты
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/account/company/clients/export/@Model.Id">Экспорт</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма редактирования таблицы *@
+                            <div class="page-form-container">
+                                <form action="/account/company/clients/save" method="POST" id="edit-client-form">
+                                    <input type="hidden" name="Id" value="@Model.Id" />
+                                    <div class="editor-label">
+                                        Фамилия
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-last-name-field" maxlength="255" name="LastName" value="@Model.LastName" placeholder="Введите фамилию клиента"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Имя
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-first-name-field" maxlength="255" name="FirstName" value="@Model.FirstName" placeholder="Введите имя клиента"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Отчество
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-sur-name-field" maxlength="255" name="SurName" value="@Model.SurName" placeholder="Введите отчество клиента"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Контактный телефон для связи
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field phone-field" id="client-phone-field" maxlength="255" name="Phone" value="@Model.Phone" placeholder="Введите телефон клиента"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Email для связи
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-email-field" maxlength="255" name="Email" value="@Model.Email" placeholder="Введите email клиента"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        ICQ 
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-icq-field" maxlength="255" name="ICQ" value="@Model.ICQ" placeholder="Введите номер ICQ клиента"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Адрес клиента 
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea class="round field-large" id="client-address-field" name="Address" placeholder="Введите домашний адрес клиента">@Model.Address</textarea>
+                                    </div>
+                                    <div class="editor-label">
+                                        Дата рождения клиента 
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small datepicker" name="Birthdate" id="client-birthdate-field" placeholder="Введите дату рождения клиента" value="@Model.Birthdate.FormatDate()"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Тип клиента
+                                    </div>
+                                    <div class="editor-field">
+                                        <select name="ClientType" class="round field-small" id="client-type-field">
+                                            @foreach(ClientTypes @type in Enum.GetValues(typeof(ClientTypes)))
+                                            {
+                                                <option value="@((short)@type)" @(Model.ClientType == @type ? "selected=\"selected\"": string.Empty)>@type.GetEnumMemberName()</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="editor-label">
+                                        Примечания по клиенту
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea class="round field-large" id="client-notes-field" name="Notes" placeholder="Введите примечания по клиенту - любую полезную информацию">@Model.Notes</textarea>
+                                    </div>
+                                    <div class="editor-label">
+                                        Тип договора
+                                    </div>
+                                    <div class="editor-field">
+                                        <select name="AgreementType" class="round field-small" id="client-agreement-type-field">
+                                            @foreach (var agreementType in Locator.GetService<IDictionariesRepository>().GetDictionaryByName("dogovor").GetValues())
+                                            {
+                                                <option value="@agreementType.Id" @(Model.AgreementType == agreementType.Id ? "selected=\"selected\"": string.Empty)>@agreementType.Value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="editor-label">
+                                        Номер договора
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-agreement-number-field" maxlength="255" name="AgreementNumber" value="@Model.AgreementNumber" placeholder="Введите номер договора с клиентом"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Дата заключения договора
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small datepicker" name="AgreementStartDate" id="client-start-date-field" placeholder="Введите дату заключения договора" value="@Model.AgreementStartDate.FormatDate()"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Дата завершения договора
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small datepicker" name="AgreementEndDate" id="client-end-date-field" placeholder="Введите дату заключения договора" value="@Model.AgreementEndDate.FormatDate()"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Комиссия
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field" id="client-comission-field" maxlength="255" name="Comission" value="@Model.Comission" placeholder="Введите размер комиссии со сделки"/>
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="checkbox" class="round field" id="client-payment-field" maxlength="255" name="Payment" value="true" checked="@(Model.Payment ? "checked" : "")"/> Оплата услуг агенства
+                                        <input type="hidden" name="Payment" value="false"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Условия оплаты
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea class="round field-large" id="client-payment-conditions-field" name="PaymentCondition" placeholder="Введите условия оплаты услуг агенства">@Model.PaymentCondition</textarea>
+                                    </div>
+                                    <div id="submit-button-wrapper" onclick="$('#edit-client-form').submit();">
+                                        <span id="submit-button"></span>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    $("#new-client-dialog").remove();
+    validators.bindClientFormValidators();
+</script>

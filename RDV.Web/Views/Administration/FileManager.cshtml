@@ -1,0 +1,115 @@
+﻿@using RDV.Web.Models.UI
+@model dynamic
+
+@{
+    ViewBag.Title = "Менеджер файлов";
+}
+<style type="text/css">
+    .elfinder-cwd-filename, .elfinder-info-tb td, .elfinder-cwd-file td, .elfinder-tree-dir, .elfinder-statusbar a {
+        font-size: 13px !important;
+    }
+</style>
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Content-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Книги
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/content/add-book" id="add-book-action">Добавить</a> </li>
+                                    <li><a href="#" id="edit-book-action">Редактировать</a> </li>
+                                    <li><a href="#" id="delete-book-action">Удалить</a> </li>
+                                    <div class="separator">
+                                    </div>
+                                    <li><a href="/administration/content/menu">Меню</a> </li>
+                                    <li><a href="/administration/content/news">Публикации</a> </li>
+                                    <li><a href="/administration/content/banners">Баннера</a> </li>
+                                    <li><a href="/administration/content/notifications">Рассылки</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Менеджер файлов *@
+                            <div id="file-mgr">
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var myCommands = elFinder.prototype._options.commands;
+        var disabled = ['extract', 'archive', 'help', 'select'];
+        $.each(disabled, function (i, cmd) {
+            (idx = $.inArray(cmd, myCommands)) !== -1 && myCommands.splice(idx, 1);
+        });
+        var selectedFile = null;
+        var options = {
+            url: '/administration/content/file-connector',
+            commands: myCommands,
+            lang: 'ru',
+            uiOptions: {
+                toolbar: [
+                    ['back', 'forward'],
+                    ['reload'],
+                    ['home', 'up'],
+                    ['mkdir', 'mkfile', 'upload'],
+                    ['open', 'download'],
+                    ['info'],
+                    ['copy', 'cut', 'paste'],
+                    ['rm'],
+                    ['duplicate', 'rename', 'edit', 'resize'],
+                    ['view', 'sort']
+                ]
+            },
+            handlers: {
+                select: function (event, elfinderInstance) {
+
+                    if (event.data.selected.length == 1) {
+                        var item = $('#' + event.data.selected[0]);
+                        if (!item.hasClass('directory')) {
+                            selectedFile = event.data.selected[0];
+                            $('#elfinder-selectFile').show();
+                            return;
+                        }
+                    }
+                    $('#elfinder-selectFile').hide();
+                    selectedFile = null;
+                }
+            }
+        };
+        $('#file-mgr').elfinder(options).elfinder('instance');
+
+        $('.elfinder-toolbar:first').append('<div class="ui-widget-content ui-corner-all elfinder-buttonset" id="elfinder-selectFile" style="display:none; float:right;">' +
+        '<div class="ui-state-default elfinder-button" title="Select" style="width: 100px;"></div>');
+        $('#elfinder-selectFile').click(function () {
+            if (selectedFile != null)
+                $.post('/administration/content/select-file', { target: selectedFile }, function (response) {
+                    alert(response);
+                });
+
+        });
+    });
+</script>

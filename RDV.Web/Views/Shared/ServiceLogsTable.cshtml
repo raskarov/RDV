@@ -1,0 +1,81 @@
+﻿@using RDV.Web.Classes.Extensions
+@model System.Collections.Generic.List<RDV.Domain.Entities.ServiceLogItem>
+
+<table id="service-logs-table" class="content-table">
+    <thead>
+        <tr>
+            <th>
+                ИД
+            </th>
+            <th>
+                Название
+            </th>
+            <th>
+                Объем
+            </th>
+            <th>
+                Сумма
+            </th>
+            <th>
+                Субъект
+            </th>
+            <th>
+                Статус оплаты
+            </th>
+            <th>
+                Дата оплаты
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count > 0)
+        {
+            foreach(var item in Model)
+            {
+                <tr data-item-id="@item.Id">
+                    <td>
+                        @item.Id
+                    </td>
+                    <td>
+                        @item.ServiceType.ServiceName
+                    </td>
+                    <td>
+                        @item.Volume.ToString("0.00")
+                    </td>
+                    <td>
+                        @item.Summary.ToString("0.00")
+                    </td>
+                    <td>
+                        @if (item.User != null)
+                        {
+                            @item.User.ToString()
+                        } 
+                        else if (item.Company != null)
+                        {
+                            @item.Company.Name
+                        }
+                    </td>
+                    <td>
+                        @if (item.PaymentDate != null)
+                        {
+                            <text>Оплачено</text>
+                        }
+                        else
+                        {
+                            <text>Не оплачено</text>
+                        }
+                    </td>
+                    <td>
+                        @item.PaymentDate.FormatDateTime()
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7">Нет вызовов услуг</td>
+            </tr>
+        }
+    </tbody>
+</table>

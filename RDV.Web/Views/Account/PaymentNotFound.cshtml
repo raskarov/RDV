@@ -1,0 +1,26 @@
+﻿@using RDV.Web.Models.UI
+@model dynamic
+
+@{
+    ViewBag.Title = "Платеж не найден";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            <div class="info">
+                Указанный платежной системой платеж не был найден в нашей системе.
+            </div>
+        </div>
+    </div>
+</div>

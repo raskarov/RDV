@@ -1,0 +1,55 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Models.SearchRequests
+@model RDV.Domain.Entities.SearchRequest
+@{
+    var requestObjects = Model.GetRequestObjects();
+    var newObjects = requestObjects.Where(o => o.Status == (short) SearchRequestObjectStatus.New).OrderByDescending(o => o.DateCreated).Select(r => new RequestObjectModel(r)).ToList();
+    var acceptedObjects = requestObjects.Where(o => o.Status == (short)SearchRequestObjectStatus.Accepted).OrderByDescending(o => o.DateMoved).Select(r => new RequestObjectModel(r)).ToList();
+    var declinedObjects = requestObjects.Where(o => o.Status == (short)SearchRequestObjectStatus.Declined).OrderByDescending(o => o.DateMoved).Select(r => new RequestObjectModel(r)).ToList();
+}
+<div class="block" onmousemove="initDetails(@Model.Id);" request="@Model.Id">
+    <div class="block-content">
+        <div class="block-inner-content" style="min-height: 50px">
+            <div class="object-details tab-control" id="request-@Model.Id-details">
+                <table width="100%" class="tab-header">
+                    <tr>
+                        <td class="tab-header-item active" target=".request-new-objects">
+                            <span class="tab-header-title">Новые (<span class="newo">@newObjects.Count</span>)</span>
+                        </td>
+                        <td class="tab-header-item" target=".request-accepted-objects">
+                            <span class="tab-header-title">В работе (<span class="ao">@acceptedObjects.Count</span>)</span>
+                        </td>
+                        <td class="tab-header-item" target=".request-declined-objects">
+                            <span class="tab-header-title">Отклоненные (<span class="do">@declinedObjects.Count</span>)</span>
+                        </td>
+                    </tr>
+                </table>
+                <div class="tab request-new-objects" style="display: block">
+                    @Html.Partial("SearchRequestObjectsPartial",new RequestObjectsListModel()
+                    {
+                        Request = Model,
+                        Status = SearchRequestObjectStatus.New,
+                        Data = newObjects
+                    })
+                </div>
+                <div class="tab request-accepted-objects">
+                    @Html.Partial("SearchRequestObjectsPartial",new RequestObjectsListModel()
+                    {
+                        Request = Model,
+                        Status = SearchRequestObjectStatus.Accepted,
+                        Data = acceptedObjects
+                    })
+                </div>
+                <div class="tab request-declined-objects">
+                    @Html.Partial("SearchRequestObjectsPartial",new RequestObjectsListModel()
+                    {
+                        Request = Model,
+                        Status = SearchRequestObjectStatus.Declined,
+                        Data = declinedObjects
+                    })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

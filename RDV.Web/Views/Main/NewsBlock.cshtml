@@ -1,0 +1,34 @@
+﻿@using RDV.Domain.Enums
+@model IList <RDV.Domain.Entities.Article>
+
+<div class="block">
+    <div class="block-header">
+        <div class="block-icon">
+            <img src="@Url.Content("/Content/images/mainpage/newsicon.png")" alt="Icon"/>
+        </div>
+        <div class="block-title">
+            Новости
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <div id="news-block">
+                @foreach(var news in Model.Where(a => a.ArticleType == ArticleTypes.News).Take(3))
+                {
+                <div class="article">
+                    <div class="article-header">
+                        <a href="/articles/view/@news.Id">@news.Title</a>
+                    </div>
+                    <div class="article-preview">
+                        @news.ShortContent
+                    </div>
+                </div>
+                }
+                <div id="all-news-wrapper">
+                    <a href="/articles/news">Все новости</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content page-object">
+        <div>
+            @* Секции формы объекта *@
+            @Html.Partial("ObjectFormSections")
+
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Редактирование объекта
+                                </div>
+                                <ul id="action-menu-content">
+                                    @if (ViewBag.ObjectId > 0 && ViewBag.ClientId > 0)
+                                    {
+                                        <li><a href="/objects/@ViewBag.ObjectId/client">Сведения о клиенте</a></li>    
+                                    }
+                                    <li><a href="/objects/@ViewBag.ObjectId/price-changements">Изменения цены</a></li>
+                                    <div class="separator"></div>
+                                    <li><a href="#">Помощь</a></li>
+                                    <li><a href="#">Печать</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Рендерим саму форму *@
+                            @RenderBody()
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    // NOTE: тут идут скрипты
+</script>

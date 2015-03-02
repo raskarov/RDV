@@ -1,0 +1,29 @@
+﻿@using RDV.Web.Classes
+@model RDV.Domain.Entities.Article
+@{
+    ViewBag.Title = Model.Title;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="static-page-content">
+            @if (!String.IsNullOrEmpty(Model.VideoLink))
+            {
+                <div style="text-align: center; margin: 15px;">
+                    <iframe width="853" height="480" src="http://www.youtube.com/embed/@YouTubeHelper.GetVideoId(Model.VideoLink)" frameborder="0" allowfullscreen></iframe>
+                </div>
+            }
+            @Html.Raw(Model.FullContent)
+        </div>
+    </div>
+    <div id="social-buttons">
+        <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+        <div class="yashare-auto-init" data-yasharel10n="ru" data-yasharetype="icon" data-yasharequickservices="vkontakte,facebook,twitter,odnoklassniki,moimir">
+        </div>
+    </div>
+</div>

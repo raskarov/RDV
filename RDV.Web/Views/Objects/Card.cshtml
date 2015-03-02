@@ -1,0 +1,567 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@model RDV.Domain.Entities.EstateObject
+
+@{
+    ViewBag.Title = String.Format("Объект №{0} - {1}, {2}", Model.Id, ((EstateTypes)Model.ObjectType).GetEnumMemberName(), ((EstateOperations)Model.Operation).GetEnumMemberName());
+    var dictionariesRepository = Locator.GetService<IDictionariesRepository>();
+    var filesRep = Locator.GetService<IStoredFilesRepository>();
+    var objectMedia = Model.GetObjectsMedia(true);
+    var hasYM = Model.Address.Latitude.HasValue && Model.Address.Logitude.HasValue;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @if (ViewContext.IsAuthentificated())
+        {
+            @Html.Partial("NavigationChain")    
+        }
+    </div>
+    <div class="page-content page-object page-card">
+        @* Верхний блок объекта *@
+        <div class="card-header">
+            <div class="left-part">
+                @* Заголовок *@
+                <div class="card-title">
+                    @if (!String.IsNullOrEmpty(Model.ObjectMainProperties.Title))
+                    {
+                        @Model.ObjectMainProperties.Title
+                    }
+                    else
+                    {
+                        @String.Format("Объект: {0}, {1}", ((EstateTypes)Model.ObjectType).GetEnumMemberName(), ((EstateOperations)Model.Operation).GetEnumMemberName())
+                    }
+                    <span class="object-id">(@Model.Id)</span>
+                </div>
+                @* Адрес *@
+                <div class="card-address">
+                    @{
+                        var address = Model.Address.ToShortAddressString();
+                    }
+                    @address@(!String.IsNullOrEmpty(address) ? "." : "")
+                    @if ((Model.ObjectType == (short)EstateTypes.Flat | @Model.ObjectType == (short)EstateTypes.House) && (Model.ObjectAdditionalProperties.RoomsCount.HasValue))
+                    {
+                        @Model.ObjectAdditionalProperties.RoomsCount <text>комнат(ы,a)</text>
+                    }
+                    else if ((Model.ObjectType == (short)EstateTypes.Land | @Model.ObjectType == (short)EstateTypes.Office) && (Model.ObjectMainProperties.TotalArea.HasValue))
+                    {
+                        @Model.ObjectMainProperties.TotalArea <text>м.кв.</text>
+                    }
+                </div>
+            </div>
+            <div class="right-part">
+                @* Блок с иконками *@
+                <div class="card-icons">
+                    @if (Model.ObjectAdditionalProperties.Auction.HasValue && Model.ObjectAdditionalProperties.Auction.Value == true)
+                    {
+                        <span class="icon-auction" title="Возможен торг"></span>
+                    }
+                    @if (Model.ObjectMainProperties.Urgently.HasValue && Model.ObjectMainProperties.Urgently.Value == true)
+                    {
+                        <span class="icon-urgent" title="Срочно"></span>
+                    }
+                    @if (Model.ObjectMainProperties.Exclusive.HasValue && Model.ObjectMainProperties.Exclusive.Value == true)
+                    {
+                        <span class="icon-exclusive" title="Эксклюзив"></span>
+                    }
+                    @if (ViewContext.IsAuthentificated() && Model.ObjectAdditionalProperties.AgreementType == 354)
+                    {
+                        <span class="icon-multilisting" title="Мультилистинг: тип бонуса: @IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.MultilistingBonusType), размер бонуса @Model.ObjectMainProperties.MultilistingBonus."></span>
+                    }
+                    @if (Model.ObjectMainProperties.Exchange.HasValue && Model.ObjectMainProperties.Exchange.Value == true)
+                    {
+                        <span class="icon-exchange" title="Условия обмена: @Model.ObjectMainProperties.ExchangeConditions"></span>
+                    }
+                    @if (Model.ObjectMainProperties.SpecialOffer.HasValue && Model.ObjectMainProperties.SpecialOffer.Value == true)
+                    {
+                        <span class="icon-special" title="Специальное предложение: @Model.ObjectMainProperties.SpecialOfferDescription"></span>
+                    }
+                </div>
+                @* Блок с ценой *@
+                <div class="card-price">
+                    @{
+                        double? priceToAnalize = null;
+                        bool perUnit = false;
+                        if (Model.Operation == (short)EstateOperations.Selling | @Model.Operation == (short)EstateOperations.Buying)
+                        {
+                            priceToAnalize = Model.ObjectMainProperties.Price;
+                        }
+                        else
+                        {
+                            priceToAnalize = Model.ObjectMainProperties.PricePerUnit;
+                            perUnit = true;
+                        }
+                    }
+                    @if (priceToAnalize.HasValue)
+                    {
+                        <span class="card-price-value">@priceToAnalize.FormatPrice()</span>
+                        <input type="hidden" id="original-price-field" value="@priceToAnalize.FormatPrice()"/>
+                        <span class="card-price-currency">@IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.Currency)</span>
+                                                     if (perUnit)
+                                                     {
+                            <div class="card-price-per-unit">
+                                Цена за м.кв.
+                            </div>
+                                                     }
+                    }
+                </div>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div id="card-body" class="block">
+            <div class="block-content">
+                <div class="block-inner-content">
+                    <div class="left-column">
+                        <div id="main-photo">
+                            @if (objectMedia.Count > 0)
+                            {
+                                <img src="@filesRep.ResolveFileUrl(objectMedia.First().MediaUrl)" alt="@objectMedia.First().Title"/>
+                            }
+                        </div>
+                        @if (objectMedia.Count > 1)
+                        {
+                            <div id="photo-block">
+                                @foreach (var media in objectMedia)
+                                {
+                                    <div class="media">
+                                        <img src="@filesRep.ResolveFileUrl(media.MediaUrl)" alt="@media.Title"/>
+                                    </div>
+                                }
+                                <div class="clear"></div>
+                            </div>
+                        }
+                        @if (hasYM)
+                        {
+                            <div id="yandex-map">
+                                
+                            </div>
+                        }
+                    </div>
+                    <div class="right-column">
+                        <div class="block">
+                            <div class="block-content">
+                                <div class="block-inner-content">
+                                    <div class="tab-control">
+                                        <table width="100%" class="tab-header">
+                                            <tr>
+                                                <td class="tab-header-item active" target="#main-properties">
+                                                    <span class="tab-header-title">Основные характеристики</span>
+                                                </td>
+                                                <td class="tab-header-item" target="#all-properties">
+                                                    <span class="tab-header-title">Все параметры</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div class="tab" id="main-properties" style="display: block">
+                                            <table id="area-table" class="content-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Общая
+                                                        </th>
+                                                        @if (Model.ObjectType == (short)EstateTypes.Flat || Model.ObjectType == (short)EstateTypes.House)
+                                                        {
+                                                            <th>
+                                                                Жилая
+                                                            </th>   
+                                                        }
+                                                        @if (Model.ObjectType == (short)EstateTypes.Flat || Model.ObjectType == (short)EstateTypes.House)
+                                                        {
+                                                            <th>
+                                                                Кухня
+                                                            </th>
+                                                        }
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            @if (Model.ObjectType == (short)EstateTypes.Land)
+                                                            {
+                                                                @Model.ObjectMainProperties.LandArea.FormatString()
+                                                            }
+                                                            else
+                                                            {
+                                                                @Model.ObjectMainProperties.TotalArea.FormatString()
+                                                            }
+                                                            
+                                                        </td>
+                                                        @if (Model.ObjectType == (short)EstateTypes.Flat || Model.ObjectType == (short)EstateTypes.House)
+                                                        {
+                                                            <td>
+                                                                @Model.ObjectMainProperties.ActualUsableFloorArea.FormatString()
+                                                            </td>
+                                                        }
+                                                        @if (Model.ObjectType == (short)EstateTypes.Flat || Model.ObjectType == (short)EstateTypes.House || Model.ObjectType == (short)EstateTypes.Office)
+                                                        {
+                                                            <td>
+                                                                @Model.ObjectMainProperties.KitchenFloorArea.FormatString()
+                                                            </td>
+                                                        }
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="address-info">
+                                                @Model.Address.ToShortAddressString()
+                                            </div>
+                                            @if (Model.ObjectType != (short)EstateTypes.Land)
+                                            {
+                                                <div class="object-info">
+                                                    <b>Год постройки</b>: @Model.ObjectAdditionalProperties.BuildingYear
+                                                </div>
+                                                <div class="object-info">
+                                                    <b>Период застройки</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.BuildingPeriod)
+                                                </div>
+                                                <div class="object-info">
+                                                    <b>Материал постройки</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.BuildingMaterial)
+                                                </div>
+                                                <div class="object-info">
+                                                    <b>Материал перекрытий</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.FloorMaterial)
+                                                </div>
+                                                if (Model.ObjectType == (short)EstateTypes.Flat)
+                                                {
+                                                    <div class="object-info">
+                                                        <b>Тип квартиры</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectMainProperties.FlatType)
+                                                    </div>
+                                                }
+                                                if (Model.ObjectType == (short)EstateTypes.Flat | Model.ObjectType == (short)EstateTypes.Room)
+                                                {
+                                                    <div class="object-info">
+                                                        <b>Этаж/Этажность</b>: @Model.ObjectMainProperties.FloorNumber / @Model.ObjectMainProperties.TotalFloors
+                                                    </div>
+                                                }
+                                                if (Model.ObjectType == (short)EstateTypes.Flat | Model.ObjectType == (short)EstateTypes.Room | Model.ObjectType == (short)EstateTypes.House)
+                                                {
+                                                    <div class="object-info">
+                                                        <b>Планировка комнат</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectAdditionalProperties.RoomPlanning)
+                                                    </div> 
+                                                                             if (Model.ObjectRatingProperties.WC != null)
+                                                                             {
+                                                    <div class="object-info">
+                                                        <b>Санузел</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectRatingProperties.WC)
+                                                    </div>       
+                                                                             }
+                                                }
+                                                if (Model.ObjectAdditionalProperties.Redesign.HasValue && Model.ObjectAdditionalProperties.Redesign.Value == true)
+                                                {
+                                                    <div class="object-info">
+                                                        Перепланировка
+                                                        @if (Model.ObjectAdditionalProperties.RedesignLegality.HasValue && Model.ObjectAdditionalProperties.RedesignLegality.Value == true)
+                                                        {
+                                                            <text>узаконена</text>
+                                                        }
+                                                    </div>
+                                                }    
+                                            }
+                                            <div class="object-info">
+                                                <b>Общее состояние</b>: @IdObjectsCache.GetDictionaryValue(Model.ObjectRatingProperties.CommonState)
+                                            </div>
+                                            <div class="object-info">
+                                                <b>Описание</b>: @Model.ObjectMainProperties.FullDescription
+                                            </div>
+                                            <div id="find-similar-wrapper">
+                                                <span id="find-similar" onclick="window.location.href='/objects/find-similar/@Model.Id'"></span>
+                                            </div>
+                                        </div>
+                                        <div class="tab" id="all-properties">
+                                            <img src="/Content/images/common/green-ajax.gif" style="margin-top: 80px; margin-left: 220px;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block" style="margin-top: 15px">
+                            <div class="block-header">
+                                <div class="block-title">Контакты</div>
+                            </div>
+                            <div class="block-content">
+                                <div class="block-inner-content">
+                                    @if (Model.User.Company != null)
+                                    {
+                                        <div id="company-info">
+                                            <div id="company-photo">
+                                                @{
+                                        var companyLogo = !String.IsNullOrEmpty(Model.User.Company.LogoImageUrl) ? filesRep.ResolveFileUrl(Model.User.Company.LogoImageUrl) : "/Content/images/mainpage/new-object-photo.png";
+                                                }
+                                                <img src="@companyLogo" alt="@Model.User.Company.Name"/>
+                                            </div>
+                                            <div class="company-title">
+                                                <a href="/member/@Model.User.CompanyId">@Model.User.Company.Name</a>
+                                            </div>
+                                            <div class="company-info-line">
+                                                Адрес офиса: @Model.User.Company.Address
+                                            </div>
+                                            <div class="company-info-line">
+                                                Телефон офиса: @Model.User.Company.Phone1.FormatPhoneNumber()
+                                            </div>
+                                            @if (!String.IsNullOrEmpty(Model.User.Company.Phone2))
+                                            {
+                                                <div class="company-info-line">
+                                                    Доп. телефон: @Model.User.Company.Phone2.FormatPhoneNumber()
+                                                </div>    
+                                            }
+                                            @if (!String.IsNullOrEmpty(Model.User.Company.Phone3))
+                                            {
+                                                <div class="company-info-line">
+                                                    Доп. телефон: @Model.User.Company.Phone3.FormatPhoneNumber()
+                                                </div>    
+                                            }
+                                        </div>   
+                                    }
+                                    <div id="user-info">
+                                        <div class="user-header clear">
+                                            На ваши вопросы по этому объекту ответит:
+                                        </div>
+                                        <div id="user-photo">
+                                            @{
+                                                var contactPerson = Model.ObjectMainProperties.IsSetNumberAgency.HasValue && 
+                                                                    Model.ObjectMainProperties.IsSetNumberAgency.Value &&
+                                                                    Model.ObjectMainProperties.User != null ? Model.ObjectMainProperties.User : Model.User;
+                                                var userPhoto = !String.IsNullOrEmpty(contactPerson.PhotoUrl) ? filesRep.ResolveFileUrl(contactPerson.PhotoUrl) : "/Content/images/mainpage/new-object-photo.png";
+                                            }
+                                            @*<img src="@userPhoto" alt="@contactPerson.ToString()"/>*@
+                                            <img src="@ViewBag.PhotoUrl" alt="@ViewBag.Name"/>
+                                        </div>
+                                        <div class="user-name">
+                                            @*@contactPerson.ToString()*@
+                                            @ViewBag.Name
+                                        </div>
+                                        <div class="user-info-line">
+                                            @*Тел.: @contactPerson.Phone.FormatPhoneNumber()*@
+                                            Тел.: @ViewBag.ContactPhone
+                                        </div>
+                                        @*@if (!String.IsNullOrEmpty(contactPerson.Phone2))
+                                        {
+                                            <div class="user-info-line">    
+                                                Доп.: @contactPerson.Phone2.FormatPhoneNumber()
+                                            </div>
+                                        }*@
+                                        <div class="clear"></div>
+                                        <div id="user-buttons">
+                                            <span id="callback"></span>
+                                            <span id="view-request"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="social-buttons">
+                            <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+                            <div class="yashare-auto-init" data-yasharel10n="ru" data-yasharetype="icon" data-yasharequickservices="vkontakte,facebook,twitter,odnoklassniki,moimir">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialogs" style="display: none">
+    <div id="callback-dialog" title="Заказать обратный звонок" class="dialog">
+        <p class="info">Пожалуйста, напишите ваш номер телефона, в ближайшее время с вами свяжется агент.</p>
+        <form action="/objects/callback" method="POST" id="callback-form">
+            <input type="hidden" name="objectId" value="@Model.Id"/>
+            <div class="editor-label">
+                Ваш номер телефона
+            </div>
+            <div class="editor-field">
+                <input type="text" class="field round required phone-field" maxlength="50" name="phone" placeholder="Введите ваш номер"/>
+            </div>
+        </form>
+    </div>
+    <div id="callback-success-dialog" title="Звонок заказан" class="dialog">
+        <p class="info">Спасибо. Ваш заказ на звонок был отправлен агенту. Он свяжется с вами в ближайшее время.</p>
+    </div>
+    <div id="view-request-dialog" title="Оставить заявку на просмотр" class="dialog">
+        <p class="info">Вы можете оставить заявку на осмотр данного объекта недвижимости. Пожалуйста, заполните форму:</p>
+        <form action="/objects/view-request" method="POST" id="view-request-form">
+            <input type="hidden" name="objectId" value="@Model.Id"/>
+            <div class="editor-label">
+                Ваше имя
+            </div>
+            <div class="editor-field">
+                <input type="text" class="field round required" maxlength="25" name="name" placeholder="Введите ваше имя"/>
+            </div>
+            <div class="editor-label">
+                Ваш номер телефона
+            </div>
+            <div class="editor-field">
+                <input type="text" class="field round required phone-field" maxlength="50" name="phone" placeholder="Введите ваш телефон"/>
+            </div>
+            <div class="editor-label">
+                Желаемая дата осмотра
+            </div>
+            <div class="editor-field">
+                <input type="text" class="field round required datepicker" name="viewDate" placeholder="Введите дату"/>
+            </div>
+        </form>
+    </div>
+    <div id="view-request-success-dialog" title="Звонок заказан" class="dialog">
+        <p class="info">Спасибо. Ваша заявка на осмотр объекта была отправлена агенту. Он свяжется с вами в ближайшее время.</p>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    // NOTE: тут идут скрипты
+    $(document).ready(function () {
+        $("#price-selector").multiselect({
+            multiple: false,
+            maxWidth: 100,
+            selectedList: 1
+        });
+        $("#photo-block img").click(function() {
+            $("#main-photo img").attr("title", $(this).attr("title")).attr("src", $(this).attr("src")).attr("index",$(this).parent().index());
+        });
+        $("#main-photo img").click(function() {
+            var imgs = [];
+            $(".media img").each(function(index, item) {
+                imgs.push({
+                    title: $(item).attr("title"),
+                    href: $(item).attr("src")
+                });
+            });
+            $.fancybox.open(imgs, { index: parseInt($(this).attr("index"))});
+        });
+        $(".tab-control .tab-header-item").click(function() {
+            $(".tab").hide();
+            $(".tab-control .tab-header-item").removeClass("active");
+            $(this).addClass("active");
+            var selector = $(this).attr("target");
+            $(selector).show();
+            var self = $(this);
+            if (selector == "#all-properties" && !$(this).hasClass("loaded")) {
+                global.ajaxLoad($("#all-properties"), "GET", "/objects/@Model.Id/card-details", { }, function(data) {
+                    self.addClass("loaded");
+                }, false);
+            }
+        });
+        @if (hasYM)
+        {
+<text>
+            var coords = [@Model.Address.Latitude.Value.ToString().Replace(",", "."),@Model.Address.Logitude.Value.ToString().Replace(",", ".")];
+            ymaps.ready(function() {
+                var yandexMap = new ymaps.Map('yandex-map', {
+                    center: coords,
+                    zoom: 15
+                });
+                yandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+                var objectPlacemark = new ymaps.Placemark(coords, {
+                    content: '@Model.Address.ToShortAddressString()',
+                    balloonContent: '@Model.Address.ToShortAddressString()'
+                });
+                yandexMap.geoObjects.add(objectPlacemark);
+            });
+</text>
+        }
+
+        @* Отображает диалог заказа звонка *@
+        function showCallbackDialog() {
+            var dialog = $("#callback-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Отправить": function () {
+                        $("#callback-form").submit();
+                        dialog.dialog("close");
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        function showCallbackSuccessDialog() {
+            var dialog = $("#callback-success-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "ОК": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+
+        $("#callback").click(function() {
+            showCallbackDialog();
+        });
+
+        @* Отображает диалог заявки на осмотр *@
+        function showViewRequestDialog() {
+            var dialog = $("#view-request-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Отправить": function () {
+                        $("#view-request-form").submit();
+                        dialog.dialog("close");
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        function showViewRequestSuccessDialog() {
+            var dialog = $("#view-request-success-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "ОК": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+
+        $("#view-request").click(function() {
+            showViewRequestDialog();
+        });
+
+        $("#callback-form").validate({
+            rules: {
+                phone: {
+                    required: true
+                }  
+            },
+            submitHandler: function(form) {
+                $(form).ajaxSubmit({
+                    success: function () {
+                        showCallbackSuccessDialog();
+                    }
+                });
+            }
+        });
+
+        $("#view-request-form").validate({
+            rules: {
+                name: {
+                    required: true
+                },
+                phone: {
+                    required: true
+                },
+                viewDate: {
+                    required: true,
+                    dateRU: true
+                } 
+            },
+            submitHandler: function(form) {
+                $(form).ajaxSubmit({
+                    success: function () {
+                        showViewRequestSuccessDialog();
+                    }
+                });
+            }
+        });
+    });
+</script>

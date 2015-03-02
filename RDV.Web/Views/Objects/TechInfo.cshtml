@@ -1,0 +1,59 @@
+﻿@model RDV.Web.Models.Objects.ObjectFormModel
+
+@{
+    ViewBag.Title = string.Format("Редактирование объекта №{0} - Техническая информация", Model.EstateObject.Id);
+    Layout = "ObjectsLayout.cshtml";
+    ViewBag.ObjectId = Model.EstateObject.Id;
+}
+
+<div class="object-form-wrapper">
+    <h1>Технические реквизиты</h1>
+    @* Сама форма редактирования объекта *@
+    @Html.Partial("ObjectForm", Model)
+</div>
+
+<script language="javascript" type="text/javascript">
+    $("#tech-properties").addClass("active");
+    $("#object-form").attr("action", "/objects/savetechinfo");
+
+    // Скрипты для взаимодействия полей
+    function updateFirstFloorDownset() {
+        var show = $("#number-floor-field").val() == "1";
+        if (show) {
+            $("#first-floor-downset-field-wrapper").show();
+        } else {
+            $("#first-floor-downset-field-wrapper").hide();
+        }
+    }
+    $("#number-floor-field").change(function () {
+        updateFirstFloorDownset();
+    });
+    updateFirstFloorDownset();
+    
+    function updateReplanningLegality() {
+        var show = $("#replanning-field").attr("checked") == "checked";
+        if (show) {
+            $("#replanning-legality-field-wrapper").show();
+        } else {
+            $("#replanning-legality-field-wrapper").hide();
+        }
+    }
+    $("#replanning-field").change(function () {
+        updateReplanningLegality();
+    });
+    updateReplanningLegality();
+
+    var customValidate = function () {
+        if (!$("#new-builded-object-field").prop("checked")) {
+            var buildingYear = $("#building-year-field");
+            if (buildingYear.length > 0) {
+                var val = parseInt(buildingYear.val());
+                if (val < 1900 || val > new Date().getFullYear()) {
+                    alert("Введите правильный год постройки");
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+</script>

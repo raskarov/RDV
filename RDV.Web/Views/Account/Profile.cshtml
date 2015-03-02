@@ -1,0 +1,303 @@
+﻿@model RDV.Web.Models.Account.Profile.ProfileInfoModel
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Редактирование профиля";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            <form action="/account/profile/save" method="POST" id="profile-form" enctype="multipart/form-data">
+            @Html.HiddenFor(m => m.Id)
+            <div id="left-content-block">
+                <div id="user-photo">
+                    <img src="@Model.RealImageUrl" alt="Фотография"/>
+                </div>
+                <div class="editor-label">
+                    Загрузить фотографию
+                </div>
+                <div class="editor-field">
+                    <input type="file" id="photo-file-field" name="UserPhoto" />
+                </div>
+                <div class="profile-link">
+                    <a href="javascript:showFlashUploader()">Загрузчик фотографий</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/profile/training-programs">Редактировать учебные программы</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/edit-achivements">Редактировать достижения</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/edit-client-reviews">Редактировать отзывы</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/profile/statistics">Статистика</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/profile/activity">Просмотр активности</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/profile/payments">Кошелек</a>
+                </div>
+                <div class="profile-link">
+                    <a href="/account/logoff">Выйти из аккаунта</a>
+                </div>
+            </div>
+            <div id="center-content-block" class="profile-form-block">
+                <fieldset>
+                    <div class="legend">
+                        Регистрационные данные
+                    </div>
+                    <div class="editor-label">
+                        Email адрес
+                    </div>
+                    <div class="editor-field">
+                        <input type="email" class="round field" id="profile-email-field" name="Email" placeholder="Введите свой Email" maxlength="255" value="@Model.Email" readonly="readonly" value="@Model.Email"/>
+                    </div>
+                    <div class="editor-label">
+                        Старый пароль
+                    </div>
+                    <div class="editor-field">
+                        <input type="password" class="round field" id="profile-oldpassword-field" name="OldPassword"
+                            maxlength="255" />
+                    </div>
+                    <div class="editor-label">
+                        Новый пароль
+                    </div>
+                    <div class="editor-field">
+                        <input type="password" class="round field" id="profile-newpassword-field" name="NewPassword"
+                            maxlength="255" />
+                    </div>
+                    <div class="editor-label">
+                        Подтверждение нового пароля
+                    </div>
+                    <div class="editor-field">
+                        <input type="password" class="round field" id="profile-newpassword-confirm-field"
+                            name="NewPasswordConfirm" maxlength="255" />
+                    </div>
+                    <div class="editor-label">
+                        Ваша роль: @Model.Role.Name
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="legend">
+                        Личные данные</div>
+                    <table width="100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="editor-label">
+                                        Фамилия
+                                    </div>
+                                    <div class="editor-field">
+                                        <input style="width: 343px" type="text" class="round" id="profile-lastname-field" name="LastName" placeholder="Ваша фамилия" maxlength="255" value="@Model.LastName"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="editor-label">
+                                        Имя
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small" id="profile-name-field" name="FirstName" placeholder="Ваше имя" maxlength="255" value="@Model.FirstName"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="editor-label">
+                                        Отчество
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small" id="profile-surname-field" name="SurName" placeholder="Ваше отчество" maxlength="255" value="@Model.SurName"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="editor-label">
+                                        Контактный телефон
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small phone-field" id="profile-phone-field" name="Phone" placeholder="Основной номер" maxlength="255" value="@Model.Phone"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="editor-label">
+                                        Дополнительный телефон
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small phone-field" id="profile-phone2-field" name="Phone2" placeholder="Вспомогательный номер" maxlength="255" value="@Model.Phone2"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="editor-label">
+                                        Номер ICQ
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="number" class="round field-small" id="profile-icq-field" name="ICQ" placeholder="Ваш номер ICQ" maxlength="12" value="@Model.ICQ"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="editor-label">
+                                        Дата рождения
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" class="round field-small datepicker" id="profile-birth-date-field" placeholder = "Введиту дату" value="@Model.Birthdate.FormatDate()" name="Birthdate"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+                @if (Model.Company != null)
+                {
+                    <fieldset>
+                        <div class="legend">
+                            Профессиональные данные
+                        </div>
+                        <div class="editor-label">
+                            Компания
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round" style="width: 343px" id="profile-companyname-field" name="CompanyName" readonly="readonly" value="@Model.Company.Name"/>
+                        </div>
+                        <table id="company-fields" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="editor-label">
+                                            Должность
+                                        </div>
+                                        <div class="editor-field">
+                                            <input type="text" class="round field-small" readonly="readonly" id="profile-appointment-field" name="Appointment" placeholder="Ваша должность" maxlength="255" value="@Model.Appointment"/>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="editor-label">
+                                            Дата начала стажа
+                                        </div>
+                                        <div class="editor-field">
+                                            <input type="text" class="round field-small" readonly="readonly" id="profile-seniority-start-date-field" placeholder = "Введиту дату" value="@Model.SeniorityStartDate.FormatDate()" name="SeniorityStartDate"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="editor-label">
+                                            Номер сертификата
+                                        </div>
+                                        <div class="editor-field">
+                                            <input type="text" class="round field-small" readonly="readonly" id="profile-certificate-number-field" name="CertificateNumber" placeholder="Введите ваш номер сертификата" maxlength="255" value="@Model.CertificateNumber"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="editor-label">
+                                            Сертификат выдан
+                                        </div>
+                                        <div class="editor-field">
+                                            <input type="text" class="round field-small" readonly="readonly" id="profile-certification-date-field" placeholder = "Дата" value="@Model.CertificationDate.FormatDate()" name="CertificationDate"/>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="editor-label">
+                                            Сертификат истекает
+                                        </div>
+                                        <div class="editor-field">
+                                            <input type="text" class="round field-small" readonly="readonly" id="profile-certification-end-date-field" placeholder = "Дата" value="@Model.CertificateEndDate.FormatDate()" name="CertificationEndDate"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="editor-label">
+                                            Общественные нагрузки
+                                        </div>
+                                        <div class="editor-field">
+                                            <textarea class="field-small round" id="profile-public-load-field" readonly="readonly"
+                                                style="width: 343px" name="PublicLoading">@Model.PublicLoading</textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </fieldset> 
+                }
+                <div class="info">
+                    Ниже вы можете указать темы, тематические рассылки по которым вы будете получать
+                </div>
+                @foreach (var subject in Enum.GetValues(typeof (SubscribeCategories)))
+                {
+                    var subjectId = (short) subject;
+                    <div class="editor-field">
+                        <input type="checkbox" name="subject-@subjectId" value="true" @((Model.Notifications & subjectId) == subjectId ? "checked=checked":"")/> @subject.GetEnumMemberName()
+                    </div>
+                }
+                <div id="submit-button-wrapper" style="margin-top: 0px; text-align: left;" onclick="$('#profile-form').submit();">
+                    <span id="submit-button">
+                        <input type="submit" value=" " style="display: none" />
+                    </span>
+                </div>
+            </div>
+            </form>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialog" id="flash-upload-dialog" title="Расширенная загрузка фотографии пользователя"
+    style="display: none">
+    <div id="flashContent">
+        <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="705" height="446"
+            id="forma" align="middle">
+            <param name="movie" value="forma.swf" />
+            <param name="quality" value="high" />
+            <param name="FlashVars" value="urlpath=http://www.nprdv.ru/Account/SaveProfilePhoto&amp;link1=@Model.Id&amp;maxphoto=1" />
+            <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="/Content/flash/forma.swf" width="705"
+                height="446">
+                <param name="movie" value="forma.swf" />
+                <param name="quality" value="high" />
+                <param name="FlashVars" value="urlpath=http://www.nprdv.ru/Account/SaveProfilePhoto&amp;link1=@Model.Id&amp;maxphoto=1" />
+                <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflash">
+                    <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
+                        alt="Загрузить Adobe Flash Player" />
+                </a>
+                <!--[if !IE]>-->
+            </object>
+            <!--<![endif]-->
+        </object>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    // Подключаем валидацию
+    validators.bindProfileFormValidators();
+
+    function showFlashUploader() {
+        var dialog = $("#flash-upload-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 725,
+            buttons: {
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,166 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@using RDV.Web.Classes.Extensions
+@model dynamic
+@{
+    var users = (IList<RDV.Domain.Entities.User>)ViewBag.users;
+    var cities = (IList<RDV.Domain.Entities.GeoCity>)ViewBag.cities;
+    var dictRep = Locator.GetService<IDictionariesRepository>();
+}
+<form action="/administration/companies/save-company" method="POST" id="edit-company-form">
+<input type="hidden" id="company-id-field" name="Id" value="-1" />
+<input type="hidden" id="current-user-id-field" name="UserId" value="@ViewContext.CurrentUser().Id"/>
+<fieldset>
+    <div class="legend">
+        Основные данные
+    </div>
+    <div class="editor-label">
+        Наименование
+    </div>
+    <div class="editor-field">
+        <input type="text" id="company-name-field" class="round field" maxlength="255" name="Name"
+               placeholder="Введите название компании..." />
+    </div>
+    <div class="editor-label">
+        Краткое наименование
+    </div>
+    <div class="editor-field">
+        <input type="text" id="company--shortname-field" class="round field" maxlength="255" name="ShortName"
+            placeholder="Введите краткое название компании..." />
+    </div>
+    <div class="editor-label">
+        Описание
+    </div>
+    <div class="editor-field">
+        <textarea id="company-description-field" name="Description" class="field round" placeholder="Введите описание компании, чем она занимается и т.д."
+            maxlength="4000"></textarea>
+    </div>
+    <div class="editor-label">
+        Директор
+    </div>
+    <div class="editor-field">
+        <select id="company-director-field" name="DirectorId" class="round field">
+            <option value="-1">Не указан</option>
+            @foreach (var user in users)
+            {
+                <option value="@user.Id">@(String.Format("{0} ({1})", user.ToString(), user.Login))</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        Тип компании
+    </div>
+    <div class="editor-field">
+        <select id="company-type-field" name="CompanyType" class="round field">
+            @foreach (var val in dictRep.GetDictionaryByName("company_types").DictionaryValues)
+            {
+                <option value="@val.Id">@val.Value</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        Город
+    </div>
+    <div class="editor-field">
+        <select id="company-city-field" name="CityId" class="round field">
+            <option value="-1">Не указан</option>
+            @foreach (GeoCity city in cities)
+            {
+                <option value="@city.Id">@city.Name</option>
+            }
+        </select>
+    </div>
+    <div class="editor-label">
+        <input type="checkbox" value="true" name="Inactive" id="inactive-field" />
+        Неактивна
+        <input type="hidden" value="false" name="Inactive" id="inactive-hidden" />
+    </div>
+    <div class="editor-label">
+        <input type="checkbox" value="true" name="IsServiceProvider" id="provider-field" />
+        Поставщик услуг
+        <input type="hidden" value="false" name="IsServiceProvider" id="provider-hidden" />
+    </div>
+    <div class="editor-label">
+        <input type="checkbox" value="true" name="NDSPayer" id="nds-field" />
+        Плательщик НДС
+        <input type="hidden" value="false" name="NDSPayer" id="nds-hidden" />
+    </div>
+</fieldset>
+<fieldset style="margin-bottom: 0px !important">
+    <div class="legend">
+        Контакты
+    </div>
+    <table width="100%">
+        <tbody>
+            <tr>
+                <td>
+                    <div class="editor-label">
+                        Email
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field-small" id="company-email-field" name="Email"
+                            placeholder="Контактный Email" maxlength="255" value="" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-label">
+                        Основной телефон
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field-small phone-field" id="company-phone1-field" name="Phone1"
+                            placeholder="Основной телефон" maxlength="255" value="" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="editor-label">
+                        Дополнительный телефон 1
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field-small phone-field" id="company-phone2-field" name="Phone2"
+                            placeholder="Дополнительный телефон 1" maxlength="255" value="" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-label">
+                        Дополнительный телефон 2
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field-small phone-field" id="company-phone3-field" name="Phone3"
+                            placeholder="Дополнительный телефон 2" maxlength="255" value="" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="editor-label">
+                        Адрес
+                    </div>
+                    <div class="editor-field">
+                        <textarea id="company-address-field" name="Address" class="field-small round" placeholder="Введите адрес компании"
+                            maxlength="4000"></textarea>
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-label">
+                        Филиалы
+                    </div>
+                    <div class="editor-field">
+                        <textarea id="company-branches-field" name="Branch" class="field-small round" placeholder="Введите филиалы компании"
+                            maxlength="4000"></textarea>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="editor-label">
+        Контактное лицо
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="company-contact-person-field" name="ContactPerson"
+            placeholder="ФИО человека для контактов" maxlength="255" value="" />
+    </div>
+</fieldset>
+</form>

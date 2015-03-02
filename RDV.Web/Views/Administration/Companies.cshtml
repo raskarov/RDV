@@ -1,0 +1,294 @@
+﻿@model IEnumerable<RDV.Domain.Entities.Company>
+@using RDV.Domain.Entities
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Компании";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Companies-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Компании
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="add-company-action">Добавить</a> </li>
+                                    <li><a href="#" id="edit-company-action">Редактировать</a> </li>
+                                    <li><a href="#" id="delete-company-action">Удалить</a> </li>
+                                    <li><a href="#" id="export-companies-action">Экспорт в Excel</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            Наименование
+                                        </th>
+                                        <th>
+                                            Тип 
+                                        </th>
+                                        <th>
+                                            Директор
+                                        </th>
+                                        <th>
+                                            Email
+                                        </th>
+                                        <th>
+                                            Телефон
+                                        </th>
+                                        <th>
+                                            Активна
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var comp in Model)
+                                    {
+                                        <tr data-item-id="@comp.Id">
+                                            <td class="checkbox-wrapper">
+                                                <input type="checkbox" id="select-@comp.Id-checkbox" value="true"/>
+                                            </td>
+                                            <td field="Name">
+                                                <a href="#" onclick="editCompanyDialog(@comp.Id);return false;">@comp.Name</a>
+                                            </td>
+                                            <td field="CompanyType">@IdObjectsCache.GetDictionaryValue(comp.CompanyType)</td>
+                                            <td field="Director">@(comp.Director != null ? comp.Director.ToString() : "Не указан")
+                                            </td>
+                                            <td field="Email">
+                                                <a href="mailto:@comp.Email">@comp.Email</a>
+                                            </td>
+                                            <td field="Phone">@comp.Phone1
+                                            </td>
+                                            <td field="Active">@(comp.Inactive ? "Нет":"Да")
+                                            </td>
+                                            <td>
+                                                <span class="icon-edit edit-row"></span>&nbsp;<span class="icon-delete delete-row"></span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог добавления компании *@
+<div class="dialog" id="edit-company-dialog" title="Создание новой компании" style="display: none;">
+    @Html.Partial("EditCompanyForm")
+</div>
+@* диалог удаления выбранных компаний *@
+<div class="dialog" title="Удаление компаний" id="delete-companies-dialog" style="display: none;
+    margin-top: 20px">
+    <p>
+        Вы действительно хотите удалить эти компании? Все пользователи, находящиеся в этих
+        компаниях будут помечены как пользователи без компаний.</p>
+</div>
+<script language="javascript" type="text/javascript">
+    validators.bindCompanyFormValidators(submitCompanyForm);
+    
+    @* Функция отображающая диалог нового пользователя *@
+    function newCompanyDialog() {
+        // Очищаем форму
+        $("#edit-company-form label.error").hide();
+        $("#edit-company-form [name]").removeClass("error").removeClass("valid").val("");
+        $("#inactive-field").val("true");
+        $("#inactive-hidden").val("false");
+        $("#provider-field").val("true");
+        $("#provider-hidden").val("false");
+        $("#nds-field").val("true");
+        $("#nds-hidden").val("false");
+        // Отображаем диалог
+        $("#edit-company-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            maxHeight: window.innerHeight*0.8,
+            buttons: {
+                "Добавить": function () {
+                    $("#edit-company-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#edit-company-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог редактирования компании *@
+    function editCompanyDialog(companyId) {
+        // Получаем данные компании с сервера
+        $.ajax({
+            type: 'GET',
+            url: '/administration/companies/get-info/'+companyId,
+            dataType: 'json',
+            success: function (data) {
+                // Подгатавливаем форму
+                $("#edit-company-form label.error").hide();
+                $("#edit-company-form [name]").removeClass("error").removeClass("valid").val("");
+                $("#inactive-field").val("true");
+                $("#inactive-hidden").val("false");
+                $("#provider-field").val("true");
+                $("#provider-hidden").val("false");
+                $("#nds-field").val("true");
+                $("#nds-hidden").val("false");
+                // Перебираем данные и устанавливаем их в форму
+                for(var property in data) {
+                    var selector = "#edit-company-form [name='"+property+"']";
+                    var ctrl = $(selector);
+                    if (ctrl.length > 0 && ctrl.attr("name") != "Inactive" && ctrl.attr("name") != "IsServiceProvider" && ctrl.attr("name") != "NDSPayer") {
+                        ctrl.first().val(data[property]);
+                    }
+                }
+                if (data.Inactive == true) {
+                    $("#inactive-field").attr("checked", "checked");
+                } else {
+                    $("#inactive-field").attr("checked", null);
+                }
+                if (data.IsServiceProvider == true) {
+                    $("#provider-field").attr("checked", "checked");
+                } else {
+                    $("#provider-field").attr("checked", null);
+                }
+                if (data.NDSPayer == true) {
+                    $("#nds-field").attr("checked", "checked");
+                } else {
+                    $("#nds-field").attr("checked", null);
+                }
+                // Отображаем диалог
+                $("#edit-company-dialog").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    modal: true,
+                    width: 380,
+                    maxHeight: window.innerHeight*0.8,
+                    buttons: {
+                        "Сохранить": function () {
+                            $("#edit-company-form").submit();
+                        },
+                        "Закрыть": function () {
+                            $("#edit-company-dialog").dialog("close");
+                        }
+                    }
+                });
+            },
+            error: function () {
+                alert("Не удалось получить данные компании");
+            }
+        });
+    }
+
+    @* Выполняет аяксовую отсылку формы создания новой роли *@
+    function  submitCompanyForm(form) {
+        $("#edit-company-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+    
+    @* Отображает диалог удаления компаний с указанными идентификаторами *@
+    function deleteCompaniesDialog(companyIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-companies-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/administration/companies/delete-companies',
+                        data: {
+                            companyIds: companyIds
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить компании");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    $("#delete-companies-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    $("#add-company-action").click(function() {
+        newCompanyDialog();
+        return false;
+    });
+    
+    $("#edit-company-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            editCompanyDialog(tr.first().data("item-id"));
+        }
+        return false;
+    });
+
+    $("#delete-company-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteCompaniesDialog(idsStr);
+        return false;
+    });
+
+    $(".edit-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        editCompanyDialog(id);
+    });
+
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deleteCompaniesDialog(id);
+    });
+</script>

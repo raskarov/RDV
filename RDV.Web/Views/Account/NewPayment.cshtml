@@ -1,0 +1,44 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Models.UI
+@model RDV.Domain.Entities.Payment
+
+@{
+    ViewBag.Title = "Новый платеж";
+    var login = System.Configuration.ConfigurationManager.AppSettings["MerchantLogin"]; ;
+    var password = System.Configuration.ConfigurationManager.AppSettings["MerchantPassword"];
+    var signature = PasswordUtils.QuickMD5(String.Format("{0}:{1}:{2}:{3}:Shp_item={4}", login, Model.Amount, Model.Id, password, 1));
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            <div class="info" style="text-align: center">
+                Вы иниицировали пополнение вашего личного кошелька на сайте на сумму 
+            </div>
+            <div class="info" style="font-size: 16px; font-weight: bold; text-align: center">
+                @Model.Amount рублей
+            </div>
+            <div class="info" style="text-align: center">
+                Нажмите кнопку оплатить и выберите наиболее подходящий вариант оплаты
+            </div>
+            <div class="info">
+                Внутренний номер операции: @Model.Id
+            </div>
+            
+            <div class="info">
+                <a href="http://test.robokassa.ru/Index.aspx?MrchLogin=@login&OutSum=@Model.Amount&InvId=@Model.Id&Shp_item=1&SignatureValue=@signature&Desc=@Model.Description&IncCurrLabel=WMRM&Culture=ru&Encoding=utf-8">Оплатить</a>
+            </div>
+        </div>
+    </div>
+</div>

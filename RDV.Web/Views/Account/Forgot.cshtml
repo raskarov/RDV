@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "Восстановление пароля";
+    Layout = "..//Shared//_CommonPageLayout.cshtml";
+}
+
+<div id="page-registration">
+    <div id="registration-form">
+        <form action="/account/forgot" method="POST" id="fgt-form">
+            <div class="editor-label">
+                Email адрес
+            </div>
+            <div class="editor-field">
+                <input type="email" class="round reg-field" id="email-field" name="email" placeholder="Введите свой Email" maxlength="255" value=""/>
+            </div>
+            <input type="submit" id="submit-reg-form" style="display: none"/>
+            <div id="submit-button-wrapper" onclick="$('#submit-reg-form').click();">
+                <span id="submit-button">
+                    
+                </span>
+            </div>
+        </form>
+    </div>
+    <div id="registration-info">
+        <p>
+            Введите Ваш Email адрес, указанный при регистрации в системе. На данный почтовый ящик, будет отправлен код, с помощью которого вы сможете восстановить свой доступ в личный кабинет.
+        </p>
+        
+    </div>
+</div>
+<div class="clear"></div>
+

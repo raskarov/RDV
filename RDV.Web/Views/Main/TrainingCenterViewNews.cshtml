@@ -1,0 +1,31 @@
+﻿@using RDV.Web.Classes
+@using RDV.Web.Classes.Extensions
+@model RDV.Domain.Entities.Article
+
+@{
+    ViewBag.Title = @Model.Title;
+    Layout = "TrainingCenterLayout.cshtml";
+}
+
+<div id="training-center-news">
+    <div id="publication">
+        <div id="publication-date">
+            @Model.PublicationDate.ToString("dd MMMM yyyy")
+        </div>
+        <div id="publication-content">
+            <div class="title">
+                @Model.Title
+            </div>
+            <div class="publication-html static-content">
+                @if (!String.IsNullOrEmpty(Model.VideoLink))
+                {
+                    <div style="text-align: center; margin: 15px;">
+                        <iframe width="550" height="420" src="http://www.youtube.com/embed/@YouTubeHelper.GetVideoId(Model.VideoLink)" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                }
+                @Html.Raw(Model.FullContent)
+            </div>
+        </div>
+    </div>
+
+</div>

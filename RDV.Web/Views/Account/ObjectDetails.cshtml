@@ -1,0 +1,210 @@
+﻿@using RDV.Web.Classes.Extensions
+@using RDV.Web.Classes.Forms
+@model RDV.Domain.Entities.EstateObject
+@{
+    // Создаем наборы свойств
+    var serviceFields = FormPageFieldsFactory.ServicePageList(Model, ViewContext.CurrentUser());
+    var techFields = FormPageFieldsFactory.TechPageList(Model);
+    var legalFields = FormPageFieldsFactory.LegalPageList(Model);
+    var infrastructureFields = FormPageFieldsFactory.InfrastructurePageList(Model);
+    var expluatationFields = FormPageFieldsFactory.ExpluatationPageList(Model);
+    var renderingContext = new FieldRenderingContext(Model, ViewContext.CurrentUser());
+
+    // Считываем данные
+    serviceFields.ReadValuesFromObject(Model);
+    techFields.ReadValuesFromObject(Model);
+    legalFields.ReadValuesFromObject(Model);
+    infrastructureFields.ReadValuesFromObject(Model);
+    expluatationFields.ReadValuesFromObject(Model);
+}
+<div class="block" onmousemove="initDetails(@Model.Id);">
+    <div class="block-content">
+        <div class="block-inner-content" style="min-height: 50px">
+            <div class="object-details tab-control" id="object-@Model.Id-details">
+                <table width="100%" class="tab-header">
+                    <tr>
+                        <td class="tab-header-item active" target=".service-properties">
+                            <span class="tab-header-title">Сервисные</span>
+                        </td>
+                        <td class="tab-header-item" target=".technical-properties">
+                            <span class="tab-header-title">Технические</span>
+                        </td>
+                        <td class="tab-header-item" target=".infrastructure-properties">
+                            <span class="tab-header-title">Инфраструктура</span>
+                        </td>
+                        <td class="tab-header-item" target=".expluatation-properties">
+                            <span class="tab-header-title">Эксплуатационные</span>
+                        </td>
+                        <td class="tab-header-item" target=".legal-properties">
+                            <span class="tab-header-title">Юридические</span>
+                        </td>
+                    </tr>
+                </table>
+                <div class="tab service-properties" style="display: block">
+                    <table class="content-table details-table">
+                        <thead>
+                            <tr>
+                                <th>Реквизит
+                                </th>
+                                <th>Значение
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in serviceFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+                            {
+                                <tr>
+                                    <td align="left">
+                                        @field.Caption
+                                    </td>
+                                    <td>
+                                        @field.ValueAsString()
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab technical-properties">
+                    <table class="content-table details-table">
+                        <thead>
+                            <tr>
+                                <th>Реквизит
+                                </th>
+                                <th>Значение
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in techFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+                            {
+                                <tr>
+                                    <td align="left">
+                                        @field.Caption
+                                    </td>
+                                    <td>
+                                        @field.ValueAsString()
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab legal-properties">
+                    <table class="content-table details-table">
+                        <thead>
+                            <tr>
+                                <th>Реквизит
+                                </th>
+                                <th>Значение
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in legalFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+                            {
+                                <tr>
+                                    <td align="left">
+                                        @field.Caption
+                                    </td>
+                                    <td>
+                                        @field.ValueAsString()
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab infrastructure-properties">
+                    <table class="content-table details-table">
+                        <thead>
+                            <tr>
+                                <th>Реквизит
+                                </th>
+                                <th>Значение
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in infrastructureFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+                            {
+                                <tr>
+                                    <td align="left">
+                                        @field.Caption
+                                    </td>
+                                    <td>
+                                        @field.ValueAsString()
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab expluatation-properties">
+                    <table class="content-table details-table">
+                        <thead>
+                            <tr>
+                                <th>Реквизит
+                                </th>
+                                <th>Значение
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in expluatationFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+                            {
+                                <tr>
+                                    <td align="left">
+                                        @field.Caption
+                                    </td>
+                                    <td>
+                                        @field.ValueAsString()
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    alert("test");
+    $("#object-@Model.Id-details .tab-header-item").click(function (e) {
+        $("#object-@Model.Id-details .tab-header-item").removeClass("active");
+        $("#object-@Model.Id-details .tab").hide();
+        $("#object-@Model.Id-details " + $(this).attr("target")).show();
+        $(this).addClass("active");
+        alert(arguments);
+    });
+
+@if (Model.Address.Latitude.HasValue && Model.Address.Logitude.HasValue)
+   {
+            <text>
+    // Инициализация карт 2gis
+    var coords = [@Model.Address.Latitude.Value.ToString().Replace(',', '.'),@Model.Address.Logitude.Value.ToString().Replace(',', '.')];
+    var point = new DG.GeoPoint(coords[1], coords[0])
+    var map = new DG.Map('object-@Model.Id-map');
+    map.setCenter(point, 15);
+    map.controls.add(new DG.Controls.Zoom());
+
+    // Отображаем балун и маркер
+    var balloon = new DG.Balloons.Common({
+        geoPoint: point,
+        contentHtml: 'Объект номер @Model.Id'
+            });
+            var marker = new DG.Markers.Common({
+                geoPoint: point,
+                clickCallback: function () {
+                    if (!map.balloons.getDefaultGroup().contains(balloon)) {
+                        map.balloons.add(balloon);
+                    } else {
+                        balloon.show();
+                    }
+                }
+            });
+            map.markers.add(marker);
+    </text>
+    }
+</script>

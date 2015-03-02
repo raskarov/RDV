@@ -1,0 +1,90 @@
+﻿@using RDV.Domain.Enums
+@model IList<RDV.Domain.Entities.Article>
+<div class="block">
+    <div class="block-header">
+        <div class="block-icon">
+            <img src="@Url.Content("/Content/images/mainpage/videoicon.png")" alt="Icon"/>
+        </div>
+        <div class="block-title">
+            Видеорепортажи
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <div id="video-block">
+                <div id="video-section-selector">
+                    <span class="video-category" target=".video-news-wrapper">Новости</span> | <span class="video-category" target=".video-presentations-wrapper">Презентации</span> | <span class="video-category video-category-active" target=".video-interviews-wrapper">
+                                                                      Интервью</span>
+                </div>
+                <div class="video-news-wrapper video-wrapper">
+                    @foreach (var video in Model.Where(a => a.ArticleType == ArticleTypes.VideoNews).Take(2))
+                    {
+                        <div class="video-element">
+                            <div class="video-element-preview">
+                                <img src="@Url.Content("/Content/images/mainpage/video-preview.png")"/>
+                            </div>
+                            <div class="video-element-link">
+                                <a href="/articles/view/@video.Id">@video.Title</a>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            <div class="video-element-separator">
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="video-interviews-wrapper video-wrapper">
+                    @foreach (var video in Model.Where(a => a.ArticleType == ArticleTypes.VideoInterview).Take(2))
+                    {
+                        <div class="video-element">
+                            <div class="video-element-preview">
+                                <img src="@Url.Content("/Content/images/mainpage/video-preview.png")"/>
+                            </div>
+                            <div class="video-element-link">
+                                <a href="/articles/view/@video.Id">@video.Title</a>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            <div class="video-element-separator">
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="video-presentations-wrapper video-wrapper">
+                    @foreach (var video in Model.Where(a => a.ArticleType == ArticleTypes.VideoPresentation).Take(2))
+                    {
+                        <div class="video-element">
+                            <div class="video-element-preview">
+                                <img src="@Url.Content("/Content/images/mainpage/video-preview.png")"/>
+                            </div>
+                            <div class="video-element-link">
+                                <a href="/articles/view/@video.Id">@video.Title</a>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            <div class="video-element-separator">
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div id="all-video-wrapper">
+                    <a href="/articles/video">Все видеорепортажи</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $(".video-category").click(function () {
+            $(".video-category").removeClass("video-category-active");
+            $(this).addClass("video-category-active");
+            var selector = $(this).attr("target");
+            $(".video-wrapper").hide();
+            $(selector).show();
+        });
+        $(".video-category").first().click();
+    });
+</script>

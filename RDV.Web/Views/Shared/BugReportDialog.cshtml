@@ -1,0 +1,75 @@
+﻿@using RDV.Web.Classes.Extensions
+@model dynamic
+<div class="dialog" style="display: none" title="Обратная связь" id="bug-report-dialog">
+    <form action="/bug-report" id="bug-report-form" method="POST">
+        <div class="editor-label">
+            Ваше имя
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="reporter-name-field" maxlength="255" name="ReporterName" placeholder="Введите ваше имя" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().ToString() : "" )"/>
+        </div>
+        <div class="editor-label">
+            Ваш email
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="reporter-email-field" maxlength="255" name="ReporterEmail" placeholder="Введите ваш email" value="@(ViewContext.IsAuthentificated() ? ViewContext.CurrentUser().Email : "" )"/>
+        </div>
+        <div class="editor-label">
+            Адрес страницы
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" id="error-location-field" maxlength="255" name="ErrorLocation" readonly="readonly" placeholder="Введите адрес страницы, где обнаружена ошибка" value="@Request.Url.ToString()"/>
+        </div>
+        <div class="editor-label">
+            Тип сообщения
+        </div>
+        <div class="editor-field">
+            <select name="Subject">
+                <option>Сообщение об ошибке</option>
+                <option>Предложение по развитию</option>
+                <option>Вопрос</option>
+            </select>
+        </div>
+        <div class="editor-label">
+            Текст сообщения
+        </div>
+        <div class="editor-field">
+            <textarea class="round field" id="bug-description-field" name="ReportMessage" placeholder="Введите развернутое описание ошибки" style="height: 150px"></textarea>
+        </div>
+    </form>
+    <script language="javascript" type="text/javascript">
+        // Байндим валидацию
+        validators.bindBugReportFormValidators(submitBugReportForm);
+
+        function showBugReportDialog() {
+            var dialog = $("#bug-report-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                width: 400,
+                buttons: {
+                    "Отправить": function () {
+                        $("#bug-report-form").submit();
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+        function submitBugReportForm(form) {
+            $("#bug-report-form").ajaxSubmit({
+                dataType: 'json',
+                success: function (data) {
+                    $("#bug-report-dialog").dialog("close");
+                    alert('Спасибо. Ваше сообщение было отправлено нашей команде поддержки и будет рассмотрено и обработано в ближайшее время.');
+                },
+                error: function () {
+                    $("#bug-report-dialog").dialog("close");
+                    alert('Спасибо. Ваше сообщение было отправлено нашей команде поддержки и будет рассмотрено и обработано в ближайшее время.');
+                }
+            });
+        }
+    </script>
+</div>
+

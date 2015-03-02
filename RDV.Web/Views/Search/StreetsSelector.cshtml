@@ -1,0 +1,8 @@
+﻿@model IList<RDV.Domain.Entities.GeoStreet>
+
+<select id="street-names-field" class="round field street-names-field" multiple="multiple" style="width: 600px">
+    @foreach(var street in Model)
+    {
+        <option value="@street.Id">@street.Name</option>
+    }
+</select>

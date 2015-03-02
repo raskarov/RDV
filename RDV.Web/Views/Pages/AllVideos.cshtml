@@ -1,0 +1,17 @@
+﻿@model System.Collections.Generic.IEnumerable<RDV.Domain.Entities.Article>
+@{
+    ViewBag.Title = "Видеорепортажи";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            Видеорепортажи
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="static-page-content">
+            @Html.Partial("ArticlesList",Model)
+        </div>
+    </div>
+</div>

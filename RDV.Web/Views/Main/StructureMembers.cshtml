@@ -1,0 +1,62 @@
+﻿@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@model RDV.Web.Models.MainPage.StructureMembersModel
+
+@{
+    ViewBag.Title = Model.Title;
+    Layout = "AboutLayout.cshtml";
+    var filesRep = Locator.GetService<IStoredFilesRepository>();
+}
+
+@if (!String.IsNullOrEmpty(Model.Header))
+{
+    <div class="block">
+        <div class="block-header">
+            <div class="block-title">
+                @Model.Title
+            </div>
+        </div>
+        <div class="block-content">
+            <div class="block-inner-content">
+                @Model.Header
+            </div>
+        </div>
+    </div>
+}
+<div class="members-list">
+    @foreach (var member in Model.Members)
+    {
+        var memberPhotoUrl = member.PhotoUrl != null && member.PhotoUrl.StartsWith("file://") ? filesRep.ResolveFileUrl(member.PhotoUrl) : member.PhotoUrl;
+        <div class="member">
+            <div class="member-photo">
+                <img src="@memberPhotoUrl"/>
+            </div>
+            <div class="member-info">
+                <div class="member-info-item">
+                    <a href="/members/users/@member.Id">@member.ToString()</a>
+                </div>
+                <div class="member-info-item">
+                    @member.Appointment
+                </div>
+                <div class="member-info-item">
+                    Телефон: @member.Phone
+                </div>
+                <div class="member-info-item">
+                    Email: <a href="mailto:@member.Email">@member.Email</a>
+                </div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    }
+</div>
+
+@if (!String.IsNullOrEmpty(Model.Footer))
+{
+    <div class="block">
+        <div class="block-content">
+            <div class="block-inner-content">
+                @Model.Footer
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,1054 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="RDV" EntityNamespace="RDV.Domain.Entities" ContextNamespace="RDV.Domain.DAL" Class="RDVDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Table Name="dbo.Dictionaries" Member="Dictionaries">
+    <Type Name="Dictionary">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="SystemName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DisplayName" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="Dictionary_DictionaryValue" Member="DictionaryValues" ThisKey="Id" OtherKey="DictionaryId" Type="DictionaryValue" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectClients" Member="ObjectClients">
+    <Type Name="ObjectClient">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ClientId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Client_ObjectClient" Member="Client" ThisKey="ClientId" OtherKey="Id" Type="Client" IsForeignKey="true" />
+      <Association Name="EstateObject_ObjectClient" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.RolePermissionOptions" Member="RolePermissionOptions">
+    <Type Name="RolePermissionOption">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RolePermissionId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ObjectOperation" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="ObjectType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="RolePermission_RolePermissionOption" Member="RolePermission" ThisKey="RolePermissionId" OtherKey="Id" Type="RolePermission" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.RolePermissions" Member="RolePermissions">
+    <Type Name="RolePermission">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RoleId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="PermissionId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="RolePermission_RolePermissionOption" Member="RolePermissionOptions" ThisKey="Id" OtherKey="RolePermissionId" Type="RolePermissionOption" />
+      <Association Name="Role_RolePermission" Member="Role" ThisKey="RoleId" OtherKey="Id" Type="Role" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="Permission_RolePermission" Member="Permission" ThisKey="PermissionId" OtherKey="Id" Type="Permission" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Roles" Member="Roles">
+    <Type Name="Role">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="Role_RolePermission" Member="RolePermissions" ThisKey="Id" OtherKey="RoleId" Type="RolePermission" />
+      <Association Name="Role_User" Member="Users" ThisKey="Id" OtherKey="RoleId" Type="User" />
+    </Type>
+  </Table>
+  <Table Name="dbo.StoredFiles" Member="StoredFiles">
+    <Type Name="StoredFile">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="MimeType" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="ContentSize" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="OriginalFilename" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="ServerFilename" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MailNotificationMessages" Member="MailNotificationMessages">
+    <Type Name="MailNotificationMessage">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Recipient" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Subject" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Content" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Sended" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateEnqued" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateSended" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Passports" Member="Passports">
+    <Type Name="Passport">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Series" Type="System.String" DbType="NVarChar(4)" CanBeNull="true" />
+      <Column Name="Number" Type="System.String" DbType="NVarChar(6)" CanBeNull="true" />
+      <Column Name="IssuesBy" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="IssueDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="RegistrationPlace" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="Passport_Client" Member="Clients" ThisKey="Id" OtherKey="PassportId" Type="Client" />
+      <Association Name="Passport_User" Member="Users" ThisKey="Id" OtherKey="PassportId" Type="User" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Permissions" Member="Permissions">
+    <Type Name="Permission">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="SystemName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DisplayName" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="PermissionGroup" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="OperationContext" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="Permission_RolePermission" Member="RolePermissions" ThisKey="Id" OtherKey="PermissionId" Type="RolePermission" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoCountries" Member="GeoCountries">
+    <Type Name="GeoCountry">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoCountry_GeoRegion" Member="GeoRegions" ThisKey="Id" OtherKey="CountryId" Type="GeoRegion" />
+      <Association Name="GeoCountry_Address" Member="Addresses" ThisKey="Id" OtherKey="CountryId" Type="Address" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoObjects" Member="GeoObjects">
+    <Type Name="GeoObject">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="StreetId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Latitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Longitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoObject_GeoObjectInfo" Member="GeoObjectInfos" ThisKey="Id" OtherKey="GeoObjectId" Type="GeoObjectInfo" />
+      <Association Name="GeoStreet_GeoObject" Member="GeoStreet" ThisKey="StreetId" OtherKey="Id" Type="GeoStreet" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoRegions" Member="GeoRegions">
+    <Type Name="GeoRegion">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CountryId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoRegion_GeoRegionDistrict" Member="GeoRegionDistricts" ThisKey="Id" OtherKey="RegionId" Type="GeoRegionDistrict" />
+      <Association Name="GeoRegion_Address" Member="Addresses" ThisKey="Id" OtherKey="RegionId" Type="Address" />
+      <Association Name="GeoCountry_GeoRegion" Member="GeoCountry" ThisKey="CountryId" OtherKey="Id" Type="GeoCountry" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoStreets" Member="GeoStreets">
+    <Type Name="GeoStreet">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="AreaId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoStreet_GeoObject" Member="GeoObjects" ThisKey="Id" OtherKey="StreetId" Type="GeoObject" />
+      <Association Name="GeoStreet_Address" Member="Addresses" ThisKey="Id" OtherKey="StreetId" Type="Address" />
+      <Association Name="GeoStreet_GeoLandmark" Member="GeoLandmarks" ThisKey="Id" OtherKey="StreetId" Type="GeoLandmark" />
+      <Association Name="GeoResidentialArea_GeoStreet" Member="GeoResidentialArea" ThisKey="AreaId" OtherKey="Id" Type="GeoResidentialArea" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Companies" Member="Companies">
+    <Type Name="Company">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="CityId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Address" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Phone1" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Phone2" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Phone3" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Email" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="LogoImageUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="LocationSchemeUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CompanyType" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="DirectorId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Branch" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ContactPerson" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Inactive" Type="System.Boolean" DbType="bit" CanBeNull="false" />
+      <Column Name="IsServiceProvider" Type="System.Boolean" DbType="BIT NOT NULL" CanBeNull="false" />
+      <Column Name="NDSPayer" Type="System.Boolean" DbType="BIT NOT NULL" CanBeNull="false" />
+      <Column Name="ShortName" Type="System.String" DbType="nvarchar(255) NULL" CanBeNull="true" />
+      <Association Name="Company_Client" Member="Clients" ThisKey="Id" OtherKey="CompanyId" Type="Client" />
+      <Association Name="Company_User" Member="Users" ThisKey="Id" OtherKey="CompanyId" Type="User" />
+      <Association Name="Company_Payment" Member="Payments" ThisKey="Id" OtherKey="CompanyId" Type="Payment" />
+      <Association Name="Company_ServiceLogItem" Member="ProvidedServices" ThisKey="Id" OtherKey="CompanyId" Type="ServiceLogItem" />
+      <Association Name="Company_ServiceType" Member="ServiceTypes" ThisKey="Id" OtherKey="ProvidedId" Type="ServiceType" />
+      <Association Name="GeoCity_Company" Member="GeoCity" ThisKey="CityId" OtherKey="Id" Type="GeoCity" IsForeignKey="true" />
+      <Association Name="User_Company" Member="Director" ThisKey="DirectorId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.AuditEvents" Member="AuditEvents">
+    <Type Name="AuditEvent">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="EventDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="EventType" Type="global::RDV.Domain.Enums.AuditEventTypes" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="IP" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="BrowserInfo" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="AdditionalInformation" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Association Name="User_AuditEvent" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoRegionDistricts" Member="GeoRegionDistricts">
+    <Type Name="GeoRegionDistrict">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RegionId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoRegionDistrict_GeoCity" Member="GeoCities" ThisKey="Id" OtherKey="RegionDistrictId" Type="GeoCity" />
+      <Association Name="GeoRegionDistrict_Address" Member="Addresses" ThisKey="Id" OtherKey="RegionDistrictId" Type="Address" />
+      <Association Name="GeoRegion_GeoRegionDistrict" Member="GeoRegion" ThisKey="RegionId" OtherKey="Id" Type="GeoRegion" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoCities" Member="GeoCities">
+    <Type Name="GeoCity">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RegionDistrictId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoCity_Company" Member="Companies" ThisKey="Id" OtherKey="CityId" Type="Company" />
+      <Association Name="GeoCity_Address" Member="Addresses" ThisKey="Id" OtherKey="CityId" Type="Address" />
+      <Association Name="GeoCity_GeoLandmark" Member="GeoLandmarks" ThisKey="Id" OtherKey="CityId" Type="GeoLandmark" />
+      <Association Name="GeoCity_GeoDistrict" Member="GeoDistricts" ThisKey="Id" OtherKey="CityId" Type="GeoDistrict" />
+      <Association Name="GeoRegionDistrict_GeoCity" Member="GeoRegionDistrict" ThisKey="RegionDistrictId" OtherKey="Id" Type="GeoRegionDistrict" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.StaticPages" Member="StaticPages">
+    <Type Name="StaticPage">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Content" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Route" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Views" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MenuItems" Member="MenuItems">
+    <Type Name="MenuItem">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Href" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Position" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Articles" Member="Articles">
+    <Type Name="Article">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="ArticleType" Type="global::RDV.Domain.Enums.ArticleTypes" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="PublicationDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="ShortContent" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="FullContent" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="PreviewImage" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="VideoLink" Type="System.String" DbType="NVarChar(4000)" CanBeNull="true" />
+      <Column Name="Views" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectCommunications" Member="ObjectCommunications">
+    <Type Name="ObjectCommunication">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Water" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Gas" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Sewer" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Heating" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Phone" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Tubes" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Electricy" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="SanFurniture" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="HasGasMeter" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasColdWaterMeter" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasHotWaterMeter" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasElectricyMeter" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasInternet" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="EstateObject_ObjectCommunication" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectMainProperties" Member="ObjectMainProperties">
+    <Type Name="ObjectMainProperty">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="RentPerDay" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="RentPerMonth" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Security" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Currency" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="PropertyType" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Negotiable" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="ResidencePermit" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="CelingHeight" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="AtticHeight" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Yard" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="OwnerShare" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="AddCommercialBuildings" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ActualUsableFloorArea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="FirstFloorDownSet" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="MortgagePossibility" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="MortgageBank" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="ObjectUsage" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="NonResidenceUsage" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="BuildingClass" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="WindowsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="PrescriptionsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="FamiliesCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="OwnersCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="PhoneLinesCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="LevelsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="FacadeWindowsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="UtilitiesRentExspensive" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="ShortDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="FloorMaterial" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="BuildingMaterial" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="LandAssignment" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ObjectAssignment" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="HasWeights" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasPhotos" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="NewBuilding" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="TotalArea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Landmark" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="ReleaseInfo" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="HasParking" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="BuildingPeriod" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="BigRoomFloorArea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="BuildingFloor" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="KitchenFloorArea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="LandArea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="LandFloorFactical" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Loading" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="FullDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="EntranceToObject" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="AbilityForMachineryEntrance" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Documents" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Prepayment" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Notes" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="RemovalReason" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="LivingPeoples" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="LivingPeolplesDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="EntryLocation" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="DistanceToCity" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DistanceToSea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="FootageExplanation" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Advertising1" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Advertising2" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Advertising3" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Advertising4" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Advertising5" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Relief" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="SpecialOffer" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="SpecialOfferDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="LeaseTime" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Urgently" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="BuildingReadyPercent" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="HouseType" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="FlatType" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="BuildingType" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Exchange" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="ExchangeConditions" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="HousingStock" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Foundation" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Price" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="PricePerUnit" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="PricePerHundred" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="OwnerPrice" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="PricingZone" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="HowToReach" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="ElectricPower" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="FloorNumber" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="TotalFloors" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ContractorCompany" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="RentOverpayment" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="RealPrice" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="MetricDescription" Type="System.String" DbType="NVarChar(4000)" CanBeNull="true" />
+      <Column Name="SellConditions" Type="System.String" DbType="NVarChar(4000)" CanBeNull="true" />
+      <Column Name="Exclusive" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="MultilistingBonus" Type="System.Double" DbType="float NULL" CanBeNull="true" />
+      <Column Name="MultilistingBonusType" Type="System.Int64" DbType="bigint NULL" CanBeNull="true" />
+      <Column Name="IsSetNumberAgency" Type="System.Boolean" CanBeNull="true" />
+      <Column Name="ContactPersonId" Type="System.Int64" CanBeNull="true" />
+      <Column Name="ContactPhone" Type="System.Int16" CanBeNull="true" />
+      <Column Name="ContactCompanyId" Type="System.Int64" CanBeNull="true" />
+      <Association Name="EstateObject_ObjectMainProperty" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="User_ObjectMainProperty" Member="User" ThisKey="ContactPersonId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectRatingProperties" Member="ObjectRatingProperties">
+    <Type Name="ObjectRatingProperty">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Balcony" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="EntranceDoor" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Kitchen" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="KitchenDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Ladder" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Loggia" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="CommonState" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="WindowsDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="UtilityRooms" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Floor" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Ceiling" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Furniture" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="WC" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="WCDescription" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Rating" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Walls" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Carpentry" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Vestibule" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Multilisting" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="BuildingClass" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Association Name="EstateObject_ObjectRatingProperty" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Addresses" Member="Addresses">
+    <Type Name="Address">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="CountryId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="RegionId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="CityId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="RegionDistrictId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="CityDistrictId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="DistrictResidentialAreaId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="StreetId" Type="System.Int64" DbType="BigInt NULL" CanBeNull="true" />
+      <Column Name="House" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Block" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Flat" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Land" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Latitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Logitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Association Name="GeoCity_Address" Member="GeoCity" ThisKey="CityId" OtherKey="Id" Type="GeoCity" IsForeignKey="true" />
+      <Association Name="GeoCountry_Address" Member="GeoCountry" ThisKey="CountryId" OtherKey="Id" Type="GeoCountry" IsForeignKey="true" />
+      <Association Name="GeoRegionDistrict_Address" Member="GeoRegionDistrict" ThisKey="RegionDistrictId" OtherKey="Id" Type="GeoRegionDistrict" IsForeignKey="true" />
+      <Association Name="GeoRegion_Address" Member="GeoRegion" ThisKey="RegionId" OtherKey="Id" Type="GeoRegion" IsForeignKey="true" />
+      <Association Name="GeoStreet_Address" Member="GeoStreet" ThisKey="StreetId" OtherKey="Id" Type="GeoStreet" IsForeignKey="true" />
+      <Association Name="EstateObject_Address" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="GeoResidentialArea_Address" Member="GeoResidentialArea" ThisKey="DistrictResidentialAreaId" OtherKey="Id" Type="GeoResidentialArea" IsForeignKey="true" />
+      <Association Name="GeoDistrict_Address" Member="GeoDistrict" ThisKey="CityDistrictId" OtherKey="Id" Type="GeoDistrict" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Clients" Member="Clients">
+    <Type Name="Client">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CompanyId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="Email" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="Address" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="AgreementDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="AgreementEndDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="Birthday" Type="System.DateTime" DbType="Date" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="Blacklisted" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="Commision" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="ICQ" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="AgreementNumber" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="AgencyPayment" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="Notes" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="Phone" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="AgreementType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="ClientType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="PaymentConditions" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="LastName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="FirstName" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="SurName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="PassportId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Association Name="Client_ObjectClient" Member="ObjectClients" ThisKey="Id" OtherKey="ClientId" Type="ObjectClient" />
+      <Association Name="Client_EstateObject" Member="EstateObjects" ThisKey="Id" OtherKey="ClientId" Type="EstateObject" />
+      <Association Name="Company_Client" Member="Company" ThisKey="CompanyId" OtherKey="Id" Type="Company" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="Passport_Client" Member="Passport" ThisKey="PassportId" OtherKey="Id" Type="Passport" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.EstateObjects" Member="EstateObjects">
+    <Type Name="EstateObject">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ClientId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ObjectType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Operation" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Filled" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="EstateObject_ObjectClient" Member="ObjectClients" ThisKey="Id" OtherKey="ObjectId" Type="ObjectClient" />
+      <Association Name="EstateObject_ObjectCommunication" Member="ObjectCommunications" ThisKey="Id" OtherKey="ObjectId" Type="ObjectCommunication" Cardinality="One" />
+      <Association Name="EstateObject_ObjectMainProperty" Member="ObjectMainProperties" ThisKey="Id" OtherKey="ObjectId" Type="ObjectMainProperty" Cardinality="One" />
+      <Association Name="EstateObject_ObjectRatingProperty" Member="ObjectRatingProperties" ThisKey="Id" OtherKey="ObjectId" Type="ObjectRatingProperty" Cardinality="One" />
+      <Association Name="EstateObject_Address" Member="Address" ThisKey="Id" OtherKey="ObjectId" Type="Address" Cardinality="One" />
+      <Association Name="EstateObject_ObjectPriceChangement" Member="ObjectPriceChangements" ThisKey="Id" OtherKey="ObjectId" Type="ObjectPriceChangement" />
+      <Association Name="EstateObject_ObjectChangementProperty" Member="ObjectChangementProperties" ThisKey="Id" OtherKey="ObjectId" Type="ObjectChangementProperty" Cardinality="One" />
+      <Association Name="EstateObject_ObjectManagerNotification" Member="ObjectManagerNotifications" ThisKey="Id" OtherKey="ObjectId" Type="ObjectManagerNotification" />
+      <Association Name="EstateObject_SearchRequestObject" Member="SearchRequestObjects" ThisKey="Id" OtherKey="EstateObjectId" Type="SearchRequestObject" />
+      <Association Name="EstateObject_ObjectMedia" Member="ObjectMedias" ThisKey="Id" OtherKey="ObjectId" Type="ObjectMedia" />
+      <Association Name="EstateObject_ObjectAdditionalProperty" Member="ObjectAdditionalProperties" ThisKey="Id" OtherKey="ObjectId" Type="ObjectAdditionalProperty" Cardinality="One" />
+      <Association Name="EstateObject_ObjectHistoryItem" Member="ObjectHistoryItems" ThisKey="Id" OtherKey="ObjectId" Type="ObjectHistoryItem" />
+      <Association Name="EstateObject_EstateObjectMatchedSearchRequest" Member="EstateObjectMatchedSearchRequests" ThisKey="Id" OtherKey="ObjectId" Type="EstateObjectMatchedSearchRequest" />
+      <Association Name="Client_EstateObject" Member="Client" ThisKey="ClientId" OtherKey="Id" Type="Client" IsForeignKey="true" DeleteRule="SET DEFAULT" />
+      <Association Name="User_EstateObject" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectPriceChangements" Member="ObjectPriceChangements">
+    <Type Name="ObjectPriceChangement">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Currency" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Value" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DateChanged" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ChangedBy" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Association Name="EstateObject_ObjectPriceChangement" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Users" Member="Users">
+    <Type Name="User">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CompanyId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="RoleId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Login" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="PasswordHash" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="FirstName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="SurName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="LastName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Phone" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
+      <Column Name="Phone2" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Email" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="ICQ" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Appointment" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="PhotoUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Blocked" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="Activated" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CertificateNumber" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CertificationDate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="SeniorityStartDate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="Birthdate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="PassportId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="LastLogin" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="AdditionalInformation" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="PublicLoading" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CertificateEndDate" Storage="_SeniorityEndDate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="Notifications" Type="System.Int16" DbType="smallint" CanBeNull="false" />
+      <Association Name="User_Company" Member="OwnedCompanies" ThisKey="Id" OtherKey="DirectorId" Type="Company" />
+      <Association Name="User_AuditEvent" Member="AuditEvents" ThisKey="Id" OtherKey="UserId" Type="AuditEvent" />
+      <Association Name="User_ObjectMainProperty" Member="ObjectMainProperties" ThisKey="Id" OtherKey="ContactPersonId" Type="ObjectMainProperty" />
+      <Association Name="User_EstateObject" Member="EstateObjects" ThisKey="Id" OtherKey="UserId" Type="EstateObject" />
+      <Association Name="User_Comment" Member="Comments" ThisKey="Id" OtherKey="UserId" Type="Comment" />
+      <Association Name="User_SearchRequest" Member="SearchRequests" ThisKey="Id" OtherKey="UserId" Type="SearchRequest" />
+      <Association Name="User_TrainingProgram" Member="TrainingPrograms" ThisKey="Id" OtherKey="UserId" Type="TrainingProgram" />
+      <Association Name="User_Achievment" Member="Achievments" ThisKey="Id" OtherKey="UserId" Type="Achievment" />
+      <Association Name="User_Payment" Member="Payments" ThisKey="Id" OtherKey="UserId" Type="Payment" />
+      <Association Name="User_ClientReview" Member="ClientReviews" ThisKey="Id" OtherKey="UserId" Type="ClientReview" />
+      <Association Name="User_ServiceLogItem" Member="ProvidedServices" ThisKey="Id" OtherKey="UserId" Type="ServiceLogItem" />
+      <Association Name="User_ObjectHistoryItem" Member="ObjectHistoryItems" ThisKey="Id" OtherKey="RDVAgentId" Type="ObjectHistoryItem" />
+      <Association Name="User_EstateObjectMatchedSearchRequest" Member="EstateObjectMatchedSearchRequests" ThisKey="Id" OtherKey="RequestUserId" Type="EstateObjectMatchedSearchRequest" />
+      <Association Name="User_SearchRequestObjectComment" Member="SearchRequestObjectComments" ThisKey="Id" OtherKey="UserId" Type="SearchRequestObjectComment" />
+      <Association Name="Company_User" Member="Company" ThisKey="CompanyId" OtherKey="Id" Type="Company" IsForeignKey="true" DeleteRule="SET DEFAULT" />
+      <Association Name="Passport_User" Member="Passport" ThisKey="PassportId" OtherKey="Id" Type="Passport" IsForeignKey="true" DeleteRule="SET DEFAULT" />
+      <Association Name="Role_User" Member="Role" ThisKey="RoleId" OtherKey="Id" Type="Role" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectChangementProperties" Member="ObjectChangementProperties">
+    <Type Name="ObjectChangementProperty">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="PriceChanging" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ViewDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateMoved" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateRegisted" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DealDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DelayToDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="PriceChanged" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="AdvanceDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ChangedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="StatusChangedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="EstateObject_ObjectChangementProperty" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SMSNotificationMessages" Member="SMSNotificationMessages">
+    <Type Name="SMSNotificationMessage">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Recipient" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Sended" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateEnqueued" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateSended" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectManagerNotifications" Member="ObjectManagerNotifications">
+    <Type Name="ObjectManagerNotification">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="NotificationType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="EstateObject_ObjectManagerNotification" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Settings" Member="Settings">
+    <Type Name="Setting">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Value" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Banners" Member="Banners">
+    <Type Name="Banner">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Location" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Type" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="ObjectUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="LinkUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Views" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Clicks" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="ShowProbability" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoLandmarks" Member="GeoLandmarks">
+    <Type Name="GeoLandmark">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="CityId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="DistrictId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="AreaId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="StreetId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Latitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Longitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoCity_GeoLandmark" Member="GeoCity" ThisKey="CityId" OtherKey="Id" Type="GeoCity" IsForeignKey="true" />
+      <Association Name="GeoStreet_GeoLandmark" Member="GeoStreet" ThisKey="StreetId" OtherKey="Id" Type="GeoStreet" IsForeignKey="true" />
+      <Association Name="GeoResidentialArea_GeoLandmark" Member="GeoResidentialArea" ThisKey="AreaId" OtherKey="Id" Type="GeoResidentialArea" IsForeignKey="true" />
+      <Association Name="GeoDistrict_GeoLandmark" Member="GeoDistrict" ThisKey="DistrictId" OtherKey="Id" Type="GeoDistrict" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoObjectInfos" Member="GeoObjectInfos">
+    <Type Name="GeoObjectInfo">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GeoObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Number" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Liter" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="EntranceCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Community" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CommunityName" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="BuildingMaterial" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="FloorsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Planning" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="BuildYear" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Latitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Longitude" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Photo" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Builder" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="CelingMaterial" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Gas" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Locked" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GeoObject_GeoObjectInfo" Member="GeoObject" ThisKey="GeoObjectId" OtherKey="Id" Type="GeoObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Comments" Member="Comments">
+    <Type Name="Comment">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="EntityId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="EntityType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="AuthorName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="AuthiorEmail" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Content" Type="System.String" DbType="NVarChar(4000)" CanBeNull="true" />
+      <Column Name="RequestData" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="User_Comment" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SearchRequests" Member="SearchRequests">
+    <Type Name="SearchRequest">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="SearchUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="TimesUsed" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="SearchRequest_SearchRequestObject" Member="SearchRequestObjects" ThisKey="Id" OtherKey="SearchRequestId" Type="SearchRequestObject" />
+      <Association Name="SearchRequest_EstateObjectMatchedSearchRequest" Member="EstateObjectMatchedSearchRequests" ThisKey="Id" OtherKey="RequestId" Type="EstateObjectMatchedSearchRequest" />
+      <Association Name="User_SearchRequest" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoResidentialAreas" Member="GeoResidentialAreas">
+    <Type Name="GeoResidentialArea">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DistrictId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Bounds" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Association Name="GeoResidentialArea_GeoStreet" Member="GeoStreets" ThisKey="Id" OtherKey="AreaId" Type="GeoStreet" />
+      <Association Name="GeoResidentialArea_Address" Member="Addresses" ThisKey="Id" OtherKey="DistrictResidentialAreaId" Type="Address" />
+      <Association Name="GeoResidentialArea_GeoLandmark" Member="GeoLandmarks" ThisKey="Id" OtherKey="AreaId" Type="GeoLandmark" />
+      <Association Name="GeoDistrict_GeoResidentialArea" Member="GeoDistrict" ThisKey="DistrictId" OtherKey="Id" Type="GeoDistrict" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GeoDistricts" Member="GeoDistricts">
+    <Type Name="GeoDistrict">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CityId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Bounds" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Population" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="GeoDistrict_Address" Member="Addresses" ThisKey="Id" OtherKey="CityDistrictId" Type="Address" />
+      <Association Name="GeoDistrict_GeoLandmark" Member="GeoLandmarks" ThisKey="Id" OtherKey="DistrictId" Type="GeoLandmark" />
+      <Association Name="GeoDistrict_GeoResidentialArea" Member="GeoResidentialAreas" ThisKey="Id" OtherKey="DistrictId" Type="GeoResidentialArea" />
+      <Association Name="GeoCity_GeoDistrict" Member="GeoCity" ThisKey="CityId" OtherKey="Id" Type="GeoCity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.TrainingPrograms" Member="TrainingPrograms">
+    <Type Name="TrainingProgram">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="TrainingDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ProgramName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Organizer" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="TrainingPlace" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="CertificateFile" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Association Name="User_TrainingProgram" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Achievments" Member="Achievments">
+    <Type Name="Achievment">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ReachDate" Type="System.DateTime" DbType="Date NOT NULL" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Organizer" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ScanUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="User_Achievment" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Payments" Member="Payments">
+    <Type Name="Payment">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="CompanyId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Direction" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Amount" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Payed" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DatePayed" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Company_Payment" Member="Company" ThisKey="CompanyId" OtherKey="Id" Type="Company" IsForeignKey="true" />
+      <Association Name="User_Payment" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SearchRequestObjects" Member="SearchRequestObjects">
+    <Type Name="SearchRequestObject">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="SearchRequestId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="EstateObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="New" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DeclineReason" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DeclineReasonPrice" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="OldPrice" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="TriggerEvent" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateMoved" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="SearchRequestObject_SearchRequestObjectComment" Member="SearchRequestObjectComments" ThisKey="Id" OtherKey="RequestObjectId" Type="SearchRequestObjectComment" />
+      <Association Name="EstateObject_SearchRequestObject" Member="EstateObject" ThisKey="EstateObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" />
+      <Association Name="SearchRequest_SearchRequestObject" Member="SearchRequest" ThisKey="SearchRequestId" OtherKey="Id" Type="SearchRequest" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectMedias" Member="ObjectMedias">
+    <Type Name="ObjectMedia">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="MediaType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="PreviewUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="MediaUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Views" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Position" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="IsMain" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="EstateObject_ObjectMedia" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectAdditionalProperties" Member="ObjectAdditionalProperties">
+    <Type Name="ObjectAdditionalProperty">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ViewFromWindows" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="BuildingYear" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="AdditionalBuildings" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ExtensionsLegality" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Builder" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="BalconiesCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="RoomsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="LoggiasCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="BedroomsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="BaywindowsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Roof" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="ObjectName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Fencing" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="RoomPlanning" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Basement" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="CorrectPlanning" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="FlatLocation" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="WindowsLocation" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="WindowsMaterial" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Redesign" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="RedesignLegality" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="PlotForm" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="FlatRoomsCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ErkersCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="RegistrationPosibility" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="OwnerPart" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Burdens" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="RentDate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="Court" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Fence" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Loading" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Environment" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="RentWithServices" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Auction" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Placement" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="AgreementType" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="AgreementNumber" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="AgreementStartDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="AgreementEndDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Comission" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="AgencyPayment" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="PaymentCondition" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Association Name="EstateObject_ObjectAdditionalProperty" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ClientReviews" Member="ClientReviews">
+    <Type Name="ClientReview">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ReviewDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ScanUrl" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Operation" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Association Name="User_ClientReview" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ServiceLogItems" Member="ServiceLogItems">
+    <Type Name="ServiceLogItem">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ServiceId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Volume" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Summary" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="RDVSummary" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="CompanyId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="OrderDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="PaymentDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Company_ServiceLogItem" Member="Company" ThisKey="CompanyId" OtherKey="Id" Type="Company" IsForeignKey="true" />
+      <Association Name="User_ServiceLogItem" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" />
+      <Association Name="ServiceType_ServiceLogItem" Member="ServiceType" ThisKey="ServiceId" OtherKey="Id" Type="ServiceType" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ServiceTypes" Member="ServiceTypes">
+    <Type Name="ServiceType">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ServiceName" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="ProvidedId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Tax" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Measure" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Subject" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Geo" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ServiceStatus" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="RDVShare" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Rules" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Examples" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ContractNumber" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ContractDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ContractScan" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="ServiceType_ServiceLogItem" Member="ServiceLogItems" ThisKey="Id" OtherKey="ServiceId" Type="ServiceLogItem" />
+      <Association Name="Company_ServiceType" Member="Company" ThisKey="ProvidedId" OtherKey="Id" Type="Company" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Partners" Member="Partners">
+    <Type Name="Partner">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Url" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="InactiveImageUrl" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ActiveImageUrl" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Position" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Books" Member="Books">
+    <Type Name="Book">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Publisher" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Price" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Picture" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Author" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SystemStats" Member="SystemStats">
+    <Type Name="SystemStat">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="StatType" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="StatDateTime" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="Value" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.NonRdvAgents" Member="NonRdvAgents">
+    <Type Name="NonRdvAgent">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="FirstName" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="LastName" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="SurName" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Phone" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="NonRdvAgent_ObjectHistoryItem" Member="ObjectHistoryItems" ThisKey="Id" OtherKey="NonRDVAgentId" Type="ObjectHistoryItem" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ObjectHistory" Member="ObjectHistoryItems">
+    <Type Name="ObjectHistoryItem">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="HistoryStatus" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="ClientId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="CompanyId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="CustomerName" Type="System.String" DbType="NVarChar(4000)" CanBeNull="true" />
+      <Column Name="DelayDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DelayReason" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="AdvanceEndDate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="RDVAgentId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="NonRDVAgentId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="EstateObject_ObjectHistoryItem" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="NonRdvAgent_ObjectHistoryItem" Member="NonRdvAgent" ThisKey="NonRDVAgentId" OtherKey="Id" Type="NonRdvAgent" IsForeignKey="true" />
+      <Association Name="User_ObjectHistoryItem" Member="User" ThisKey="RDVAgentId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.EstateObjectMatchedSearchRequestComments" Member="EstateObjectMatchedSearchRequestComments">
+    <Type Name="EstateObjectMatchedSearchRequestComment">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="MatchedRequestId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Text" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="EstateObjectMatchedSearchRequest_EstateObjectMatchedSearchRequestComment" Member="EstateObjectMatchedSearchRequest" ThisKey="MatchedRequestId" OtherKey="Id" Type="EstateObjectMatchedSearchRequest" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.EstateObjectMatchedSearchRequests" Member="EstateObjectMatchedSearchRequests">
+    <Type Name="EstateObjectMatchedSearchRequest">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="RequestId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="RequestUserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateMoved" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="RequestTitle" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="RequestDateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="RequestDateDeleted" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="EstateObjectMatchedSearchRequest_EstateObjectMatchedSearchRequestComment" Member="EstateObjectMatchedSearchRequestComments" ThisKey="Id" OtherKey="MatchedRequestId" Type="EstateObjectMatchedSearchRequestComment" />
+      <Association Name="EstateObject_EstateObjectMatchedSearchRequest" Member="EstateObject" ThisKey="ObjectId" OtherKey="Id" Type="EstateObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="SearchRequest_EstateObjectMatchedSearchRequest" Member="SearchRequest" ThisKey="RequestId" OtherKey="Id" Type="SearchRequest" IsForeignKey="true" />
+      <Association Name="User_EstateObjectMatchedSearchRequest" Member="User" ThisKey="RequestUserId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SearchRequestObjectComments" Member="SearchRequestObjectComments">
+    <Type Name="SearchRequestObjectComment">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RequestObjectId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="UserId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Text" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="SearchRequestObject_SearchRequestObjectComment" Member="SearchRequestObject" ThisKey="RequestObjectId" OtherKey="Id" Type="SearchRequestObject" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="User_SearchRequestObjectComment" Member="User" ThisKey="UserId" OtherKey="Id" Type="User" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.DictionaryValues" Member="DictionaryValues">
+    <Type Name="DictionaryValue">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DictionaryId" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="Value" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ShortValue" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Column Name="ModifiedBy" Type="System.Int64" DbType="BigInt NOT NULL" CanBeNull="false" />
+      <Association Name="Dictionary_DictionaryValue" Member="Dictionary" ThisKey="DictionaryId" OtherKey="Id" Type="Dictionary" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+</Database>

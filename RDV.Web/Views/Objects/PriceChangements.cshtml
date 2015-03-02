@@ -1,0 +1,114 @@
+﻿@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@model IList<RDV.Domain.Entities.ObjectPriceChangement>
+@{
+    ViewBag.Title = string.Format("Редактирование объекта №{0} - Изменение цены", ViewBag.ObjectId);
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content page-object">
+        <div>
+            @* Секции формы объекта *@
+            @Html.Partial("ObjectFormSections")
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Изменение цены
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="show-price-diagram-action">Диаграмма изменения цены</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Рендерим саму форму *@
+                            <div class="object-form-wrapper">
+                                <input type="hidden" id="object-id-field" value="@ViewBag.ObjectId"/>
+                                <table class="content-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Дата
+                                            </th>
+                                            <th>
+                                                Авто изменения
+                                            </th>
+                                            <th>
+                                                Изменение цены
+                                            </th>
+                                            <th>
+                                                Валюта
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Count > 0)
+                                        {
+                                            foreach (var changement in Model)
+                                            {
+                                                <tr data-item-id="@changement.Id">
+                                                    <td>@changement.DateChanged.FormatDateTime()
+                                                    </td>
+                                                    <td>
+                                                        @IdObjectsCache.GetUserName(changement.ChangedBy.Value)
+                                                    </td>
+                                                    <td>
+                                                        @changement.Value.FormatString()
+                                                    </td>
+                                                    <td>
+                                                        @IdObjectsCache.GetDictionaryValue(changement.Currency)
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4">
+                                                    <p align="center">
+                                                        Нет информации об изменении цены на этот объект</p>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialog" id="price-diagram-dialog" style="display: none" title="График изменения цены" align="center">
+    <img src="/objects/@ViewBag.ObjectId/price-changements-graph" alt="График изменения цены"/>
+</div>
+<script language="javascript" type="text/javascript">
+    $("#show-price-diagram-action").click(function () {
+        var dialog = $("#price-diagram-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 650,
+            buttons: {
+                "OK": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+        return false;
+    });
+</script>
+@Html.Partial("ObjectFormScripts")

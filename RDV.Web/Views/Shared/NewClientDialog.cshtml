@@ -1,0 +1,118 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@model dynamic
+<div class="dialog" style="display: none" title="Создание клиента" id="new-client-dialog">
+    <form action="/account/company/clients/new-ajax" id="new-client-form" method="POST">
+    <div class="editor-label">
+        Фамилия
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="client-last-name-field" maxlength="255"
+            name="LastName" placeholder="Введите фамилию клиента" />
+    </div>
+    <div class="editor-label">
+        Имя
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field field-required" id="client-first-name-field"
+            maxlength="255" name="FirstName" placeholder="Введите имя клиента" />
+    </div>
+    <div class="editor-label">
+        Отчество
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="client-sur-name-field" maxlength="255"
+            name="SurName" placeholder="Введите отчество клиента" />
+    </div>
+    <div class="editor-label">
+        Контактный телефон для связи
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field field-required phone-field" id="client-phone-field" maxlength="255"
+            name="Phone" placeholder="Введите телефон клиента" />
+    </div>
+    <div class="editor-label">
+        Email для связи
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="client-email-field" maxlength="255" name="Email"
+            placeholder="Введите email клиента" />
+    </div>
+    <div class="editor-label">
+        ICQ
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field" id="client-icq-field" maxlength="255" name="ICQ"
+            placeholder="Введите номер ICQ клиента" />
+    </div>
+    <div class="editor-label">
+        Адрес клиента
+    </div>
+    <div class="editor-field">
+        <textarea class="round field" id="client-address-field" name="Address" placeholder="Введите домашний адрес клиента"></textarea>
+    </div>
+    <div class="editor-label">
+        Дата рождения клиента
+    </div>
+    <div class="editor-field">
+        <input type="text" class="round field datepicker" name="Birthdate" id="client-birthdate-field"
+            placeholder="Введите дату рождения клиента" />
+    </div>
+    <div class="editor-label">
+        Примечания
+    </div>
+    <div class="editor-field">
+        <textarea class="round field" id="client-notes-field" name="Notes" placeholder="Введите примечания по клиенту"></textarea>
+    </div>
+    <div class="editor-label">
+        Тип клиента
+    </div>
+    <div class="editor-field">
+        <select name="ClientType" class="round field-small" id="client-type-field">
+            @foreach (ClientTypes @type in Enum.GetValues(typeof(ClientTypes)))
+            {
+                <option value="@((short)@type)">@type.GetEnumMemberName()</option>
+            }
+        </select>
+    </div>
+    </form>
+    <script language="javascript" type="text/javascript">
+        // Байндим валидацию
+        validators.bindClientAjaxFormValidators(submitNewClientForm);
+
+        function showNewClientDialog(clientEditor) {
+            var dialog = $("#new-client-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                width: 400,
+                buttons: {
+                    "Сохранить": function () {
+                        $("#new-client-form").get(0).editor = clientEditor;
+                        $("#new-client-form").submit();
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                        $(clientEditor).val("");
+                        $(clientEditor).parent().find("input[type='hidden']").val(-1);
+                    }
+                }
+            });
+        }
+        function submitNewClientForm(form) {
+            $("#new-client-form").ajaxSubmit({
+                dataType: 'json',
+                success: function (data) {
+                    var editor = $("#new-client-form").get(0).editor;
+                    $(editor).parent().find("input[type='hidden']").val(data.id);
+                    $(editor).val(data.name);
+                    $("#new-client-dialog").dialog("close");
+                },
+                error: function () {
+                    alert("Ошибка при сохранении формы");
+                }
+            });
+        }
+    </script>
+</div>

@@ -1,0 +1,133 @@
+﻿@using RDV.Domain.Enums
+@model RDV.Web.Models.MainPage.MainPageModel
+@{
+    ViewBag.Title = "Главная";
+}
+
+@* Главная страница портала *@
+<div id="page-main">
+    @* Селектор выбора операций *@
+    <div id="estate-operations-wrapper">
+        @*<div class="estate-operation-icon" id="estate-operation-buying" data-operation="@((short)EstateOperations.Buying)"></div>*@
+        <div class="estate-operation-icon" id="estate-operation-selling" data-operation="@((short)EstateOperations.Selling)"></div>
+        @*<div class="estate-operation-icon" id="estate-operation-leasing" data-operation="@((short)EstateOperations.Rent)"></div>
+        <div class="estate-operation-icon" id="estate-operation-rent" data-operation="@((short)EstateOperations.Lising)"></div>*@
+        <div id="estate-new-request-wrapper">
+            <div id="estate-new-request-button"></div>
+            <div id="estate-new-request-label">
+                <a href="#" id="feedback-link">ОСТАВИТЬ ЗАЯВКУ</a>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div id="estate-operations-bottom-shadow"></div>
+    </div>
+
+    @* Разлиновка блоков на сетку 3 на 4 колонки *@
+    <table id="main-blocks">
+        @* Первый ряд *@
+        <tr>
+            @* Блок поиска *@
+            <td class="double-column" colspan="2">
+                @Html.Partial("SearchBlock")
+            </td>
+            @* Блок баннеров *@
+            <td class="single-column double-line" rowspan="2">
+                @Html.Partial("BannersBlock",Model.BannerHtml)
+            </td>
+        </tr>
+        @* Второй ряд *@
+        <tr>
+            @* Блок календаря *@
+            <td class="double-column" colspan="2">
+                @Html.Partial("CalendarBlock",Model.CalendarEvents)
+            </td>
+        </tr>
+        @* Третий ряд *@
+        <tr>
+            @* Блок новинок *@
+            <td class="double-line single-column" rowspan="2">
+                @Html.Partial("NewObjectsBlock",Model)
+            </td>
+            @* Блок онлайн сервисов *@
+            @*<td class="single-column double-line" rowspan="2">
+                @Html.Partial("ServicesBlock")
+            </td>*@
+            @* Блок видео *@
+            <td class="double-column" colspan="2">
+                @Html.Partial("VideoBlock",Model.Articles)
+            </td>
+        </tr>
+        @* Четвертый ряд *@
+        <tr>
+            @* Блок новостей *@
+            <td class="double-column" colspan="2">
+                @Html.Partial("NewsBlock",Model.Articles)
+            </td>
+        </tr>
+        @if (Model.Partners.Count > 0)
+        {
+        @* Пятый ряд - партнеры *@
+        <tr>
+            <td class="triple-column" colspan="3">
+                @Html.Partial("PartnersBlock",Model.Partners)
+            </td>
+        </tr>
+        }
+    </table>
+</div>
+@* Диалог формы обратной связи *@
+<div class="dialog" title="Обратная связь" style="display: none" id="feedback-dialog">
+    <form method="POST" id="feedback-form" action="/feedback">
+        <div class="editor-label">
+            Ваше имя
+        </div>
+        <div class="editor-field">
+            <input type="text" id="feedback-name-field" name="Name" class="round field" placeholder="Введите ваше имя"/>
+        </div>
+        <div class="editor-label">
+            Ваш телефон
+        </div>
+        <div class="editor-field">
+            <input type="text" id="feedback-phone-field" name="Phone" class="round field phone-field" placeholder="Введите ваш телефон"/>
+        </div>
+        <div class="editor-label">
+            Ваш Email
+        </div>
+        <div class="editor-field">
+            <input type="text" id="feedback-email-field" name="Email" class="round field" placeholder="Введите email"/>
+        </div>
+        <div class="editor-label">
+            Ваше сообщения
+        </div>
+        <div class="editor-field">
+            <textarea id="feedback-message-field" name="Message" class="round field" placeholder="Введите ваше сообщение"></textarea>
+        </div>
+    </form>
+</div>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        validators.bindFeedbackFormValidators(function () {
+            $("#feedback-form").ajaxSubmit({
+                success: function () {
+                    alert('Сообщение было успешно отправлено');
+                    $("#feedback-dialog").dialog("close");
+                }
+            });
+        });
+        $("#feedback-link").click(function () {
+            var dialog = $("#feedback-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Отправить": function () {
+                        $("#feedback-form").submit();
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,166 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model RDV.Web.Models.Account.Company.CompanyProfileModel
+@{
+    ViewBag.Title = "Редактирование сведений о компании";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Company-tab" })
+            <form action="/account/company/save" method="POST" id="profile-form" enctype="multipart/form-data">
+            <div id="left-content-block">
+                @if (!String.IsNullOrEmpty(Model.LogoUrl))
+                {
+                    <div id="company-logo">
+                        <img src="@Model.LogoUrl" alt="Логотип"/>
+                    </div>    
+                }
+                @*
+                <div class="editor-label">
+                    Загрузить логотип
+                </div>
+                <div class="editor-field">
+                    <input type="file" id="logo-file-field" name="CompanyLogo" />
+                </div>*@
+                <div class="profile-link">
+                    <a href="javascript:showFlashUploader()">Загрузить логотип</a>
+                </div>
+            </div>
+            <div id="center-content-block" class="profile-form-block">
+                <fieldset>
+                    <div class="legend">
+                        Общие сведения
+                    </div>
+                    <div class="editor-label">
+                        Наименование компании
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field" id="company-name-field" name="Name" placeholder="Введите наименование компании" maxlength="255" value="@Model.Name"/>
+                    </div>
+                    <div class="editor-label">
+                        Краткое наименование компании
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field" id="company-short-name-field" name="ShortName" placeholder="Введите краткое наименование компании" maxlength="255" value="@Model.ShortName"/>
+                    </div>
+                    <div class="editor-label">
+                        Директор
+                    </div>
+                    <div class="editor-field">
+                        @Model.Director
+                    </div>
+                    <div class="editor-label">
+                        Описание
+                    </div>
+                    <div class="editor-field">
+                        <textarea class="field round" id="company-description-field" style="width: 343px"
+                            name="Description" placeholder="Введите описание компании" maxlength="1500">@Model.Description</textarea>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="legend">
+                        Контакты
+                    </div>
+                    <div class="editor-label">
+                        Адрес
+                    </div>
+                    <div class="editor-field">
+                        <textarea class="field round" id="company-address-field" style="width: 343px" name="Address"
+                            placeholder="Введите полный адрес вашей компании">@Model.Address</textarea>
+                    </div>
+                    <div class="editor-label">
+                        Телефоны
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field phone-field" id="company-phone1-field" name="Phone1" placeholder="Основной телефон" maxlength="255" value="@Model.Phone1"/><br />
+                        <input type="text" class="round field phone-field" id="company-phone2-field" name="Phone2" placeholder="Дополнительный телефон 1" maxlength="255" value="@Model.Phone2"/><br />
+                        <input type="text" class="round field phone-field" id="company-phone3-field" name="Phone3" placeholder="Дополнительный телефон 2" maxlength="255" value="@Model.Phone3"/>
+                    </div>
+                    <div class="editor-label">
+                        Email
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field-small" id="company-email-field" name="Email" placeholder="Контактный Email" maxlength="255" value="@Model.Email"/>
+                    </div>
+                    <div class="editor-label">
+                        Контактное лицо
+                    </div>
+                    <div class="editor-field">
+                        <input type="text" class="round field" id="company-contact-person-field" name="ContactPerson" placeholder="ФИО человека для контактов" maxlength="255" value="@Model.ContactPerson"/>
+                    </div>
+                    <div class="editor-label">
+                        Загрузить схему проезда
+                    </div>
+                    <div class="editor-field">
+                        <input type="file" id="scheme-file-field" name="SchemeFile" />
+                    </div>
+                    <div class="editor-label">
+                        Сведения о филиалах
+                    </div>
+                    <div class="editor-field">
+                        <textarea class="field round" id="company-branch-field" style="width: 343px" name="Branch"
+                            placeholder="Введите сведения о филиалах компании, если они есть">@Model.Branch</textarea>
+                    </div>
+                </fieldset>
+                <div id="submit-button-wrapper" style="margin-top: 0px; text-align: left;" onclick="$('#profile-form').submit();">
+                    <span id="submit-button">
+                        <input type="submit" value=" " style="display: none" />
+                    </span>
+                </div>
+            </div>
+            </form>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dialog" id="flash-upload-dialog" title="Расширенная загрузка фотографии пользователя"
+    style="display: none">
+    <div id="flashContent">
+        <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="705" height="446"
+            id="forma" align="middle">
+            <param name="movie" value="forma.swf" />
+            <param name="quality" value="high" />
+            <param name="FlashVars" value="urlpath=http://www.nprdv.ru/Account/SaveCompanyLogo&amp;link1=@Model.Id&amp;maxphoto=1" />
+            <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="/Content/flash/forma.swf" width="705"
+                height="446">
+                <param name="movie" value="forma.swf" />
+                <param name="quality" value="high" />
+                <param name="FlashVars" value="urlpath=http://www.nprdv.ru/Account/SaveCompanyLogo&amp;link1=@Model.Id&amp;maxphoto=1" />
+                <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflash">
+                    <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
+                        alt="Загрузить Adobe Flash Player" />
+                </a>
+                <!--[if !IE]>-->
+            </object>
+            <!--<![endif]-->
+        </object>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    validators.bindEditCompanyProfileValidators();
+
+    function showFlashUploader() {
+        var dialog = $("#flash-upload-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 725,
+            buttons: {
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+</script>

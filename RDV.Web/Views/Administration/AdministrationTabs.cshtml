@@ -1,0 +1,108 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.UI.TabOptionsModel
+<div class="tab-control">
+    @* Разделы панели администрирования *@
+    @{
+        var currentUser = ViewContext.CurrentUser();
+    }
+    <div class="tab-header">
+        <table width="100%" style="border-collapse: separate">
+            <tbody>
+                <tr>
+                    @if (currentUser.HasPermission(Permission.ViewDashboard))
+                    {
+                    <td class="tab-header-item" id="Dashboard-tab" target="/administration/dashboard">
+                        <span class="tab-header-title">Дашбоард</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageContent))
+                    {
+                    <td class="tab-header-item" id="Content-tab" target="/administration/content">
+                        <span class="tab-header-title">Контент</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageCompanies))
+                    {
+                    <td class="tab-header-item" id="Companies-tab" target="/administration/companies">
+                        <span class="tab-header-title">Компании</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageUsers))
+                    {
+                    <td class="tab-header-item" id="Users-tab" target="/administration/users">
+                        <span class="tab-header-title">Пользователи</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageServices))
+                    {
+                    <td class="tab-header-item" id="Services-tab" target="/administration/services">
+                        <span class="tab-header-title">Услуги</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageRoles))
+                    {
+                    <td class="tab-header-item" id="Roles-tab" target="/administration/roles">
+                        <span class="tab-header-title">Роли</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageDictionaries))
+                    {
+                    <td class="tab-header-item" id="Dictionaries-tab" target="/administration/dictionaries">
+                        <span class="tab-header-title">Справочники</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManagePayments))
+                    {
+                    <td class="tab-header-item" id="Payments-tab" target="/administration/payments">
+                        <span class="tab-header-title">Платежи</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageSystemEvents))
+                    {
+                    <td class="tab-header-item" id="Audit-tab" target="/administration/audit">
+                        <span class="tab-header-title">Аудит</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageStatistics))
+                    {
+                    <td class="tab-header-item" id="Statistics-tab" target="/administration/statistics">
+                        <span class="tab-header-title">Статистика</span>
+                    </td>    
+                    }
+                    @*
+                    @if (currentUser.HasPermission(Permission.ManageTools))
+                    {
+                    <td class="tab-header-item" id="Tools-tab" target="/administration/tools">
+                        <span class="tab-header-title">Инструменты</span>
+                    </td>    
+                    }
+                    @if (currentUser.HasPermission(Permission.ManageSettings))
+                    {
+                    <td class="tab-header-item" id="Settings-tab" target="/administration/settings">
+                        <span class="tab-header-title">Настройки</span>
+                    </td>    
+                    }
+                    *@
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* Скриптовый блок *@
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $(".tab-control .tab-header-item").click(function (e) {
+            var href = $(this).attr("target");
+            window.location.href = href;
+        });
+    });
+    @* Выделяем активную вкладку, установленную в модели *@
+    @if (!String.IsNullOrEmpty(Model.SelectedTab))
+    {
+        <text>
+            $("#@Model.SelectedTab").addClass("active");
+        </text>
+    }
+</script>

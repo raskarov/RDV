@@ -1,0 +1,75 @@
+/* line 1, ../sass/page-static.sass */
+.static-page-content {
+  padding: 15px;
+  font-size: 12px;
+}
+
+/* line 5, ../sass/page-static.sass */
+.static-content, .static-page-content {
+  font-size: 13px;
+}
+/* line 8, ../sass/page-static.sass */
+.static-content p, .static-page-content p {
+  margin: 10px 0px;
+  line-height: 1.5;
+}
+/* line 12, ../sass/page-static.sass */
+.static-content b, .static-content strong, .static-content big, .static-page-content b, .static-page-content strong, .static-page-content big {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+/* line 16, ../sass/page-static.sass */
+.static-content i, .static-page-content i {
+  font-style: italic;
+}
+/* line 19, ../sass/page-static.sass */
+.static-content blockquote, .static-page-content blockquote {
+  font-style: italic;
+  color: #a9a9a9;
+  margin: 10px;
+}
+/* line 24, ../sass/page-static.sass */
+.static-content table, .static-page-content table {
+  border: 1px solid gray;
+  margin: 5px 0px;
+}
+/* line 29, ../sass/page-static.sass */
+.static-content table tr th, .static-page-content table tr th {
+  border: 1px solid gray;
+  padding: 5px;
+  font-weight: bold;
+}
+/* line 34, ../sass/page-static.sass */
+.static-content table tr td, .static-page-content table tr td {
+  border: 1px solid gray;
+  padding: 5px;
+}
+/* line 38, ../sass/page-static.sass */
+.static-content ul, .static-page-content ul {
+  list-style-type: disc;
+  margin: 3px 0px;
+}
+/* line 42, ../sass/page-static.sass */
+.static-content ul li, .static-page-content ul li {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 5px;
+  line-height: 1.5;
+}
+/* line 49, ../sass/page-static.sass */
+.static-content ol, .static-page-content ol {
+  list-style-type: decimal;
+  margin: 5px 0px;
+}
+/* line 53, ../sass/page-static.sass */
+.static-content ol li, .static-page-content ol li {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 5px;
+}
+/* line 58, ../sass/page-static.sass */
+.static-content h1, .static-content h2, .static-content h3, .static-page-content h1, .static-page-content h2, .static-page-content h3 {
+  font-size: 1.1em;
+  margin: 15px 0px;
+  font-weight: bold;
+}

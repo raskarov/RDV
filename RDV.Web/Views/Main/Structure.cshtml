@@ -1,0 +1,9 @@
+﻿@using RDV.Web.Classes.Caching
+@model dynamic
+
+@{
+    ViewBag.Title = "Структура РДВ";
+    Layout = "AboutLayout.cshtml";
+}
+
+@Html.Raw(StaticPageExtractor.Extract("about-structure-page"))

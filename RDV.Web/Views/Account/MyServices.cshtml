@@ -1,0 +1,45 @@
+﻿@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.ServiceLogItem>
+
+@{
+    ViewBag.Title = "Статистика вызовов услуг компании";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Services-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Клиенты
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="export-user-action">Экспорт в Excel</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            @Html.Partial("ServiceLogsTable",Model.ToList())
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>

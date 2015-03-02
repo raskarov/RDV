@@ -1,0 +1,69 @@
+﻿@model IList<RDV.Domain.Entities.AuditEvent>
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Активность пользователя";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            @* Контейнер лейаута страницы *@
+            <div class="info">
+                В данной таблице отражены все Ваши действия в системе за последний месяц.
+            </div>
+            @* Таблица *@
+            <table class="content-table" id="statistics-table">
+                <thead>
+                    <tr>
+                        <th width="70%">
+                            Действие 
+                        </th>
+                        <th width="15%">
+                            IP адрес
+                        </th>
+                        <th width="15%">
+                            Когда
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count > 0)
+                    {
+                        foreach (var @auditEvent in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @auditEvent.Message
+                                </td>
+                                <td>
+                                    @auditEvent.IP
+                                </td>
+                                <td>
+                                    @auditEvent.EventDate.FormatDateTime()
+                                </td>
+                            </tr>
+                        }
+                    } else
+                    {
+                    <tr>
+                        <td colspan="3">
+                            <div style="text-align: center">Нет информации об активности пользователя</div>
+                        </td>
+                    </tr>    
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+﻿@using RDV.Web.Models.UI
+@model RDV.Domain.Entities.Payment
+
+@{
+    ViewBag.Title = "Отказ от платежа";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            <div class="info">
+                Вы отказались от оплаты платежа номер @Model.Id .Деньги остались на вашем счету.
+            </div>
+        </div>
+    </div>
+</div>

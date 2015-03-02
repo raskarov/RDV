@@ -1,0 +1,8 @@
+﻿@model IList<RDV.Domain.Entities.GeoResidentialArea>
+
+<select id="area-names-field" class="round field area-names-field" multiple="multiple">
+    @foreach(var area in Model)
+    {
+        <option value="@area.Id">@area.Name</option>
+    }
+</select>

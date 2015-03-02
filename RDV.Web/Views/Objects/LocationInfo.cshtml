@@ -1,0 +1,354 @@
+﻿@model RDV.Web.Models.Objects.ObjectFormModel
+@{
+    ViewBag.Title = string.Format("Редактирование объекта №{0} - Местоположение", Model.EstateObject.Id);
+    Layout = "ObjectsLayout.cshtml";
+    ViewBag.ObjectId = Model.EstateObject.Id;
+}
+
+<div class="object-form-wrapper">
+    <h1>Местоположение</h1>
+    @* Сама форма редактирования объекта *@
+    @Html.Partial("ObjectForm", Model)
+</div>
+<div class="dialog" id="geocode-dialog" title="Геокодирование" style="display: none">
+    Хотите провести геокодирование указанного объекта, чтобы определить его широту и долготу? Операция геокодирования займет некоторое время, так что при положитель выборе - обязательно дождитесь ответа системы. Для того чтобы операция геокодирования была более точной, вы можете откорректировать адрес, который используется для получения координат. Если вы не получили координаты после первого запроса - попробуйте поэкспериментировать с адресом.
+    <form>
+        <div class="editor-label">
+            Адрес для геокодирования
+        </div>
+        <div class="editor-field">
+            <textarea id="geocode-address-field" class="round field" rows="3" placeholder="Введите адрес для геокодирования"></textarea>
+        </div>
+    </form>
+</div>
+<div class="dialog" id="geomark-dialog" title="Выбор расположения" style="display: none">
+    <div id="map-container" style="width: 400px; height: 400px">
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    $("#location-properties").addClass("active");
+    $("#object-form").attr("action", "/objects/savelocationinfo");
+
+    // Функции удаляющие поля
+    function removeRegionField() {
+        $("#geo-region-field-wrapper").remove();
+    }
+    function removeRegionDistrictField() {
+        $("#geo-region-district-field-wrapper").remove();
+    }
+    function removeCityField() {
+        $("#geo-city-field-wrapper").remove();
+    }
+    function removeDistrictField() {
+        $("#geo-city-district-field-wrapper").remove();
+    }
+    function removeResidentialAreaField() {
+        $("#geo-residential-area-field-wrapper").remove();
+    }
+    function removeStreetField() {
+        $("#geo-street-field-wrapper").remove();
+        $("#house-number-field-wrapper").remove();
+        $("#block-number-field-wrapper").remove();
+        $("#flat-number-field-wrapper").remove();
+        $("#land-number-field-wrapper").remove();
+    }
+
+    // Байндим события изменения данных через события делегирования
+    $("#geo-country-field").live("change", function(e) {
+        removeRegionField();
+        removeRegionDistrictField();
+        removeCityField();
+        removeDistrictField();
+        removeResidentialAreaField();
+        removeStreetField();
+        $.ajax({
+            type: 'GET',
+            url: '/Objects/LocationFields',
+            data: {
+                parentId: $("#geo-country-field").val(),
+                fieldType: "geo-region",
+                estateObjectId: @Model.EstateObject.Id
+                },
+            dataType: 'html',
+            success: function(data) {
+                $("#geo-country-field-wrapper").after(data);
+                rebindListControls();
+            }
+        });
+    });
+    $("#geo-region-field").live("change", function(e) {
+        removeRegionDistrictField();
+        removeCityField();
+        removeDistrictField();
+        removeResidentialAreaField();
+        removeStreetField();
+        $.ajax({
+            type: 'GET',
+            url: '/Objects/LocationFields',
+            data: {
+                parentId: $("#geo-region-field").val(),
+                fieldType: "geo-region-district",
+                estateObjectId: @Model.EstateObject.Id
+                },
+            dataType: 'html',
+            success: function(data) {
+                $("#geo-region-field-wrapper").after(data);
+                rebindListControls();
+            }
+        });
+    });
+    $("#geo-region-district-field").live("change", function(e) {
+        removeCityField();
+        removeDistrictField();
+        removeResidentialAreaField();
+        removeStreetField();
+        $.ajax({
+            type: 'GET',
+            url: '/Objects/LocationFields',
+            data: {
+                parentId: $("#geo-region-district-field").val(),
+                fieldType: "geo-city",
+                estateObjectId: @Model.EstateObject.Id
+                },
+            dataType: 'html',
+            success: function(data) {
+                $("#geo-region-district-field-wrapper").after(data);
+                rebindListControls();
+            }
+        });
+    });
+    $("#geo-city-field").live("change", function(e) {
+        removeDistrictField();
+        removeResidentialAreaField();
+        removeStreetField();
+        $.ajax({
+            type: 'GET',
+            url: '/Objects/LocationFields',
+            data: {
+                parentId: $("#geo-city-field").val(),
+                fieldType: "geo-city-district",
+                estateObjectId: @Model.EstateObject.Id
+                },
+            dataType: 'html',
+            success: function(data) {
+                $("#geo-city-field-wrapper").after(data);
+                rebindListControls();
+                updateStreetsAutoComplete();
+            }
+        });
+        
+    });
+    $("#geo-city-district-field").live("change", function(e) {
+        removeResidentialAreaField();
+        removeStreetField();
+        $.ajax({
+            type: 'GET',
+            url: '/Objects/LocationFields',
+            data: {
+                parentId: $("#geo-city-district-field").val(),
+                fieldType: "geo-residential-area",
+                estateObjectId: @Model.EstateObject.Id
+                },
+            dataType: 'html',
+            success: function(data) {
+                $("#geo-city-district-field-wrapper").after(data);
+                rebindListControls();
+                initStreetsAutoComplete();
+                updateStreetsAutoComplete();
+            }
+        });
+    });
+    @*
+    $("#geo-residential-area-field").live("change", function(e) {
+        removeStreetField();
+        $.ajax({
+            type: 'GET',
+            url: '/Objects/LocationFields',
+            data: {
+                parentId: $("#geo-residential-area-field").val(),
+                fieldType: "geo-street",
+                estateObjectId: @Model.EstateObject.Id
+            },
+            dataType: 'html',
+            success: function(data) {
+                $("#geo-residential-area-field-wrapper").after(data);
+                rebindListControls();
+            }
+        });
+    });
+    *@
+    $("#house-number-field").live("change",function() {
+        var cityId = $("#geo-city-field").val();
+        var streetId = $("#geo-street-field").val();
+        var city = $("#geo-city-field").find("option[value='" + cityId + "']").text();
+        var street = $("#geo-street-field").val();
+        var address = city + ", " + street + ", " + $("#house-number-field").val();
+        $("#geocode-address-field").val(address);
+        /*
+        var dialog = $("#geocode-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 400,
+            buttons: {
+                "ДА": function () {
+                    DG.Geocoder.get($("#geocode-address-field").val(), {
+                         types: ['house'],
+                         success: function (objects) {
+                             var obj = objects[0];
+                             var coords = obj.getCenterGeoPoint();
+                             $("#latitude-field").val(coords.lat.toString().replace('.',','));
+                             $("#longitude-field").val(coords.lon.toString().replace('.',','));
+                             dialog.dialog("close");
+                         },
+                         failure: function () {
+                             alert("К сожалению, не удалось получить координаты этого объекта. Попробуйте изменить адрес.");
+                         }
+                    });
+                },
+                "НЕТ": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+        */
+        DG.Geocoder.get($("#geocode-address-field").val(), {
+            types: ['house'],
+            success: function (objects) {
+                var obj = objects[0];
+                var coords = obj.getCenterGeoPoint();
+                $("#latitude-field").val(coords.lat.toString().replace('.',','));
+                $("#longitude-field").val(coords.lon.toString().replace('.',','));
+                dialog.dialog("close");
+            },
+            failure: function () {
+                
+            }
+        });
+    });
+
+    function updateStreetsAutoComplete() {
+        if ($("#geo-city-field").length == 0) {
+            return;
+        }
+        var url = "/objects/streets-autocomplete?cityId=" + $("#geo-city-field").val();
+        if ($("#geo-city-district-field").length > 0 && $("#geo-city-district-field").val() != "") {
+            url += "&districtId=" + $("#geo-city-district-field").val();
+        }
+        $(".street-field").autocomplete("option", "source", url);
+    }
+    
+    function initStreetsAutoComplete() {
+        $(".street-field").autocomplete({
+            minLength:3,
+            source:'/objects/streets-autocomplete',
+            select:function (event, ui) {
+                $(this).val(ui.item.name);
+                $(this).parent().find("input[type='hidden']").val(ui.item.id);
+                $("#geo-residential-area-field").val(ui.item.areaId).multiselect("refresh");
+                return false;
+            }
+        }).data("autocomplete")._renderItem = function (ul, item) {
+            return $("<li>")
+                .data("item.autocomplete", item)
+                .append("<a>" + item.displayName + "</a>")
+                .appendTo(ul);
+        };
+    }
+
+    $(document).ready(function() {
+        if ($(".street-field").length > 0) {
+            initStreetsAutoComplete();
+        }
+        updateStreetsAutoComplete();
+    });
+    
+    var customValidate = function () {
+        var houseNumber = $("#house-number-field");
+        if (houseNumber.length > 0) {
+            var val = parseInt(houseNumber.val());
+            if (val == 0) {
+                alert("Нельзя вводить номер дома равный 0");
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // Выбор отметки на карте
+    var yandexMap;
+    ymaps.ready(function() {
+        yandexMap = new ymaps.Map('map-container', {
+            center: [48.514592,135.145739],
+            zoom: 11
+        });
+        yandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+        
+    });
+    function showLocationDialog() {
+        var lat = $("#latitude-field").val().replace(",",".");
+        var lon = $("#longitude-field").val().replace(",",".");
+        var latDouble, lonDouble;
+        latDouble = lat != "" ? parseFloat(lat) : 48.514592;
+        lonDouble = lon != "" ? parseFloat(lon) : 135.145739;
+        var coords = [latDouble, lonDouble];
+        yandexMap.setCenter(coords);
+
+        if (lat == "" || lon == "") {
+            // Геокодируем
+            var cityId = $("#geo-city-field").val();
+            var city = $("#geo-city-field").find("option[value='" + cityId + "']").text();
+            var street = $("#geo-street-field").val();
+            // искать все объекты с именем Москва, но вывести только первый
+            if (city != undefined) {
+                var request = city;
+                if (street != undefined) {
+                    request += ", " + street;
+                }
+                ymaps.geocode(request).then(function (res) {
+                    if (res.geoObjects.getLength() > 0) {
+                        var found = res.geoObjects.get(0);
+                        var pos = found.geometry.getCoordinates();
+                        geoPlacemark.geometry.setCoordinates(pos);
+                        yandexMap.setCenter(pos);
+                    }
+                     },
+                    function (err) {
+                        alert(err);
+                    }
+                );
+            }
+        }
+        
+        // устанавливаем метку
+        var geoPlacemark = new ymaps.Placemark(coords, {
+            hintContent: 'Выбор местоположения объекта'
+        }, {
+            draggable: true // Метку можно перетаскивать, зажав левую кнопку мыши.
+        });
+        yandexMap.geoObjects.add(geoPlacemark);
+        
+        var dialog = $("#geomark-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 430,
+            buttons: {
+                "Выбрать": function () {
+                    var selectedCoords = geoPlacemark.geometry.getCoordinates();
+                    $("#latitude-field").val(selectedCoords[0].toString().replace(".", ","));
+                    $("#longitude-field").val(selectedCoords[1].toString().replace(".", ","));
+                    yandexMap.geoObjects.remove(geoPlacemark);
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                    yandexMap.geoObjects.remove(geoPlacemark);
+                }
+            }
+        });
+    }
+
+    $("#longitude-field-wrapper").after("<span style='font-size: 13px; color: black; text-decoration: underline; cursor: pointer' onclick='showLocationDialog();'>Выбрать местоположение</span>");
+</script>
+

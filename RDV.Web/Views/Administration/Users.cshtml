@@ -1,0 +1,455 @@
+﻿@model IEnumerable<RDV.Domain.Entities.User>
+@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Пользователи";
+    var roles = (IList<RDV.Web.Models.Administration.Roles.RoleModel>) ViewBag.roles;
+    var companies = (IList<RDV.Domain.Entities.Company>) ViewBag.companies;
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Users-tab" })
+            
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Пользователи
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li>
+                                        <a href="/administration/users/new" id="add-user-action">Добавить</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="edit-user-action">Редактировать</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="state-change-user-action">Изменить статус</a>
+                                    </li>
+                                    <div class="separator"></div>
+                                    <li>
+                                        <a href="#" id="export-user-action">Экспорт в Excel</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true"/>
+                                        </th>
+                                        <th>
+                                            Логин/Email
+                                        </th>
+                                        <th>
+                                            Полное имя
+                                        </th>
+                                        <th>
+                                            Телефон
+                                        </th>
+                                        <th>
+                                            Роль
+                                        </th>
+                                        <th>
+                                            Статус
+                                        </th>
+                                        @*<th>
+                                            Объектов
+                                        </th>*@
+                                        <th>
+                                            Дата регистрации
+                                        </th>
+                                        <th>
+                                            Последний заход
+                                        </th>
+                                        <th class="icons">
+                                            
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model)
+                                    {
+                                        <tr data-item-id="@user.Id">
+                                            <td class="checkbox-wrapper">
+                                                <input type="checkbox" id="select-@user.Id-checkbox" value="true"/>
+                                            </td>
+                                            <td field="Login"><a href="/administration/users/edit/@user.Id">@user.Login</a></td>
+                                            <td field="FullName">@user.ToString()</td>
+                                            <td field="Phone">@user.Phone.FormatPhoneNumber()</td>
+                                            <td field="RoleName">@user.Role.Name</td>
+                                            <td field="Status">@(((UserStatuses)user.Status).GetEnumMemberName())</td>
+                                            @*<td field="ObjectsCount">@user.GetObjectsCount()</td>*@
+                                            <td field="DateCreated">@user.DateCreated.FormatDateTime()</td>
+                                            <td field="LastLogin">@user.LastLogin.FormatDateTime()</td>
+                                            <td>
+                                                @if (user.RoleId == 4)
+                                                {
+                                                    if (ViewContext.CurrentUser().RoleId == 4)
+                                                    {
+                                                        <span class="icon-edit edit-row">&nbsp;</span>     
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="icon-edit edit-row">&nbsp;</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+@* Диалог добавления роли *@
+<div class="dialog" id="edit-user-dialog" title="Создание нового пользователя" style="display: none;">
+    <form action="/administration/users/save-user" method="POST" id="edit-user-form">
+    <input type="hidden" id="user-id-field" name="Id" value="-1"/>
+    <input type="hidden" id="current-user-id-field" name="UserId" value="@ViewContext.CurrentUser().Id"/>
+    <input type="hidden" id="user-is-edit-field" value="0" />
+        <fieldset>
+            <div id="user-photo" style="float: right; width: 120px; max-height: 150px; overflow: hidden; text-align: center; margin-top: 30px; margin-right: 15px">
+                <img src="/Content/images/common/no-photo.jpg" alt="Фото пользователя" width="120"/>
+            </div>
+            <div class="legend">
+                Регистрационные данные
+            </div>
+            <div class="editor-label">
+                Email адрес
+            </div>
+            <div class="editor-field">
+                <input type="email" class="round reg-field" id="user-email-field" name="Email" placeholder="Email пользователя" maxlength="255" value=""/>
+            </div>
+            <div class="editor-label">
+                Пароль
+            </div>
+            <div class="editor-field">
+                <input type="password" class="round reg-field" id="user-password-field" name="Password"
+                       maxlength="255" />
+            </div>
+            <div class="editor-label">
+                Подтверждение пароля
+            </div>
+            <div class="editor-field">
+                <input type="password" class="round reg-field" id="user-confirm-password-field" name="PasswordConfirm"
+                       maxlength="255" />
+            </div>
+        </fieldset>
+    <fieldset>
+        <div class="legend">
+            Личные данные
+        </div>
+        <table width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Имя
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="user-name-field" name="FirstName" placeholder="Имя" maxlength="255" value=""/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Отчество
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="user-surname-field" name="SurName" placeholder="Отчество" maxlength="255" value=""/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="editor-label">
+                            Фамилия
+                        </div>
+                        <div class="editor-field">
+                            <input style="width: 343px" type="text" class="round" id="user-lastname-field" name="LastName" placeholder="Фамилия" maxlength="255" value=""/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Контактный телефон
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="user-phone-field" name="Phone" placeholder="Основной номер" maxlength="255" value=""/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дополнительный телефон
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="user-phone2-field" name="Phone2" placeholder="Вспомогательный номер" maxlength="255" value=""/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Номер ICQ
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="user-icq-field" name="ICQ" placeholder="Номер ICQ" maxlength="12" value=""/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дата рождения
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small datepicker" id="user-birthdate-field" name="Birthdate" placeholder="Дата рождения" />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+    <fieldset style="margin-bottom: 0px !important">
+        <div class="legend">
+            Профессиональные данные</div>
+        <div class="editor-label">
+            Роль
+        </div>
+        <div class="editor-field">
+            <select id="user-role-field" name="RoleId" style="width: 343px" class="round">
+                @foreach (var role in roles)
+                {
+                    <option value="@role.Id">@role.Name</option>
+                }
+            </select>
+        </div>
+        <table id="agent-fields" width="100%" style="display: block">
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        <div class="editor-label">
+                            Компания
+                        </div>
+                        <div class="editor-field">
+                            <select id="user-company-field" name="CompanyId" style="width: 343px" class="round">
+                                <option value="-1">Вне компании</option>
+                                @foreach (var company in companies)
+                                {
+                                    <option value="@company.Id">@company.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="editor-label">
+                            Должность
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small" id="user-appointment-field" name="Appointment" placeholder="Должность" maxlength="255" value=""/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="editor-label">
+                            Дата начала стажа
+                        </div>
+                        <div class="editor-field">
+                            <input type="text" class="round field-small datepicker" id="user-senioritystartdate-field" name="SeniorityStartDate" />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+    </form>
+</div>
+@* диалог изменения статуса выбранных пользователей *@
+<div class="dialog" title="Изменение статуса" id="change-user-status-dialog" style="display: none; margin-top: 20px">
+    <form action="/administration/users/change-status" method="POST" id="change-user-status-form">
+        <input type="hidden" id="change-user-status-ids-field" value="-1" name="userIds"/>
+        <div class="editor-label">
+            Новый статус пользователя(ей)
+        </div>
+        <div class="editor-field">
+            <select class="round field" id="new-user-status-field" name="newUsersStatus">
+                <option value="-1" selected="selected">Без изменений</option>
+                @foreach (UserStatuses status in Enum.GetValues(typeof(UserStatuses)))
+                {
+                    <option value="@((short)status)">@status.GetEnumMemberName()</option>
+                }
+            </select>
+        </div>
+    </form>
+</div>
+<script language="javascript" type="text/javascript">
+    validators.bindUserFormValidators(submitUserForm);
+    
+    @* Функция отображающая диалог нового пользователя *@
+    function newUserDialog() {
+        // Очищаем форму
+        $("#edit-user-form label.error").hide();
+        $("#edit-user-form [name]").removeClass("error").removeClass("valid").val("");
+        $("#edit-is-edit-field").val("0");
+        // Отображаем диалог
+        $("#edit-user-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            maxHeight: window.innerHeight*0.8,
+            buttons: {
+                "Добавить": function () {
+                    $("#edit-user-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#edit-user-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Отображает диалог редактирования пользователя *@
+    function editUserDialog(userId) {
+        // Получаем данные пользователя с сервера
+        $("#user-photo img").attr("src", "/Content/images/common/no-photo.jpg");
+        $.ajax({
+            type: 'GET',
+            url: '/administration/users/get-info/'+userId,
+            dataType: 'json',
+            success: function (data) {
+                // Подгатавливаем форму
+                $("#edit-user-form label.error").hide();
+                $("#edit-user-form [name]").removeClass("error").removeClass("valid").val("");
+                $("#edit-is-edit-field").val("1");
+                // Перебираем данные и устанавливаем их в форму
+                for(var property in data) {
+                    var selector = "#edit-user-form [name='"+property+"']";
+                    var ctrl = $(selector);
+                    if (ctrl.length > 0) {
+                        ctrl.val(data[property]);
+                    }
+                }
+                $("#user-photo img").attr("src", data.image != null ? data.image : "/Content/images/common/no-photo.jpg");
+                // Отображаем диалог
+                $("#edit-user-dialog").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    modal: true,
+                    width: 380,
+                    maxHeight: window.innerHeight*0.8,
+                    buttons: {
+                        "Сохранить": function () {
+                            $("#edit-user-form").submit();
+                        },
+                        "Закрыть": function () {
+                            $("#edit-user-dialog").dialog("close");
+                        }
+                    }
+                });
+            },
+            error: function () {
+                alert("Не удалось получить данные пользователя");
+            }
+        });
+    }
+    
+    @* Отображает диалог изменения статусов у пользователей *@
+    function changeUserStatusDialog(userIds) {
+        // Сбрасываем форму
+        $("#change-user-status-ids-field").val(userIds);
+        $("#new-user-status-field").val(-1);
+        // Отображаем диалог
+        var dialog = $("#change-user-status-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "Сохранить": function () {
+                    if ($("#new-user-status-field").val() == "-1") {
+                        $("#change-user-status-dialog").dialog("close");    
+                    } else {
+                        $("#change-user-status-form").submit();
+                    }
+                },
+                "Отмена": function () {
+                    $("#change-user-status-dialog").dialog("close");
+                }
+            }
+        });
+    }
+
+    @* Выполняет аяксовую отсылку формы создания новой роли *@
+    function  submitUserForm(form) {
+        $("#edit-user-form").ajaxSubmit({
+            dataType: 'json',
+            success: function (data) {
+                document.location.reload();
+            },
+            error: function () {
+                alert("Ошибка при сохранении формы");
+            }
+        });
+    }
+    /*
+    $("#add-user-action").click(function() {
+        newUserDialog();
+        return false;
+    });*/
+    
+    $("#edit-user-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            var id = tr.first().data("item-id");
+            window.location.href='/administration/users/edit/'+id;
+        }
+        return false;
+    });
+
+    $("#state-change-user-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        changeUserStatusDialog(idsStr);
+        return false;
+    });
+
+    $(".edit-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        window.location.href='/administration/users/edit/'+id;
+    });
+</script>

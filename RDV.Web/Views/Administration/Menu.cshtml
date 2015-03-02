@@ -1,0 +1,293 @@
+﻿@model IList<RDV.Domain.Entities.MenuItem>
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Главное меню";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Content-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Элементы меню
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="#" id="add-item-action">Добавить</a> </li>
+                                    <li><a href="#" id="edit-item-action">Редактировать</a> </li>
+                                    <li><a href="#" id="delete-items-action">Удалить</a> </li>
+                                    <div class="separator">
+                                    </div>
+                                    <li><a href="/administration/content/news">Публикации</a> </li>
+                                    <li><a href="/administration/content/">Страницы</a> </li>
+                                    <li><a href="/administration/content/banners">Баннера</a> </li>
+                                    <li><a href="/administration/content/notifications">Рассылки</a> </li>
+                                    <li><a href="/administration/content/partners">Партнеры</a> </li>
+                                    <li><a href="/administration/content/file-mgr">Менеджер файлов</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-wrapper">
+                                            <input type="checkbox" id="select-all-checkbox" value="true" />
+                                        </th>
+                                        <th>
+                                            ИД
+                                        </th>
+                                        <th>
+                                            Заголовок
+                                        </th>
+                                        <th>
+                                            Ссылка
+                                        </th>
+                                        <th>
+                                            Позиция
+                                        </th>
+                                        <th>
+                                            Последняя правка
+                                        </th>
+                                        <th>
+                                            Автор правки
+                                        </th>
+                                        <th class="icons">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count > 0)
+                                    {
+                                        foreach (var item in Model)
+                                        {
+                                            <tr data-item-id="@item.Id">
+                                                <td class="checkbox-wrapper">
+                                                    <input type="checkbox" id="select-@item.Id-checkbox" value="true"/>
+                                                </td>
+                                                <td field="Id">@item.Id</td>
+                                                <td field="Title">@item.Title</td>
+                                                <td field="Href">@item.Href</td>
+                                                <td field="Position">@item.Position</td>
+                                                <td field="DateModified">@((item.DateModified.HasValue ? item.DateModified : item.DateCreated).FormatDateTime())
+                                                </td>
+                                                <td field="ModifiedBy">
+                                                    @IdObjectsCache.GetUserLogin(item.ModifiedBy != -1 ? item.ModifiedBy: item.CreatedBy)
+                                                </td>
+                                                <td>
+                                                    <span class="edit-row icon-edit" title="Редактировать"></span>&nbsp;<span class="delete-row icon-delete"
+                                                                                                                              title="Удалить"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    } else
+                                    {
+                                        <tr>
+                                            <td colspan="8">
+                                                <p align="center">Нет элементов в главном меню</p>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог создания или редактирования элементов меню *@
+<div class="dialog" id="edit-item-dialog" title="Редактирование элемента меню" style="display: none;">
+    <form action="/administration/content/save-menu-item" method="POST" id="menu-item-form">
+        <input type="hidden" id="item-id-field" name="Id" value="-1"/>
+        <div class="editor-label">
+            Заголовок
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Title" maxlength="255" id="item-title-field" value="" placeholder="Введите заголовок элемента меню"/>
+        </div>
+        <div class="editor-label">
+            Ссылка
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Href" maxlength="4000" id="item-href-field" value="" placeholder="Введите ссылку, куда ведет элемент меню"/>
+        </div>
+        <div class="editor-label">
+            Позиция
+        </div>
+        <div class="editor-field">
+            <input type="text" class="round field" name="Position" maxlength="255" id="item-position-field" value="" placeholder="Введите позицию элемента меню"/>
+        </div>
+    </form>
+</div>
+@* Диалог удаления *@
+<div class="dialog" id="delete-items-dialog" title="Удаление элементов меню" style="margin-top: 20px; display: none">
+    <div class="info">Вы действительно хотите удалить эти элементы из главного меню? Эту операцию нельзя будет отменить.</div>
+</div>
+<script language="javascript" type="text/javascript">
+
+    validators.bindEditMenuItemFormValidators();
+
+    @* Диалог добавления нового разрешения к роли *@
+    function showAddItemDialog() {
+        $("#item-id-field").val(-1);
+        $("#item-title-field").val("");
+        $("#item-href-field").val("");
+        $("#item-position-field").val(10);
+        $("#edit-item-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            title: "Добавление элемента в меню",
+            modal: true,
+            width: 400,
+            buttons: {
+                "Добавить": function () {
+                    $("#menu-item-form").submit();
+                },
+                "Закрыть": function () {
+                    $("#edit-item-dialog").dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Диалог добавления нового разрешения к роли *@
+    function showEditItemDialog(itemId) {
+        // Получаем данные компании с сервера
+        $.ajax({
+            type: 'GET',
+            url: '/administration/content/get-menu-item-info/'+itemId,
+            dataType: 'json',
+            success: function (data) {
+                // Подгатавливаем форму
+                $("#menu-item-form label.error").hide();
+                $("#menu-item-form [name]").removeClass("error").removeClass("valid").val("");
+                // Перебираем данные и устанавливаем их в форму
+                for(var property in data) {
+                    var selector = "#menu-item-form [name='"+property+"']";
+                    var ctrl = $(selector);
+                    if (ctrl.length > 0) {
+                        ctrl.val(data[property]);
+                    }
+                }
+                // Отображаем диалог
+                $("#edit-item-dialog").dialog({
+                    autoOpen: true,
+                    resizable: false,
+                    title: "Редактирование элемента в меню",
+                    modal: true,
+                    width: 400,
+                    buttons: {
+                        "Сохранить": function () {
+                            $("#menu-item-form").submit();
+                        },
+                        "Закрыть": function () {
+                            $("#edit-item-dialog").dialog("close");
+                        }
+                    }
+                });
+            },
+            error: function () {
+                alert("Не удалось получить данные элемента меню");
+            }
+        });
+        
+    }
+
+    @* Отображает диалог удаления пермишеннов с указанными идентификаторами *@
+    function deleteMenuItemsDialog(itemsIds) {
+        // Отображаем диалог
+        var dialog = $("#delete-items-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            buttons: {
+                "ДА": function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/administration/content/delete-menu-items',
+                        data: {
+                            itemIds: itemsIds
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            document.location.reload();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить элементы меню");
+                        }
+                    });
+                },
+                "НЕТ": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+    
+    @* Байндинг действия добавления нового *@
+    $("#add-item-action").click(function(e) {
+        showAddItemDialog();
+        return false;
+    });
+
+    @* Байндинг действия редактирования компании *@
+    $("#edit-items-action").click(function() {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var selector = ".content-table tbody tr[data-item-id='"+ids[0]+"']";
+        var tr = $(selector);
+        if (tr.length > 0) {
+            var id = tr.first().data("item-id");
+            showEditItemDialog(id);
+        }
+        return false;
+    });
+    
+    @* Обработка удаления страниц *@
+    $("#delete-items-action").click(function(e) {
+        var ids = getSelectedTableItems();
+        if (ids.length == 0) {
+            return false;
+        }
+        var idsStr = "";
+        $.each(ids, function(index, item) {
+            idsStr += item + ',';
+        });
+        deleteMenuItemsDialog(idsStr);
+        return false;
+    });
+    
+    @* Редактирование страницы *@
+    $(".edit-row").click(function(e) {
+        var id = $(this).parent().parent().data("item-id");
+        showEditItemDialog(id);
+    });
+
+    @* Удаление страницы *@
+    $(".delete-row").click(function(e) {
+        var id = $(this).parent().parent().data('item-id');
+        deleteMenuItemsDialog(id);
+    });
+</script>

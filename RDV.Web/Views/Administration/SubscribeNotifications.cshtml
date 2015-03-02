@@ -1,0 +1,102 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Создание рассылки";
+}
+<script src="/Content/ckeditor/ckeditor.js" type="text/javascript"></script>
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Content-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="200px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 200px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Разделы
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/content/menu">Меню</a> </li>
+                                    <li><a href="/administration/content/news">Публикации</a> </li>
+                                    <li><a href="/administration/content/">Страницы</a> </li>
+                                    <li><a href="/administration/content/file-mgr">Менеджер файлов</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Форма редактирования таблицы *@
+                            <div class="page-form-container">
+                                <form action="/administration/content/create-newsletters" method="POST" id="edit-newsletter-form">
+                                    <div class="editor-label">
+                                        Заголовок рассылки
+                                    </div>
+                                    <div class="editor-field">
+                                        <input type="text" name="Subject" class="round field" placeholder="Введите заголовок информационной рассылки" maxlength="255"/>
+                                    </div>
+                                    <div class="editor-label">
+                                        Содержимое рассылки
+                                    </div>
+                                    <div class="editor-field">
+                                        <textarea name="Content" class="ckeditor" placeholder="Введите содержимое писем"></textarea>
+                                    </div>
+                                    <div class="editor-label">
+                                        Получатели
+                                    </div>
+                                    <div class="editor-field">
+                                        <select name="Recipients" id="recepients-field">
+                                            <option value="1">Все пользователи</option>
+                                            <option value="2">Администраторы</option>
+                                            <option value="3">Директоры</option>
+                                            <option value="4">Агенты</option>
+                                            <option value="5">Тематическая рассылка</option>
+                                        </select>
+                                    </div>
+                                    <div id="subjects-wrapper" style="display: none">
+                                        <div class="editor-label">
+                                            Категории тематической рассылки
+                                        </div>
+                                        <div class="editor-field">
+                                            @foreach (var subject in Enum.GetValues(typeof (SubscribeCategories)))
+                                            {
+                                                var subjectId = (short) subject;
+                                                <div class="editor-field">
+                                                    <input type="checkbox" name="subject-@subjectId" value="true"/> @subject.GetEnumMemberName()
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div id="submit-button-wrapper" onclick="$('#edit-newsletter-form').submit();">
+                                        <span id="submit-button"></span>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    validators.bindEditNewsLetterFormValidators();
+    $("#recepients-field").change(function () {
+        var val = $(this).val();
+        if (parseInt(val) == 5) {
+            $("#subjects-wrapper").show();
+        } else {
+            $("#subjects-wrapper").hide();
+        }
+    });
+</script>

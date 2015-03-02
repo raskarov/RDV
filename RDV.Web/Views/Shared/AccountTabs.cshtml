@@ -1,0 +1,82 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.UI.TabOptionsModel
+<div class="tab-control">
+    @* Разделы личного кабинета *@
+    @{
+        var currentUser = ViewContext.CurrentUser();
+    }
+    <div class="tab-header">
+        <table width="100%" style="border-collapse: separate">
+            <tbody>
+                <tr>
+                    @if (currentUser.HasPermission(Permission.EditOwnObjects) || currentUser.HasPermission(Permission.EditCompanyObjects) || currentUser.HasPermission(Permission.EditAllObjects))
+                    {
+                        <td class="tab-header-item" id="MyObjects-tab" target="/account/objects">
+                            <span class="tab-header-title">Объекты</span>
+                        </td>    
+                    }
+                    <td class="tab-header-item" id="Requests-tab" target="/search-requests">
+                        <span class="tab-header-title">Запросы</span>
+                    </td>
+                    @if (currentUser.Company != null)
+                    {
+                        <td class="tab-header-item" id="Staff-tab" target="/account/company/members">
+                            <span class="tab-header-title">Сотрудники</span>
+                        </td>
+                        if (currentUser.HasPermission(Permission.EditOwnCompanyInfo))
+                        {
+                        <td class="tab-header-item" id="Company-tab" target="/account/company">
+                            <span class="tab-header-title">Компания</span>
+                        </td>  
+                        }
+                        if (currentUser.HasPermission(Permission.ViewCompanyClients))
+                        {
+                        <td class="tab-header-item" id="Clients-tab" target="/account/company/clients">
+                            <span class="tab-header-title">Клиенты</span>
+                        </td>       
+                        }
+                        if (currentUser.HasPermission(Permission.MyServices))
+                        {
+                        <td class="tab-header-item" id="Services-tab" target="/account/company/services">
+                            <span class="tab-header-title">Мои услуги</span>
+                        </td>       
+                        }
+
+                    }
+                    <td class="tab-header-item" id="Profile-tab" target="/account/profile">
+                        <span class="tab-header-title">Профиль</span>
+                    </td>
+                    @if (currentUser.Company != null && currentUser.HasPermission(Permission.PartnershipArchive))
+                    {
+                        <td class="tab-header-item" id="Partnership-archive-tab" target="/account/partnership-archive">
+                            <span class="tab-header-title">Архив</span>
+                        </td>
+                    }
+                    @if (currentUser.HasAnyAdministrativePermission())
+                    {
+                        <td class="tab-header-item" id="Administration-tab" target="/administration">
+                            <span class="tab-header-title">Администр.</span>
+                        </td>    
+                    }
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+@* Скриптовый блок *@
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $(".tab-control .tab-header-item").click(function (e) {
+            var href = $(this).attr("target");
+            window.location.href = href;
+        });
+    });
+    @* Выделяем активную вкладку, установленную в модели *@
+    @if (!String.IsNullOrEmpty(Model.SelectedTab))
+    {
+        <text>
+            $("#@Model.SelectedTab").addClass("active");
+        </text>
+    }
+</script>

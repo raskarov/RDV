@@ -1,0 +1,18 @@
+﻿@using RDV.Web.Models
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Макет личного кабинета";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-account-content">
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "MyObjects-tab" })
+        </div>
+    </div>
+</div>

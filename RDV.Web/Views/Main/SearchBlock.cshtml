@@ -1,0 +1,957 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Interfaces.Infrastructure
+@using RDV.Domain.IoC
+@model dynamic
+@{
+    var geoManager = Locator.GetService<IGeoManager>();
+}
+<div class="block" id="searchBlock">
+    <div class="block-header">
+        <div class="block-icon">
+            <img src="@Url.Content("/Content/images/mainpage/icon-search.png")" alt="Search"/>
+        </div>
+        <div class="block-title">
+            Поиск
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            @* Таббар *@
+            <div class="tab-control">
+                @* Заголовок *@
+                <div class="tab-header">
+                    <table width="100%" style="border-collapse: separate">
+                        <tbody>
+                            <tr>
+                                <td class="tab-header-item active" target="#flat-search-tab">
+                                    <span class="tab-header-title">Квартира</span>
+                                </td>
+                                <td class="tab-header-item" target="#room-search-tab">
+                                    <span class="tab-header-title">Комната</span>
+                                </td>
+                                <td class="tab-header-item" target="#house-search-tab">
+                                    <span class="tab-header-title">Дом</span>
+                                </td>
+                                <td class="tab-header-item" target="#land-search-tab">
+                                    <span class="tab-header-title">Земельный участок</span>
+                                </td>
+                                <td class="tab-header-item" target="#office-search-tab">
+                                    <span class="tab-header-title">Ком. недвижимость</span>
+                                </td>
+                                <td class="tab-header-item" target="#garage-search-tab">
+                                    <span class="tab-header-title">Гараж</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                @* Содержимое *@
+                @* Вкладка поиска комнаты *@
+                <div id="room-search-tab" class="tab" style="display: none">
+                    <form action="/search/results" method="GET" id="room-search-form">
+                        <input type="hidden" name="operation" class="search-operation"/>
+                        <input type="hidden" name="objectType" value="@((short)EstateTypes.Room)"/>
+                        <table class="search-columns">
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Цена
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="room-search-price-from" name="priceFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="room-search-price-to" name="priceTo" placeholder="Введите число"/> руб.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Площадь
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="room-search-floor-from" name="squareFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="room-search-floor-to" name="squareTo" placeholder="Введите число"/> м. кв.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Местоположение
+                                </td>
+                                <td class="search-field-content" width="80%" colspan="2">
+                                    <div>
+                                        <div class="editor-label" style="display: inline-block; text-align: right; padding-top: 4px; padding-right: 20px;">
+                                            Город
+                                        </div>
+                                        <div class="editor-field" style="display: inline-block">
+                                            <select id="room-city-field" class="round city-selector" name="cityId" style="width: 308px">
+                                                <option value="-1" selected="selected">Любой</option>
+                                                @foreach (var city in geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name))
+                                                {
+                                                    <option value="@city.Id">@city.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="district-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Районы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="district-ids-field" value="" name="districtIds"/>
+                                                <div class="link" onclick="showDistrictSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="area-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Жил. массивы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="area-ids-field" value="" name="areaIds"/>
+                                                <div class="link" onclick="showAreaSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                            
+                            </tr>
+                        </table>
+                        <div class="search-footer">
+                            <div class="search-footer-links-wrapper">
+                                <div class="search-extended-link">
+                                    <a href="/search/">Расширенный поиск</a>
+                                </div>
+                                <div class="search-submit-button" onclick="$(this).parents('form').first().submit();">
+                                    <input type="submit" style="display: none"/>
+                                </div>
+                            </div>
+                        </div>    
+                    </form>
+                    <div class="clear"></div>
+                </div>
+                @* Вкладка поиска квартиры *@
+                <div id="flat-search-tab" class="tab" style="display: block">
+                    <form action="/search/results" method="GET" id="flat-search-form">
+                        <input type="hidden" name="operation" class="search-operation"/>
+                        <input type="hidden" name="objectType" value="@((short)EstateTypes.Flat)"/>
+                        <table class="search-columns">
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Цена
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="flat-search-price-from" name="priceFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="flat-search-price-to" name="priceTo" placeholder="Введите число"/> руб.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Количество комнат
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="flat-search-rooms-from" name="roomsFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="flat-search-rooms-to" name="roomsTo" placeholder="Введите число"/> комнат
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Местоположение
+                                </td>
+                                <td class="search-field-content" width="80%" colspan="2">
+                                    <div>
+                                        <div class="editor-label" style="display: inline-block; text-align: right; padding-top: 4px; padding-right: 20px;">
+                                            Город
+                                        </div>
+                                        <div class="editor-field" style="display: inline-block">
+                                            <select id="flat-city-field" class="round city-selector" name="cityId" style="width: 308px">
+                                                <option value="-1" selected="selected">Любой</option>
+                                                @foreach (var city in geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name))
+                                                {
+                                                    <option value="@city.Id">@city.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="district-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Районы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="district-ids-field" value="" name="districtIds"/>
+                                                <div class="link" onclick="showDistrictSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="area-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Жил. массивы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="area-ids-field" value="" name="areaIds"/>
+                                                <div class="link" onclick="showAreaSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                            
+                            </tr>
+                        </table>
+                        <div class="search-footer">
+                            <div class="search-footer-links-wrapper">
+                                <div class="search-extended-link">
+                                    <a href="/search/">Расширенный поиск</a>
+                                </div>
+                                <div class="search-submit-button" onclick="$(this).parents('form').first().submit();">
+                                    <input type="submit" style="display: none"/>
+                                </div>
+                            </div>
+                        </div>    
+                    </form>
+                    <div class="clear"></div>
+                </div>
+                @* Вкладка поиска дома *@
+                <div id="house-search-tab" class="tab">
+                    <form action="/search/results" method="GET" id="house-search-form">
+                        <input type="hidden" name="operation" class="search-operation"/>
+                        <input type="hidden" name="objectType" value="@((short)EstateTypes.House)"/>
+                        <table class="search-columns">
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Цена
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="house-search-price-from" name="priceFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="house-search-price-to" name="priceTo" placeholder="Введите число"/> руб.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Площадь
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="house-search-floor-from" name="squareFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="house-search-floor-to" name="squareTo" placeholder="Введите число"/> м. кв.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Местоположение
+                                </td>
+                                <td class="search-field-content" width="80%" colspan="2">
+                                    <div>
+                                        <div class="editor-label" style="display: inline-block; text-align: right; padding-top: 4px; padding-right: 20px;">
+                                            Город
+                                        </div>
+                                        <div class="editor-field" style="display: inline-block">
+                                            <select id="house-city-field" class="round city-selector" name="cityId" style="width: 308px">
+                                                <option value="-1" selected="selected">Любой</option>
+                                                @foreach (var city in geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name))
+                                                {
+                                                    <option value="@city.Id">@city.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="district-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Районы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="district-ids-field" value="" name="districtIds"/>
+                                                <div class="link" onclick="showDistrictSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="area-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Жил. массивы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="area-ids-field" value="" name="areaIds"/>
+                                                <div class="link" onclick="showAreaSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                            
+                            </tr>
+                        </table>
+                        <div class="search-footer">
+                            <div class="search-footer-links-wrapper">
+                                <div class="search-extended-link">
+                                    <a href="/search/">Расширенный поиск</a>
+                                </div>
+                                <div class="search-submit-button" onclick="$(this).parents('form').first().submit();">
+                                    <input type="submit" style="display: none"/>
+                                </div>
+                            </div>
+                        </div>    
+                    </form>
+                    <div class="clear"></div>
+                </div>
+                @* Вкладка поиска участка *@
+                <div id="land-search-tab" class="tab">
+                    <form action="/search/results" method="GET" id="land-search-form">
+                        <input type="hidden" name="operation" class="search-operation"/>
+                        <input type="hidden" name="objectType" value="@((short)EstateTypes.Land)"/>
+                        <table class="search-columns">
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Цена
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="land-search-price-from" name="priceFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="land-search-price-to" name="priceTo" placeholder="Введите число"/> руб.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Площадь
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="land-search-floor-from" name="squareFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="land-search-floor-to" name="squareTo" placeholder="Введите число"/> м. кв.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Местоположение
+                                </td>
+                                <td class="search-field-content" width="80%" colspan="2">
+                                    <div>
+                                        <div class="editor-label" style="display: inline-block; text-align: right; padding-top: 4px; padding-right: 20px;">
+                                            Город
+                                        </div>
+                                        <div class="editor-field" style="display: inline-block">
+                                            <select id="room-city-field" class="round city-selector" name="cityId" style="width: 308px">
+                                                <option value="-1" selected="selected">Любой</option>
+                                                @foreach (var city in geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name))
+                                                {
+                                                    <option value="@city.Id">@city.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="district-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Районы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="district-ids-field" value="" name="districtIds"/>
+                                                <div class="link" onclick="showDistrictSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="area-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Жил. массивы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="area-ids-field" value="" name="areaIds"/>
+                                                <div class="link" onclick="showAreaSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                            
+                            </tr>
+                        </table>
+                        <div class="search-footer">
+                            <div class="search-footer-links-wrapper">
+                                <div class="search-extended-link">
+                                    <a href="/search/">Расширенный поиск</a>
+                                </div>
+                                <div class="search-submit-button" onclick="$(this).parents('form').first().submit();">
+                                    <input type="submit" style="display: none"/>
+                                </div>
+                            </div>
+                        </div>    
+                    </form>
+                    <div class="clear"></div>
+                </div>
+                @* Вкладка поиска коммерческой недвижимости *@
+                <div id="office-search-tab" class="tab">
+                    <form action="/search/results" method="GET" id="office-search-form">
+                        <input type="hidden" name="operation" class="search-operation"/>
+                        <input type="hidden" name="objectType" value="@((short)EstateTypes.Office)"/>
+                        <table class="search-columns">
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Цена
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="office-search-price-from" name="priceFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="office-search-price-to" name="priceTo" placeholder="Введите число"/> руб.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Площадь
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="office-search-floor-from" name="squareFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="office-search-floor-to" name="squareTo" placeholder="Введите число"/> м. кв.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Местоположение
+                                </td>
+                                <td class="search-field-content" width="80%" colspan="2">
+                                    <div>
+                                        <div class="editor-label" style="display: inline-block; text-align: right; padding-top: 4px; padding-right: 20px;">
+                                            Город
+                                        </div>
+                                        <div class="editor-field" style="display: inline-block">
+                                            <select id="room-city-field" class="round city-selector" name="cityId" style="width: 308px">
+                                                <option value="-1" selected="selected">Любой</option>
+                                                @foreach (var city in geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name))
+                                                {
+                                                    <option value="@city.Id">@city.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="district-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Районы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="district-ids-field" value="" name="districtIds"/>
+                                                <div class="link" onclick="showDistrictSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="area-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Жил. массивы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="area-ids-field" value="" name="areaIds"/>
+                                                <div class="link" onclick="showAreaSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                            
+                            </tr>
+                        </table>
+                        <div class="search-footer">
+                            <div class="search-footer-links-wrapper">
+                                <div class="search-extended-link">
+                                    <a href="/search/">Расширенный поиск</a>
+                                </div>
+                                <div class="search-submit-button" onclick="$(this).parents('form').first().submit();">
+                                    <input type="submit" style="display: none"/>
+                                </div>
+                            </div>
+                        </div>    
+                    </form>
+                    <div class="clear"></div>
+                </div>
+                @* Вкладка поиска гаража *@
+                <div id="garage-search-tab" class="tab">
+                    <form action="/search/results" method="GET" id="garage-search-form">
+                        <input type="hidden" name="operation" class="search-operation"/>
+                        <input type="hidden" name="objectType" value="@((short)EstateTypes.Garage)"/>
+                        <table class="search-columns">
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Цена
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="garage-search-price-from" name="priceFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="garage-search-price-to" name="priceTo" placeholder="Введите число"/> руб.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Площадь
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    от <input type="text" id="garage-search-floor-from" name="squareFrom" placeholder="Введите число"/>
+                                </td>
+                                <td class="search-field-content" width="40%">
+                                    до <input type="text" id="garage-search-floor-to" name="squareTo" placeholder="Введите число"/> м. кв.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="search-field-label" width="20%">
+                                    Местоположение
+                                </td>
+                                <td class="search-field-content" width="80%" colspan="2">
+                                    <div>
+                                        <div class="editor-label" style="display: inline-block; text-align: right; padding-top: 4px; padding-right: 20px;">
+                                            Город
+                                        </div>
+                                        <div class="editor-field" style="display: inline-block">
+                                            <select id="room-city-field" class="round city-selector" name="cityId" style="width: 308px">
+                                                <option value="-1" selected="selected">Любой</option>
+                                                @foreach (var city in geoManager.CitiesRepository.FindAll().OrderBy(c => c.Name))
+                                                {
+                                                    <option value="@city.Id">@city.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="district-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Районы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="district-ids-field" value="" name="districtIds"/>
+                                                <div class="link" onclick="showDistrictSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div class="area-field-wrapper" style="display: none">
+                                            <div class="editor-label">
+                                                Жил. массивы
+                                            </div>
+                                            <div class="editor-field">
+                                                <input type="hidden" class="area-ids-field" value="" name="areaIds"/>
+                                                <div class="link" onclick="showAreaSelectionDialog($(this).parents('form').first());">Выбор на карте</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                            
+                            </tr>
+                        </table>
+                        <div class="search-footer">
+                            <div class="search-footer-links-wrapper">
+                                <div class="search-extended-link">
+                                    <a href="/search/">Расширенный поиск</a>
+                                </div>
+                                <div class="search-submit-button" onclick="$(this).parents('form').first().submit();">
+                                    <input type="submit" style="display: none"/>
+                                </div>
+                            </div>
+                        </div>    
+                    </form>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог выбора районов города *@
+<div class="dialog" id="select-districts-dialog" title="Выбор районов города" style="display: none">
+    <div id="districts-yandex-map" style="width: 600px; height: 500px">
+        
+    </div>
+    <p>Выбранные районы: <span id="selected-districts"></span></p>
+</div>
+@* Диалог выбора жилых массивов города *@
+<div class="dialog" id="select-area-dialog" title="Выбор массивов района" style="display: none">
+    <div id="area-yandex-map" style="width: 600px; height: 500px">
+        
+    </div>
+    <p>Выбранные жил. массивы: <span id="selected-areas"></span></p>
+</div>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        // Байндим переключения табов в таббаре поиска
+        $("#searchBlock .tab-control .tab-header .tab-header-item").click(function (e) {
+            var tab = $(this).parents(".tab-control").first();
+            tab.find(".tab").hide();
+            tab.find(".tab-header-item").removeClass("active");
+            var target = $(this).attr("target");
+            $(target).show();
+            $(this).addClass("active");
+        });
+        // Байндим переключение операции поиска
+        $(".estate-operation-icon").click(function () {
+            $(".estate-operation-icon").removeClass("active");
+            $(this).addClass("active");
+            $(".search-operation").val($(this).data("operation"));
+        }).first().click();
+        // Установка логики выбора районов
+        $(".city-selector").change(function () {
+            var val = parseInt($(this).val());
+            var parent = $(this).parents("form").first();
+            parent.find(".area-field-wrapper").hide();
+            if (val == -1) {
+                parent.find(".district-field-wrapper").hide();
+            } else {
+                parent.find(".district-field-wrapper").show().find(".district-names-field").remove();
+                parent.find(".district-field-wrapper").find(".ui-multiselect").remove();
+                $.ajax({
+                    type: 'GET',
+                    url: '/search/districts-selector',
+                    data: {
+                        cityId: val
+                    },
+                    dataType: 'html',
+                    success: function (responseText) {
+                        parent.find(".district-ids-field").val("").after(responseText);
+                        parent.find(".district-names-field").multiselect({
+                            noneSelectedText: 'Выберите значения из списка',
+                            selectedList: 1,
+                            maxWidth: 210
+                        });
+                    },
+                    error: function () {
+                        alert("Ошибка на сервере. Обновите страницу");
+                    }
+                });
+            }
+        }).change();
+        $(".district-names-field").live("change", function () {
+            var val = $(this).val();
+            var ids = "";
+            $.each(val, function (index, item) {
+                ids += item + ",";
+            });
+            var parent = $(this).parents("form").first();
+            parent.find(".district-ids-field").val(ids);
+            parent.find(".area-ids-field").val("");
+            if (val != null && val.length == 1) {
+                parent.find(".area-field-wrapper").show();
+                parent.find(".area-names-field").remove();
+                parent.find(".area-field-wrapper").find(".ui-multiselect").remove();
+                $.ajax({
+                    type: 'GET',
+                    url: '/search/areas-selector',
+                    data: {
+                        districtId: val[0]
+                    },
+                    dataType: 'html',
+                    success: function (responseText) {
+                        parent.find(".area-ids-field").val("").after(responseText);
+                        parent.find(".area-names-field").multiselect({
+                            noneSelectedText: 'Выберите значения из списка',
+                            selectedList: 1,
+                            maxWidth: 210
+                        });
+                    },
+                    error: function () {
+                        alert("Ошибка на сервере. Обновите страницу");
+                    }
+                });
+            } else {
+                parent.find(".area-field-wrapper").hide();
+            }
+        });
+        $(".area-names-field").live("change", function () {
+            var val = $(this).val();
+            var ids = "";
+            var parent = $(this).parents("form").first();
+            $.each(val, function (index, item) {
+                ids += item + ",";
+            });
+            parent.find(".area-ids-field").val(ids);
+        });
+    });
+    
+    @* Диалог выбора районов *@
+    function showDistrictSelectionDialog(parent) {
+        var yandexMap = districtsYandexMap;
+        yandexMap.geoObjects.each(function(obj) {
+            yandexMap.geoObjects.remove(obj);
+        });
+        var selectedDistricts = parseIdsStr(parent.find(".district-ids-field").val());
+        $.ajax({
+            type: 'POST',
+            url: '/search/districts',
+            data: {
+                cityId: parent.find(".city-selector").val()
+            },
+            success: function(data){
+                $.each(data.districts, function(index, item) {
+                    // Создаем объект геометрии
+                    var geometry = {
+                        type: 'Polygon',
+                        coordinates: item.coordinates
+                    };
+                    var options = {
+                        strokeWidth: 3,
+                        strokeColor: '#0000FF', 
+                        fillColor: '#FFFF00',
+                        fillOpacity: 0.3,
+                        draggable: false,
+                        hasHint: true
+                    };
+                    var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+                    polygon.name = item.name;
+                    polygon.districtName = item.name;
+                    polygon.districtId = item.id;
+                    polygon.selected = false;
+                    for (var i = 0; i < selectedDistricts.length; i++) {
+                        var selId = selectedDistricts[i];
+                        if (selId == item.id) {
+                            polygon.selected = true;
+                            break;
+                        }
+                    }
+                    polygon.events.add("click",function(event) {
+                        if (!event.originalEvent.target.selected) {
+                            event.originalEvent.target.options.set("fillColor", "#FF0000");
+                            event.originalEvent.target.selected = true;
+                        } else {
+                            event.originalEvent.target.options.set("fillColor", "#FFFF00");
+                            event.originalEvent.target.selected = false;
+                        }
+                        updateSelectedDistricts();
+                    });
+                    yandexMap.geoObjects.add(polygon);
+                    updateSelectedDistricts();
+                });
+            },
+            error: function(){
+
+            },
+            dataType: 'json'
+        });
+        var dialog = $("#select-districts-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Выбрать": function () {
+                    var idsStr = "";
+                    var idsArray = [];
+                    yandexMap.geoObjects.each(function(obj) {
+                        if (obj.selected) {
+                            idsStr += obj.districtId + ",";
+                            idsArray.push(obj.districtId);
+                        }
+                    });
+                    parent.find(".district-ids-field").val(idsStr);
+                    parent.find(".district-names-field").val(idsArray).change().multiselect("refresh");
+                    dialog.dialog("close");
+                },
+                "Отмена": function () {
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.setBounds(yandexMap.geoObjects.getBounds());
+                },1000);
+                
+            }
+        });
+    }
+    
+    @* Отображает диалог выбора жилых массивов *@
+    function showAreaSelectionDialog(parent) {
+        var selectedDistricts = parseIdsStr(parent.find(".district-ids-field").val());
+        if (selectedDistricts.length != 1) {
+            alert("Вы должны выбрать только 1 район, в котором должны выбираться жилые массивы");
+            return;
+        }
+        var yandexMap = areasYandexMap;
+        yandexMap.geoObjects.each(function(obj) {
+            yandexMap.geoObjects.remove(obj);
+        });
+        var selectedAreas = parseIdsStr(parent.find(".area-ids-field").val());
+        $.ajax({
+            type: 'POST',
+            url: '/search/areas',
+            data: {
+                districtId: selectedDistricts[0]
+            },
+            success: function(data){
+                // Создаем границы родительского района
+                var parentGeometry = {
+                    type: 'Polygon',
+                    coordinates: data.parentCoords
+                };
+                var parentOptions = {
+                    strokeWidth: 3,
+                    strokeColor: '#FF0000',
+                    draggable: false,
+                    fill: false
+                };
+                var parentPolygon = new ymaps.GeoObject({geometry: parentGeometry}, parentOptions);
+                parentPolygon.parent = true;
+                yandexMap.geoObjects.add(parentPolygon);
+                // Рисуем объекты геометрии
+                $.each(data.areas, function(index, item) {
+                    // Создаем объект геометрии
+                    var geometry = {
+                        type: 'Polygon',
+                        coordinates: item.coordinates
+                    };
+                    var options = {
+                        strokeWidth: 3,
+                        strokeColor: '#0000FF', 
+                        fillColor: '#FFFF00',
+                        fillOpacity: 0.3,
+                        draggable: false,
+                        name: item.name,
+                        hasHint: true
+                    };
+                    var polygon = new ymaps.GeoObject({geometry: geometry}, options);
+                    polygon.name = item.name;
+                    polygon.areaName = item.name;
+                    polygon.areaId = item.id;
+                    polygon.selected = false;
+                    for (var i = 0; i < selectedAreas.length; i++) {
+                        var selId = selectedAreas[i];
+                        if (selId == item.id) {
+                            polygon.selected = true;
+                            break;
+                        }
+                    }
+                    polygon.events.add("click",function(event) {
+                        if (!event.originalEvent.target.selected) {
+                            event.originalEvent.target.options.set("fillColor", "#FF0000");
+                            event.originalEvent.target.selected = true;
+                        } else {
+                            event.originalEvent.target.options.set("fillColor", "#FFFF00");
+                            event.originalEvent.target.selected = false;
+                        }
+                        updateSelectedAreas();
+                    });
+                    yandexMap.geoObjects.add(polygon);
+                    updateSelectedAreas();
+                });
+            },
+            error: function(){
+
+            },
+            dataType: 'json'
+        });
+        var dialog = $("#select-area-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 625,
+            buttons: {
+                "Выбрать": function () {
+                    var idsStr = "";
+                    var idsArray = [];
+                    yandexMap.geoObjects.each(function(obj) {
+                        if (obj.selected) {
+                            idsStr += obj.areaId + ",";
+                            idsArray.push(obj.areaId);
+                        }
+                    });
+                    parent.find(".area-ids-field").val(idsStr);
+                    parent.find(".area-names-field").val(idsArray).change().multiselect("refresh");
+                    dialog.dialog("close");
+                    yandexMap.geoObjects.each(function(obj) {
+                        yandexMap.geoObjects.remove(obj);
+                    });
+                },
+                "Отмена": function () {
+                    
+                    dialog.dialog("close");
+                }
+            },
+            open: function () {
+                setTimeout(function () {
+                    yandexMap.container.fitToViewport();
+                    yandexMap.setZoom(14);
+                    yandexMap.setBounds(yandexMap.geoObjects.getBounds());
+                },1000);
+                
+            }
+        });
+    }
+
+    @* Обновляет выбранные районы *@
+    function updateSelectedDistricts() {
+        var selectedNames = "";
+        districtsYandexMap.geoObjects.each(function(obj) {
+            if (obj.selected) {
+                selectedNames += obj.districtName + ", ";
+                obj.options.set("fillColor", "#FF0000");
+            }
+        });
+        $("#selected-districts").text(selectedNames);
+    }
+
+    @* Обновляет выбранные жил массивы *@
+    function updateSelectedAreas() {
+        var selectedNames = "";
+        areasYandexMap.geoObjects.each(function(obj) {
+            if (obj.selected) {
+                selectedNames += obj.areaName + ", ";
+                obj.options.set("fillColor", "#FF0000");
+            }
+        });
+        $("#selected-areas").text(selectedNames);
+    }
+    
+    @* Парсит строку идентификаторов и возвращает ее в виде массива *@
+    function parseIdsStr(str) {
+        var parts = str.split(',');
+        var result = [];
+        $.each(parts, function(index, item) {
+            if (item != "") {
+                result.push(parseInt(item));
+            }
+        });
+        return result;
+    }
+
+    // Инициализатор яндекс карт
+    var districtsYandexMap;
+    var areasYandexMap;
+    ymaps.ready(function () {
+        districtsYandexMap = new ymaps.Map('districts-yandex-map', {
+            center: [48.514592, 135.145739],
+            zoom: 11
+        });
+        districtsYandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+        areasYandexMap = new ymaps.Map('area-yandex-map', {
+            center: [48.514592, 135.145739],
+            zoom: 11
+        });
+        areasYandexMap.controls.add("mapTools").add("zoomControl").add("typeSelector");
+    });
+    
+    // Устанавливаем хабаровск основным городом
+    $(".city-selector").val(4);
+</script>

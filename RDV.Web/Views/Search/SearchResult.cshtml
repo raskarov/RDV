@@ -1,0 +1,32 @@
+﻿@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@model RDV.Web.Models.Objects.EstateObjectListModel
+@{
+    var objUrl = String.Format("/objects/{0}/card", Model.Id);    
+}
+
+<div class="search-result">
+    <div class="search-result-image">
+        <a href="@objUrl">
+            @if (!String.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl"/>        
+            }
+            else
+            {
+                <img src="@Url.Content("/Content/images/mainpage/new-object-photo.png")"/>    
+            }
+        </a>
+    </div>
+    <div class="search-result-title">
+        <a href="@objUrl">
+            @Model.TitleLine
+        </a>
+    </div>
+    <div class="search-result-info">@Model.SizeLine</div>
+    <div class="search-result-info">@Model.DistrictLine</div>
+    <div class="search-result-info">@Model.StreetLine</div>
+    <div class="search-result-price">Цена: <span class="price">@Model.PriceLine</span></div>
+    <div class="clear"></div>
+    <div class="search-result-separator"></div>
+</div>   

@@ -1,0 +1,76 @@
+﻿@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@model System.Collections.Generic.IList<RDV.Domain.Entities.Partner>
+@{
+    var filesRep = Locator.GetService<IStoredFilesRepository>();
+}
+<div class="block" id="partners-block">
+    <div class="block-header">
+        <div class="block-icon">
+            <img src="@Url.Content("/Content/images/mainpage/plusicon.png")" alt="Icon"/>
+        </div>
+        <div class="block-title">
+            Партнеры
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="block-content">
+        <div class="block-inner-content">
+            <div id="partners-wrapper">
+                <div class="partners-left">
+                    
+                </div>
+                <div class="partners-viewport">
+                    <div class="partners-overview">
+                        @foreach(var partner in Model)
+                        {
+                            var inactive = @partner.InactiveImageUrl ?? @partner.ActiveImageUrl;
+                            var active = @partner.ActiveImageUrl ?? partner.InactiveImageUrl;
+                            if (String.IsNullOrEmpty(inactive)) { continue; }
+                            <div class="partner">
+                                <a href="@partner.Url" title="@partner.Name" target="_blank">
+                                    <img src="@filesRep.ResolveFileUrl(active)" inactive="@filesRep.ResolveFileUrl(inactive)"/>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="partners-right"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/Scripts/Scroller.js" type="text/javascript"></script>
+<script type="text/javascript">
+    // On window load. This waits until images have loaded which is essential
+    $(document).ready(function () {
+
+        // Fade in images so there isn't a color "pop" document load and then on window load
+        $(".partner img").animate({ opacity: 1 }, 500);
+
+        // clone image
+        $('.partner img').each(function () {
+            var el = $(this);
+            el.css({ "position": "absolute" }).wrap("<div class='img_wrapper' style='display: inline-block; vertical-align: top'>").clone().addClass('img_grayscale').css({ "position": "absolute", "z-index": "998", "opacity": "0" }).insertBefore(el).queue(function () {
+                var el = $(this);
+                el.parent().css({ "width": this.width, "height": this.height });
+                el.dequeue();
+            });
+            this.src = $(this).attr("inactive");
+        });
+
+        // Fade image 
+        $('.partner img').mouseover(function () {
+            $(this).parent().find('img:first').stop().animate({ opacity: 1 }, 1000);
+        });
+        $('.img_grayscale').mouseout(function () {
+            $(this).stop().animate({ opacity: 0 }, 1000);
+        });
+        var scroller = new portfolioScroller({
+            overview: $(".partners-viewport"),
+            viewport: $(".partners-overview"),
+            nextBtn: $(".partners-right"),
+            prevBtn: $(".partners-left"),
+        });
+    });
+</script>

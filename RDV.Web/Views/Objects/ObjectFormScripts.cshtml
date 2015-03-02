@@ -1,0 +1,117 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@model dynamic
+@{
+    EstateObject obj = ViewBag.estateObject;
+}
+<script language="javascript" type="text/javascript">
+
+    // Байндим логику навигации по панели секций и наблюдения за изменениями на форме
+    var formModified = false;
+    $(".observable").change(function () {
+        formModified = true;
+    });
+    $(".properties-sections [section]").click(function () {
+        if ($(this).hasClass("active")) {
+            return;
+        }
+        var id = $("#object-id-field").val();
+        var targetSection = $(this).attr("section");
+        var url = "/objects/" + id + "/" + targetSection;
+        if (!formModified) {
+            window.location.href = url;
+        } else {
+            // Отображаем диалог
+            var dialog = $("#save-changes-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "ДА": function () {
+                        $("#submit-action-field").val(targetSection);
+                        $("#object-form").submit();
+                    },
+                    "НЕТ": function () {
+                        window.location.href = url;
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+    });
+    
+    function rebindListControls() {
+        // Байндинг мультиселектов
+        $(".multiselect").multiselect({
+            noneSelectedText: 'Выберите значения из списка',
+            selectedList: 4,
+            maxWidth: 368
+        });
+
+        // Байндинг сингселектов
+        $(".singleSelect").multiselect({
+            multiple: false,
+            header: 'Выберите одно значение',
+            noneSelectedText: "Выберите значение",
+            selectedList: 1,
+            maxWidth: 368
+        });
+
+        // Байндим всплывающие подсказки на поля
+        $("#object-form [title]").qtip({
+            show: 'mouseenter',
+            hide: 'mouseleave',
+            style: {
+                name: 'green',
+                width: 350,
+                fontSize: 13,
+                border: {
+                    radius: 8,
+                    width: 2
+                },
+                tip: "leftBottom"
+            },
+            position: {
+                corner: {
+                    target: 'rightMiddle',
+                    tooltip: 'leftBottom'
+                }
+            }
+        });
+    }
+    rebindListControls();
+    
+
+    // Байндим сабмит форм на управляющие кнопки
+    $("#form-next-action").bind("click", function () {
+        $("#submit-action-field").val("next");
+        submitForm();
+    });
+    $("#form-prev-action").bind("click", function () {
+        $("#submit-action-field").val("prev");
+        submitForm();
+    });
+    $("#form-finish-action").bind("click", function () {
+        $("#submit-action-field").val("finish");
+        submitForm();
+    });
+
+    function submitForm() {
+        if ($("#client-id-field").length > 0 && $("#client-id-field").val() <= 0) {
+            alert("Вы должны обязательно выбрать клиента из списка клиентов либо создать нового клиента");
+            return;
+        }
+        @if (obj != null && obj.ObjectType != (short) EstateTypes.Land && obj.ObjectType != (short) EstateTypes.House)
+        {
+        <text>   
+        if ($("#street-id-field").length > 0 && $("#street-id-field").val() <= 0) {
+            alert("Вы должны обязательно выбрать улицу из списка улиц перед сохранением");
+            return;
+        }   
+        </text>
+        }
+        $("#object-form").submit();
+    }
+</script>

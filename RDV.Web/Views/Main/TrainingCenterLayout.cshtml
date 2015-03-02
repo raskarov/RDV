@@ -1,0 +1,138 @@
+﻿@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div id="about-navigation">
+        <div class="rdv-nav">
+            <div class="rdv-nav-inner">
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header">
+                        <a href="#">Об учебном центре</a>
+                    </div>
+                    <ul class="rdv-nav-content" style="display: block">
+                        <li>
+                            <a href="/training-center/history">История, миссия</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/docs">Документы</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/teachers">Преподаватели</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/workers">Сотрудники</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/plans">Планы и достижения</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/class">Учебный класс</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header ">
+                        <a href="#">Новости</a>
+                    </div>
+                    <ul class="rdv-nav-content" style="">
+                        <li>
+                            <a href="/training-center/news">Текущие новости</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/news/archive">Архив</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header ">
+                        <a href="">Учебные курсы, тренинги и семинары</a>
+                    </div>
+                    <ul class="rdv-nav-content" style="">
+                        <li>
+                            <a href="/training-center/study/rieltor">Программы для риэлторов</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/study/brifings">Целевой инструктаж</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/study/monitoring">Росфинмониторинг</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/study/list">Тренинги, семинары, мастерклассы</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/study/development">Разработка обучающих программ</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/study/outside">Выездое обучение</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/study/help">Содействие в трудоустройстве</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header ">
+                        <a href="">Дополнительные услуги</a>
+                    </div>
+                    <ul class="rdv-nav-content" style="">
+                        <li>
+                            <a href="/training-center/rent">Аренда класса</a>
+                        </li>
+                        <li>
+                            <a href="/training-center/shop">Магазин профессиональной литературы</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="about-navigation-menu"></div>
+    </div>
+    <div id="about-content">
+        <div id="about-inner-content">
+            <div style="margin-bottom: 20px">
+                <img src="/Content/images/mainpage/rdv-logo-standalone.png" style="float: right"/>
+                <div class="slogan" style="font-family: 'Times New Roman'; font-size: 24px; font-weight: bold; padding-top: 25px">
+                    Тяжело в учении, легко в бою
+                </div>
+                <div class="clear"></div>
+            </div>
+            
+            <div class="static-content">
+                @RenderBody()    
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".rdv-nav-section-header").click(function (e) {
+            if (e.target.name != "A") {
+                $(this).toggleClass("collapsed");
+                $(this).parent().find(".rdv-nav-content").stop(true, true).slideToggle("slow");
+            }
+        });
+        // Устанавливаем активный элемент
+        var relativeUrl = "@Request.Url.LocalPath";
+        $(".rdv-nav .rdv-nav-content li a[href]").each(function (index, item) {
+            var rl = relativeUrl.toLowerCase();
+            var al = $(item).attr("href").toLowerCase();
+            if (rl == al) {
+                if ($(item).parent().hasClass("rdv-nav-section-header")) {
+                    $(this).addClass("active");
+                    return;
+                }
+                $(item).parent().addClass("active").parent().slideDown("slow").prev().removeClass("collapsed");
+                return false;
+            }
+        });
+    });
+</script>

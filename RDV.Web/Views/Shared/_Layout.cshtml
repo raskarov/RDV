@@ -1,0 +1,268 @@
+﻿@using RDV.Domain.Interfaces.Repositories.Content
+@using RDV.Domain.IoC
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Риэлторы Дальнего Востока | @ViewBag.Title</title>
+    @Html.Partial("ScriptsAndCssIncludes")
+    @{
+        var mainMenuItems = Locator.GetService<IMenuItemsRepository>().FindAll().OrderBy(i => i.Position).ToList();
+    }
+</head>
+<body>
+    @* Шапка *@
+    <header class="header">
+        <div class="header-content">
+            @* Логотип РДВ *@
+            <div id="header-logo-wrapper">
+                <div id="rdv-header-logo">
+                    <div id="header-clickable-wrapper">
+                        <div id="header-clickable" onclick="window.location.href='/';"></div>
+                    </div>
+                </div>
+            </div>
+
+            @* Блок контактов и логот ип РГР *@
+            <div id="header-contacts">
+                <div id="header-contacts-title">
+                    Контакты
+                </div>
+                <div id="header-contacts-content">
+                    Юридический адрес: г. Хабаровск
+                    <br />
+                    ул. Ленинградская 44, офис 502,
+                    <br />
+                    Тел.:  +7 (4212) 244-264<br />
+                    Email: <a href="mailto:rdv.partner@mail.ru">rdv.partner@mail.ru</a>
+                </div>
+                <div id="header-rgr-logo">
+                </div>
+            </div>
+
+            @* Блок авторизации или личной информации *@
+            <div id="header-personal">
+                @Html.Partial("PersonalUserBlock")
+                <div id="header-hotline-wrapper">
+                    <div id="header-hot-line">
+                        Горячая линия партнерства:  <span class="large">(4212)</span> <span class="extra-large">244-264</span>
+                    </div>
+                </div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </header>
+    <div id="header-shadow">
+    </div>
+
+    @* Главное меню *@
+    <div id="main-menu">
+        <ul>
+            @foreach (var item in mainMenuItems)
+            {
+                <li><a href="@item.Href">@item.Title</a></li>
+            }
+            @*
+                <li><a href="/about/">О нас</a></li>
+                <li><a href="/members/">Члены РДВ</a></li>
+                <li><a href="/tenders/">Тендеры и аукционы</a></li>
+                <li><a href="/foreign/">Зарубежная недвижимость</a></li>
+                <li><a href="/consulting/">Юридическая консультация</a></li>
+                <li><a href="/about/structure/training/">Учебный центр и сертификация</a></li>*@
+        </ul>
+        <div id="main-menu-top-shadow"></div>
+    </div>
+
+    @* UI нотификатор пользователя  *@
+    @Html.Partial("UINotificator")
+
+    @* Содержимое *@
+    <div id="main-content">
+        @RenderBody()
+    </div>
+    @* Подвал *@
+    <div id="footer-shadow">
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <div id="footer-logo-wrapper">
+                <div id="footer-rdv-logo">
+                </div>
+            </div>
+            <div id="copyrights">
+                Copyright © 2007 - 2013 Некоммерческое Партнерство "Риэлторы Дальнего Востока"
+            </div>
+            <div id="developers">
+                Разработано: <a href="http://softgears.ru">SOFT GEARS</a>
+            </div>
+        </div>
+    </footer>
+
+    @* Блок диалогов *@
+    <div id="dialogs">
+        @Html.Partial("NewClientDialog")
+        @Html.Partial("BugReportDialog")
+    </div>
+
+    @*Блок меню грида*@
+    <div id="menuGrid" style="display:none">
+
+    </div>
+
+    <script type="text/javascript">
+        $(document).click(function (event) {
+            if (($(event.target).closest('#menuGrid').length == 0 && $(event.target).attr('data-toggle') != 'dropdown') || $(event.target).attr('data-toggle-a') == 'link') {
+                $('#menuGrid').hide();
+            }
+        });
+
+        $(".header-tab").find("a").click(function () {
+            $('#menuGrid').hide();
+        });
+</script>
+
+    @* Информация об устаревшем браузере *@
+    <div class="block-overlay obsolete-browser"></div>
+    <div class="block-window obsolete-browser">
+        Уважаемый пользователь, система определила что вы используете очень старую версию вашего браузера, которая не поддерживает современные технологии, что не позволит вам в полной мере насладиться функционалом и дизайном нашего сайта. 
+            Убедительная просьба, обновите свой браузер до последней версии, либо пройдите по любой из указанных ниже ссылок чтобы скачать последнюю версию соответствующего браузера, после чего зайдите на наш сайт снова.
+            <ul>
+                <li><a href="https://www.google.com/chrome/index.html">Google Chrome</a></li>
+                <li><a href="http://download.mozilla.org/">Mozilla Firefox</a></li>
+                <li><a href="http://ru.opera.com/download/">Opera</a></li>
+            </ul>
+        <div align="center">
+            <button onclick="$('.obsolete-browser').hide();">Закрыть</button>
+        </div>
+    </div>
+
+    <a class="up_link uv-icon uv-bottom-left" href="#" ></a>
+
+    <script type="text/javascript">
+        $(function () {
+            $.fn.pageUp = function (args) {
+                $(this).click(function (e) {
+                    e.preventDefault();
+                    $(window).scrollTop(0);
+                })
+            }
+
+            $('.up_link').pageUp();
+            pageupShow();
+        });
+        
+        function pageupShow() {
+            var h = $(window).scrollTop();
+            if (h > 50) {
+                $('.up_link').show();
+            } else {
+                $('.up_link').hide();
+            }
+
+            window.onscroll = function () {
+                var h = $(window).scrollTop();
+                if (h > 50) {
+                    $('.up_link').show();
+                } else {
+                    $('.up_link').hide();
+                }
+            }
+        }
+    </script>
+
+    <script>
+        // Include the UserVoice JavaScript SDK (only needed once on a page)
+        UserVoice = window.UserVoice || []; (function () { var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true; uv.src = '//widget.uservoice.com/mVKSynim0sVLviZLzEvU8Q.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s) })();
+
+        //
+        // UserVoice Javascript SDK developer documentation:
+        // https://www.uservoice.com/o/javascript-sdk
+        //
+
+        // Set colors
+        UserVoice.push(['set', {
+            accent_color: '#6aba2e',
+            trigger_color: 'white',
+            trigger_background_color: '#6aba2e'
+        }]);
+
+        // Identify the user and pass traits
+        // To enable, replace sample data with actual user traits and uncomment the line
+        UserVoice.push(['identify', {
+            //email:      'john.doe@example.com', // User’s email address
+            //name:       'John Doe', // User’s real name
+            //created_at: 1364406966, // Unix timestamp for the date the user signed up
+            //id:         123, // Optional: Unique id of the user (if set, this should not change)
+            //type:       'Owner', // Optional: segment your users by type
+            //account: {
+            //  id:           123, // Optional: associate multiple users with a single account
+            //  name:         'Acme, Co.', // Account name
+            //  created_at:   1364406966, // Unix timestamp for the date the account was created
+            //  monthly_rate: 9.99, // Decimal; monthly rate of the account
+            //  ltv:          1495.00, // Decimal; lifetime value of the account
+            //  plan:         'Enhanced' // Plan name for the account
+            //}
+        }]);
+
+        // Add default trigger to the bottom-right corner of the window:
+        UserVoice.push(['addTrigger', { mode: 'contact', trigger_position: 'bottom-right' }]);
+
+        // Or, use your own custom trigger:
+        //UserVoice.push(['addTrigger', '#id', { mode: 'contact' }]);
+
+        // Autoprompt for Satisfaction and SmartVote (only displayed under certain conditions)
+        UserVoice.push(['autoprompt', {}]);
+    </script>
+
+    @* Скрипт GA *@
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-34024568-3']);
+        _gaq.push(['_setDomainName', 'nprdv.ru']);
+        _gaq.push(['_setAllowLinker', true]);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (d, w, c) {
+            (w[c] = w[c] || []).push(function () {
+                try {
+                    w.yaCounter23575690 = new Ya.Metrika({
+                        id: 23575690,
+                        webvisor: true,
+                        clickmap: true,
+                        trackLinks: true,
+                        accurateTrackBounce: true
+                    });
+                } catch (e) { }
+            });
+
+            var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () { n.parentNode.insertBefore(s, n); };
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+            if (w.opera == "[object Opera]") {
+                d.addEventListener("DOMContentLoaded", f, false);
+            } else { f(); }
+        })(document, window, "yandex_metrika_callbacks");
+    </script>
+    <noscript>
+        <div>
+            <img src="//mc.yandex.ru/watch/23575690" style="position: absolute; left: -9999px;" alt="" />
+        </div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+</body>
+</html>

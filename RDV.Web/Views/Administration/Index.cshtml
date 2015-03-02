@@ -1,0 +1,66 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Core
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Дашбоард";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Dashboard-tab" })
+            <fieldset>
+                <legend>Диапазон данных</legend>
+                с <input type="text" id="start-date-field" class="round field datepicker" placeholder="Начало интервала" value="@DateTimeZone.Now.AddMonths(-6).FormatDate()"/> по <input type="text" id="end-date-field" value="@DateTimeZone.Now.FormatDate()" class="round field datepicker" placeholder="Конец интервала"/>
+            </fieldset>
+            <div class="dashboard-image">
+                <img id="std-image" src="/administration/dashboard/image" alt="Дашбоард" width="99%" height="500px"/>
+            </div>
+            <div class="clear"></div>
+            @if (ViewContext.CurrentUser().HasAnyAdministrativePermission())
+            {
+                <div style="margin: 10px">
+                    <a href="/administration/system-stats">Ежедневные показатели системы</a>    
+                </div>
+            }
+            @if (ViewContext.CurrentUser().HasPermission(Permission.ManagePayments))
+            {
+                <div class="dashboard-image">
+                    <img id="payments1-image" src="/administration/dashboard/payments-summary" alt="График прибыли и активности" width="99%" height="500px"/>
+                </div>
+                <div class="dashboard-image">
+                    <img id="payments2-image" src="/administration/dashboard/payments-companies-summary" alt="График распределения поступлений по компаниям" width="99%" height="500px"/>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    @* Обновляет изображение в ходе изменения данных *@
+    function updateImage() {
+        var startDate = $("#start-date-field").val();
+        var endDate = $("#end-date-field").val();
+        $("#std-image").attr("src", "/administration/dashboard/image?startDate=" + startDate + "&endDate=" + endDate);
+        @if (ViewContext.CurrentUser().HasPermission(Permission.ManagePayments))
+        {
+<text>
+            $("#payments1-image").attr("src", "/administration/dashboard/payments-summary?startDate=" + startDate + "&endDate=" + endDate);
+            $("#payments2-image").attr("src", "/administration/dashboard/payments-companies-summary?startDate=" + startDate + "&endDate=" + endDate);
+</text>
+        }
+    }
+
+    $("#start-date-field").change(function() {
+        updateImage();
+    });
+    $("#end-date-field").change(function() {
+        updateImage();
+    });
+</script>
+

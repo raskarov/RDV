@@ -1,0 +1,79 @@
+﻿@using RDV.Domain.Interfaces.Repositories
+@using RDV.Domain.IoC
+@{
+    Layout = "../Shared/_Layout.cshtml";
+    var companies = Locator.GetService<ICompaniesRepository>().GetActiveCompanies().OrderBy(c => c.Name).ToList();
+    var agents = Locator.GetService<ICompaniesRepository>().GetActiveAgents().AsEnumerable().OrderBy(c => c.ToString()).ToList();
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div id="about-navigation">
+        <div class="rdv-nav">
+            <div class="rdv-nav-inner">
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header collapsed">
+                        <a href="#">Компании (@companies.Count)</a>
+                    </div>
+                    <ul class="rdv-nav-content" style="display: none">
+                        @foreach (var comp in companies)
+                        {
+                            <li>
+                                <a href="/member/@comp.Id">@comp.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="rdv-nav-section">
+                    <div class="rdv-nav-section-header collapsed">
+                        <a href="#">Агенты (@agents.Count)</a>
+                    </div>
+                    <ul class="rdv-nav-content" style="display: none">
+                        @foreach (var agent in agents)
+                        {
+                            <li>
+                                <a href="/members/users/@agent.Id">@agent.ToString()</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="about-navigation-menu"></div>
+    </div>
+    <div id="about-content">
+        <div id="about-inner-content">
+            <div class="static-content">
+                @RenderBody()    
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">    
+    $(document).ready(function () {
+        $(".rdv-nav-section-header").click(function (e) {
+            if (e.target.name != "A") {
+                $(this).toggleClass("collapsed");
+                $(this).parent().find(".rdv-nav-content").stop(true, true).slideToggle("slow");
+            }
+        });
+        // Устанавливаем активный элемент
+        var relativeUrl = "@Request.Url.LocalPath";
+        $(".rdv-nav .rdv-nav-content li a[href]").each(function (index, item) {
+            var rl = relativeUrl.toLowerCase();
+            var al = $(item).attr("href").toLowerCase();
+            if (rl == al) {
+                if ($(item).parent().hasClass("rdv-nav-section-header")) {
+                    $(this).addClass("active");
+                    return;
+                }
+                $(item).parent().addClass("active").parent().slideDown("slow").prev().removeClass("collapsed");
+                return false;
+            }
+        });
+    });
+</script>

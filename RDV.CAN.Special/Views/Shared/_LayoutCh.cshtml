@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/Styles/stylesheets/all.css")" rel="stylesheet" type="text/css" />
+    <link href="/Content/jquery.fancybox.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/jquery.fancybox-buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/modernizr-1.7.min.js")" type="text/javascript"></script>
+    <script src="/Scripts/jquery-1.6.4.min.js" type="text/javascript"></script>
+    <script src="/Scripts/jquery-ui-1.8.24.min.js" type="text/javascript"></script>
+    <script src="/Scripts/jquery.fancybox.pack.js" type="text/javascript"></script>
+    <script src="/Scripts/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="/Scripts/jquery.form.js" type="text/javascript"></script>
+</head>
+<body>
+    <header id="header">
+        <div id="header-content">
+            <div id="call-info" style="position: relative;">
+                <a title="Russian variant" style="position: absolute; left: 0px; top: 0px;" href="/"><img src="http://www.goadventure.lv/skin/frontend/default/goa/images/flag_Russian.png"/></a>
+                <a title="English variant" style="position: absolute; left: 0px; top: 26px;" href="/main/en"><img src="http://rur.bz/img/currencies/USD.png"/></a>
+                <a title="China variant" style="position: absolute; left: 0px; top: 52px;" href="/main/ch"><img src="http://icons.iconarchive.com/icons/custom-icon-design/flag-2/24/China-Flag-icon.png"/></a>
+                <div class="info-line">
+                    要是您拨打 <br/>8-924-417-30-01的话，<br/>我们能回答您所有的问题。
+                </div>
+                <div class="buttons">
+                    <span id="callback-button" onclick="showCallbackDialog();"></span>
+                    <span id="feedback-button" onclick="showQuestionDialog()"></span>
+                </div>
+            </div>
+            <a href="/">
+                <img src="../../Content/images/layout/logo.png" />
+            </a>
+        </div>
+    </header>
+    <div id="content">
+        <div id="content-wrapper">
+            @RenderBody()
+        </div>
+    </div>
+    <footer id="footer">
+        要是您拨打 的话，我们能回答您所有的问题。
+        <div class="name">
+            8-924-417-30-01
+        </div>
+    </footer>
+    <div id="dialogs" style="display: none">
+        @* Диалог заказа звонка *@
+        <div id="callback-dialog" title="Callback" class="dialog">
+            <p class="info">
+                Write your phone and we will call you later</p>
+            <form action="/main/callback" method="POST" id="callback-form">
+                <div class="editor-label">
+                    Your name
+                </div>
+                <div class="editor-field">
+                    <input type="text" class="field round required" maxlength="15" name="name" placeholder="Enter your name" />
+                </div>
+                <div class="editor-label">
+                    Your phone
+                </div>
+                <div class="editor-field">
+                    <input type="text" class="field round required" maxlength="15" name="phone" placeholder="Enter your phone" />
+                </div>
+            </form>
+        </div>
+        <div class="dialog" id="question-dialog" title="Задать вопрос">
+            <p class="info">
+                You can ask any question about this object. 
+            </p>
+            <form action="/main/feedback" method="POST" id="feedback-form">
+            <div class="editor-label">
+                Your name
+            </div>
+            <div class="editor-field">
+                <input type="text" class="field round required" maxlength="15" name="Name" placeholder="Write your name" />
+            </div>
+            <div class="editor-label">
+                Your email
+            </div>
+            <div class="editor-field">
+                <input type="text" class="field round required" maxlength="50" name="Email" placeholder="Write your email" />
+            </div>
+            <div class="editor-label">
+                Your question
+            </div>
+            <div class="editor-field">
+                <textarea class="field round required" maxlength="255" name="Content" placeholder="Enter your question"></textarea>
+            </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+                       @* Отображает диалог заказа звонка *@
+        function showCallbackDialog() {
+            var dialog = $("#callback-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Send": function () {
+                        $("#callback-form").submit();
+                        dialog.dialog("close");
+                    },
+                    "Cancel": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+                       @* Отображает диалог вопроса *@
+        function showQuestionDialog() {
+            var dialog = $("#question-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Send": function () {
+                        dialog.dialog("close");
+                        $("#feedback-form").submit();
+                    },
+                    "Cancel": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-34024568-4']);
+        _gaq.push(['_trackPageview']);
+
+        $(document).ready(function () {
+            $("#feedback-form").validate({
+                rules: {
+                    Name: {
+                        required: true,
+                        maxlength: 255
+                    },
+                    Email: {
+                        required: true,
+                        maxlength: 255,
+                        email: true,
+                    },
+                    Content: {
+                        required: true,
+                        minlength: 10,
+                        maxlength: 255
+                    }
+                },
+                submitHandler: function (form) {
+                    $(form).ajaxSubmit({
+                        success: function () {
+                            alert("Message was sent");
+                        }
+                    });
+                }
+            });
+
+            $("#callback-form").validate({
+                rules: {
+                    name: {
+                        required: true,
+                        maxlength: 10
+                    },
+                    phone: {
+                        required: true,
+                        maxlength: 15,
+                        minlength: 6
+                    }
+                },
+                submitHandler: function (form) {
+                    $(form).ajaxSubmit({
+                        success: function () {
+                            alert("Message was sent");
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (d, w, c) {
+            (w[c] = w[c] || []).push(function () {
+                try {
+                    w.yaCounter21305545 = new Ya.Metrika({
+                        id: 21305545,
+                        webvisor: true,
+                        clickmap: true,
+                        trackLinks: true,
+                        accurateTrackBounce: true,
+                        trackHash: true
+                    });
+                } catch (e) { }
+            });
+
+            var n = d.getElementsByTagName("script")[0],
+            s = d.createElement("script"),
+            f = function () { n.parentNode.insertBefore(s, n); };
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+            if (w.opera == "[object Opera]") {
+                d.addEventListener("DOMContentLoaded", f, false);
+            } else { f(); }
+        })(document, window, "yandex_metrika_callbacks");
+    </script>
+    <noscript><div><img src="//mc.yandex.ru/watch/21305545" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+    
+    <!-- START SNIPPET-GA-ASYNC "seo3@advantika.ru" "09:14 27.05.2013" "jquery joomla" -->
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script type="text/javascript">    var $j = jQuery.noConflict();</script>
+    <script src="//www.advantika.ru/files/async-joomla.js" type="text/javascript" charset='UTF-8'></script>
+    <script type="text/javascript">    var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-41239129-1']); _gaq.push(['_trackPageview']); (function () { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();</script>
+    <!-- END SNIPPET-GA-ASYNC -->
+</body>
+</html>

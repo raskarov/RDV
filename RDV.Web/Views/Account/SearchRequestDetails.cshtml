@@ -1,0 +1,458 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@model RDV.Domain.Entities.SearchRequest
+@{
+    var requestObjects = Model.GetRequestObjects();
+    IList<SearchRequestObject> newObjects = new List<SearchRequestObject>(),
+        acceptedObjects = new List<SearchRequestObject>(),
+        declinedObjects = new List<SearchRequestObject>();
+    foreach (var obj in requestObjects)
+    {
+        switch ((SearchRequestObjectStatus)obj.Status)
+        {
+            case SearchRequestObjectStatus.New:
+                newObjects.Add(obj);
+                break;
+            case SearchRequestObjectStatus.Accepted:
+                acceptedObjects.Add(obj);
+                break;
+            case SearchRequestObjectStatus.Declined:
+                declinedObjects.Add(obj);
+                break;
+            default:
+                // скипаем объект
+                break;
+        }
+    }
+}
+<div class="block">
+    <div class="block-content">
+        <div class="block-inner-content" style="min-height: 50px">
+            <div class="object-details tab-control" id="request-@Model.Id-details">
+                <table width="100%" class="tab-header">
+                    <tr>
+                        <td class="tab-header-item active" target=".request-new-objects">
+                            <span class="tab-header-title">Новые</span>
+                        </td>
+                        <td class="tab-header-item" target=".request-accepted-objects">
+                            <span class="tab-header-title">В работе</span>
+                        </td>
+                        <td class="tab-header-item" target=".request-declined-objects">
+                            <span class="tab-header-title">Отклоненные</span>
+                        </td>
+                    </tr>
+                </table>
+                <div class="tab request-new-objects" style="display: block">
+                    <table class="content-table details-table new-objects-table" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    ИД
+                                </th>
+                                <th>
+                                    Компания
+                                </th>
+                                <th>
+                                    Расположение
+                                </th>
+                                <th>
+                                    Цена
+                                </th>
+                                <th>
+                                    Дата регистрации
+                                </th>
+                                <th>
+                                    Дата изменения цены
+                                </th>
+                                <th>
+                                    Старая цена
+                                </th>
+                                <th>
+                                    Добавлено
+                                </th>
+                                <th>
+                                    Размер бонуса
+                                </th>
+                                <th>
+                                    Тип бонуса
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var newObj in newObjects.OrderByDescending(o => o.EstateObject.AbsoluteBonusSize()))
+                            {
+                                <tr data-id="@newObj.Id">
+                                    <td>
+                                        @newObj.EstateObject.Id
+                                    </td>
+                                    <td>
+                                        @if (newObj.EstateObject.User.Company != null)
+                                        {
+                                            <a href="/member/@newObj.EstateObject.User.CompanyId" target="_blank" title="@newObj.EstateObject.User.Company.Name">@(newObj.EstateObject.User.Company.ShortName ?? newObj.EstateObject.User.Company.Name)</a>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="/objects/@newObj.EstateObject.Id/card" target="_blank">@newObj.EstateObject.Address.ToShortAddressString()</a>
+                                    </td>
+                                    <td>
+                                        @newObj.EstateObject.ObjectMainProperties.Price.FormatPrice()
+                                    </td>
+                                    <td>
+                                        @newObj.EstateObject.GetRegistrationDate().FormatDate()
+                                    </td>
+                                    <td>
+                                        @newObj.EstateObject.GetPriceChangementDate().FormatDate()
+                                    </td>
+                                    <td>
+                                        @newObj.OldPrice.FormatPrice()
+                                    </td>
+                                    <td>
+                                        @newObj.DateCreated.FormatDate()
+                                    </td>
+                                    <td>
+                                        @newObj.EstateObject.ObjectMainProperties.MultilistingBonus.FormatString()
+                                    </td>
+                                    <td>
+                                        @if (newObj.EstateObject.ObjectAdditionalProperties.AgreementType == 354)
+                                        {
+                                            @IdObjectsCache.GetDictionaryValue(newObj.EstateObject.ObjectMainProperties.MultilistingBonusType)    
+                                        }
+                                        
+                                    </td>
+                                    <td class="icons" style="white-space: nowrap">
+                                        <span class="icon-accept" title="Переместить в 'В работе'"></span><span class="icon-decline"
+                                            title="Переместить в 'Отклоненные'"></span>
+                                    </td>
+                                </tr>
+                            }
+                            <tr class="no-items">
+                                <td colspan="11" style="text-align: center !important; padding: 10px">
+                                    Нет данных
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab request-accepted-objects">
+                    <table class="content-table details-table accepted-objects-table" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    ИД
+                                </th>
+                                <th>
+                                    Компания
+                                </th>
+                                <th>
+                                    Расположение
+                                </th>
+                                <th>
+                                    Цена
+                                </th>
+                                <th>
+                                    Дата регистрации
+                                </th>
+                                <th>
+                                    Дата изменения цены
+                                </th>
+                                <th>
+                                    Старая цена
+                                </th>
+                                <th>
+                                    Размер бонуса
+                                </th>
+                                <th>
+                                    Тип бонуса
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var accObj in acceptedObjects.OrderByDescending(o => o.EstateObject.AbsoluteBonusSize()))
+                            {
+                                <tr data-id="@accObj.Id">
+                                    <td>
+                                        @accObj.EstateObject.Id
+                                    </td>
+                                    <td>
+                                        @if (accObj.EstateObject.User.Company != null)
+                                        {
+                                            <a href="/member/@accObj.EstateObject.User.CompanyId" target="_blank" title="@accObj.EstateObject.User.Company.Name">@(accObj.EstateObject.User.Company.ShortName ?? accObj.EstateObject.User.Company.Name)</a>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="/objects/@accObj.EstateObject.Id/card" target="_blank">@accObj.EstateObject.Address.ToShortAddressString()</a>
+                                    </td>
+                                    <td>
+                                        @accObj.EstateObject.ObjectMainProperties.Price.FormatPrice()
+                                    </td>
+                                    <td>
+                                        @accObj.EstateObject.GetRegistrationDate().FormatDate()
+                                    </td>
+                                    <td>
+                                        @accObj.EstateObject.GetPriceChangementDate().FormatDate()
+                                    </td>
+                                    <td>
+                                        @accObj.OldPrice.FormatPrice()
+                                    </td>
+                                    <td>
+                                        @accObj.EstateObject.ObjectMainProperties.MultilistingBonus.FormatString()
+                                    </td>
+                                    <td>
+                                        @if (accObj.EstateObject.ObjectAdditionalProperties.AgreementType == 354)
+                                        {
+                                            @IdObjectsCache.GetDictionaryValue(accObj.EstateObject.ObjectMainProperties.MultilistingBonusType)    
+                                        }
+                                    </td>
+                                    <td class="icons">
+                                        <span class="icon-accept" style="display: none" title="Переместить в 'в Работе'">
+                                        </span><span class="icon-decline" title="Переместить в 'Отклоненные'"></span>
+                                    </td>
+                                </tr>
+                            }
+                            <tr class="no-items">
+                                <td colspan="10" style="text-align: center !important; padding: 10px">
+                                    Нет данных
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab request-declined-objects">
+                    <table class="content-table details-table declined-objects-table" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    ИД
+                                </th>
+                                <th>
+                                    Компания
+                                </th>
+                                <th>
+                                    Расположение
+                                </th>
+                                <th>
+                                    Цена
+                                </th>
+                                <th>
+                                    Дата регистрации
+                                </th>
+                                <th>
+                                    Дата отклонения
+                                </th>
+                                <th>
+                                    Причина отклонения
+                                </th>
+                                <th>
+                                    Детали переноса
+                                </th>
+                                <th>
+                                    Размер бонуса
+                                </th>
+                                <th>
+                                    Тип бонуса
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var decObj in declinedObjects.OrderByDescending(o => o.EstateObject.AbsoluteBonusSize()))
+                            {
+                                <tr data-id="@decObj.Id">
+                                    <td>
+                                        @decObj.EstateObject.Id
+                                    </td>
+                                    <td>
+                                        @if (decObj.EstateObject.User.Company != null)
+                                        {
+                                            <a href="/member/@decObj.EstateObject.User.CompanyId" target="_blank" title="@decObj.EstateObject.User.Company.Name">@(decObj.EstateObject.User.Company.ShortName ?? decObj.EstateObject.User.Company.Name)</a>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="/objects/@decObj.EstateObject.Id/card" target="_blank">@decObj.EstateObject.Address.ToShortAddressString()</a>
+                                    </td>
+                                    <td>
+                                        @decObj.EstateObject.ObjectMainProperties.Price.FormatPrice()
+                                    </td>
+                                    <td>
+                                        @decObj.EstateObject.GetRegistrationDate().FormatDate()
+                                    </td>
+                                    <td>
+                                        @decObj.DateMoved.FormatDateTime()
+                                    </td>
+                                    <td>
+                                        @(decObj.DeclineReasonPrice ? "Цена" : "Другое")
+                                    </td>
+                                    <td class="decline-reason">
+                                        @decObj.DeclineReason
+                                    </td>
+                                    <td>
+                                        @decObj.EstateObject.ObjectMainProperties.MultilistingBonus.FormatString()
+                                    </td>
+                                    <td>
+                                        @if (decObj.EstateObject.ObjectAdditionalProperties.AgreementType == 354)
+                                        {
+                                            @IdObjectsCache.GetDictionaryValue(decObj.EstateObject.ObjectMainProperties.MultilistingBonusType)    
+                                        }
+                                    </td>
+                                    <td class="icons">
+                                        <span class="icon-accept" title="Преместить 'В Работе'"></span><span class="icon-decline"
+                                            style="display: none" title="Переместить в 'Отклоненные'"></span>
+                                    </td>
+                                </tr>
+                            }
+                            <tr class="no-items">
+                                <td colspan="10" style="text-align: center !important; padding: 10px">
+                                    Нет данных
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="decline-reason-dialog dialog" id="decline-reason-dialog-@Model.Id" title="Причина отклонения" style="display: none">
+                    <form>
+                    <div class="editor-label">
+                        Причина отклонения
+                    </div>
+                    <div class="editor-field">
+                        <input type="radio" name="declinePrice" class="radio" value="true" checked="checked"/>
+                        Цена
+                    </div>
+                        <div class="editor-field">
+                            <input type="radio" name="declinePrice" value="false" />
+                            другая
+                        </div>
+                        <div class="editor-label">
+                            Детали
+                        </div>
+                    <div class="editor-field">
+                        <textarea name="reason" class="field round" id="decline-reason-field-@Model.Id" placeholder="Введите причину отклонения"></textarea>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#request-@Model.Id-details .tab-header-item").click(function (e) {
+            $("#request-@Model.Id-details .tab-header-item").removeClass("active");
+            $("#request-@Model.Id-details .tab").hide();
+            $("#request-@Model.Id-details " + $(this).attr("target")).show();
+            $(this).addClass("active");
+        });
+        var parentSelector = "#request-@Model.Id-details";
+        var newObjectsTable = $(parentSelector + " .new-objects-table");
+        var acceptedTable = $(parentSelector + " .accepted-objects-table");
+        var declinedTable = (parentSelector + " .declined-objects-table");
+        checkNoDataRow(newObjectsTable);
+        checkNoDataRow(acceptedTable);
+        checkNoDataRow(declinedTable);
+        updateHeader(newObjectsTable, ".request-new-objects", "Новые");
+        updateHeader(acceptedTable, ".request-accepted-objects", "В работе");
+        updateHeader(declinedTable, ".request-declined-objects", "Отклоненные");
+        
+        // Байндинг операций
+        // Принять
+        $(parentSelector + " .icon-accept").live("click", function(e) {
+            var tr = $(this).parent().parent();
+            $(tr).remove();
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '/account/search-requests/move-object',
+                data: {
+                    id: $(this).parent().parent().data("id"),
+                    op: 'accept'
+                },
+                success: function(data) {
+                    if (data.success == true) {
+                        var html = "<tr data-id='"+data.obj.id+"'><td>" + data.obj.objectId + "</td><td><a href='/member/"+data.obj.compId+"' title='"+data.obj.compTitle+"'>"+data.obj.compName+"</a></td><td><a href='/objects/" + data.obj.objectId + "/card' target='_blank'>" + data.obj.address + "</a></td><td>" + data.obj.price + "</td><td>" + data.obj.dateRegistred + "</td><td>" + data.obj.datePriceChanged + "</td><td>" + data.obj.oldPrice + "</td><td>"+data.obj.bonus+"</td><td>"+data.obj.bonusType+"</td><td class='icons'><span class='icon-decline' title='Переместить в \"Отклоненные\"'></span></td></tr>";
+                        $(html).prependTo($(acceptedTable).find("tbody"));
+                        checkNoDataRow(newObjectsTable);
+                        checkNoDataRow(acceptedTable);
+                        checkNoDataRow(declinedTable);
+                        updateHeader(newObjectsTable, ".request-new-objects", "Новые");
+                        updateHeader(acceptedTable, ".request-accepted-objects", "В работе");
+                        updateHeader(declinedTable, ".request-declined-objects", "Отклоненные");
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            });
+        });
+        // Отклонить
+        $(parentSelector + " .icon-decline").live("click", function(e) {
+            var self = $(this);
+            var selector = "#decline-reason-dialog-@Model.Id";
+            $(selector).find("[name='reason']").val("");
+            $(selector).find(".radio").attr("checked","checked");
+            var dialog = $(selector).dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Отклонить": function () {
+                        dialog.dialog("close");
+                        var reason = $("#decline-reason-field-@Model.Id").val();
+                        var tr = $(self).parent().parent();
+                        $(tr).remove();
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '/account/search-requests/move-object',
+                            data: {
+                                id: $(self).parent().parent().data("id"),
+                                op: 'decline',
+                                reason: reason,
+                                declinePrice: $("#decline-reason-dialog-@Model.Id").find(":checked").val()
+                            },
+                            success: function(data) {
+                                if (data.success == true) {
+                                    dialog.dialog("close");
+                                    var html = "<tr data-id='"+data.obj.id+"'><td>" + data.obj.objectId + "</td><td><a href='/member/"+data.obj.compId+"' title='"+data.obj.compTitle+"'>"+data.obj.compName+"</a></td><td><a href='/objects/" + data.obj.objectId + "/card' target='_blank'>" + data.obj.address + "</a></td><td>" + data.obj.price + "</td><td>" + data.obj.dateRegistred + "</td><td>" + data.obj.dateMoved + "</td><td>"+(data.obj.declinePrice ? "Цена":"Другое")+"</td><td class='decline-reason'>" + data.obj.reason + "</td><td>"+data.obj.bonus+"</td><td>"+data.obj.bonusType+"</td><td class='icons'><span class='icon-accept' title='Переместить в \"В работе\"'></span></td></tr>";
+                                    $(html).prependTo($(declinedTable).find("tbody"));
+                                    checkNoDataRow(newObjectsTable);
+                                    checkNoDataRow(acceptedTable);
+                                    checkNoDataRow(declinedTable);
+                                    updateHeader(newObjectsTable, ".request-new-objects", "Новые");
+                                    updateHeader(acceptedTable, ".request-accepted-objects", "В работе");
+                                    updateHeader(declinedTable, ".request-declined-objects", "Отклоненные");
+                                } else {
+                                    alert(data.msg);
+                                }
+                            }
+                        });
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+            
+        });
+    });
+    
+    @* Проверяет, прячет или показывает ряд насчет наличия или отсутсвия данных в указанной таблице *@
+    function checkNoDataRow(table) {
+        var count = $(table).find("tbody").find("tr").length;
+        if (count <= 1) {
+            $(table).find(".no-items").show();
+        } else {
+            $(table).find(".no-items").hide();
+        }
+    }
+    
+    function updateHeader(table, headerClass, title) {
+        var count = $(table).find("tbody").find("tr").length - 1;
+        $("#request-@Model.Id-details").find("[target='"+headerClass+"']").find("span").text(title + " (" + count + ")");
+    }
+</script>

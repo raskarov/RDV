@@ -1,0 +1,76 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Domain.Infrastructure.Misc
+@using RDV.Web.Classes.Caching
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Search.SearchResultsModel
+<table class="content-table">
+    <thead>
+        <tr>
+            <th>Агенство
+            </th>
+            <th>Тип объекта
+            </th>
+            <th>Адрес
+            </th>
+            <th>Цена
+            </th>
+            <th>Фото
+            </th>
+            <th>Телефон агента
+            </th>
+            @if (ViewContext.IsAuthentificated())
+            {
+                <th>Размер бонуса
+                </th>
+                <th>Тип бонуса
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model.SearchResults)
+        {
+            <tr class="@(obj.ObjectMainProperties.SpecialOffer == true ? "special" : "")">
+                <td>
+                    @if (obj.User.Company != null)
+                    {
+                        <a href="/member/@obj.User.CompanyId" target="_blank" title="@obj.User.Company.Name">@(obj.User.Company.ShortName ?? obj.User.Company.Name)</a>
+                    }
+                </td>
+                <td>
+                    @(((EstateTypes)obj.ObjectType).GetEnumMemberName())
+                </td>
+                <td>
+                    <a href="/objects/@obj.Id/card" target="_blank">@obj.Address.ToShortAddressString()</a>
+                </td>
+                <td>
+                    @obj.ObjectMainProperties.Price.FormatPrice() @IdObjectsCache.GetDictionaryValue(obj.ObjectMainProperties.Currency)
+                </td>
+                <td>
+                    @if (obj.GetObjectsMedia(true).Count > 0)
+                    {
+                        <span class="edit-row icon-photos" title="Фотографии"></span> 
+                    }
+                </td>
+                <td>
+                    @obj.User.Phone.FormatPhoneNumber()
+                </td>
+                @if (ViewContext.IsAuthentificated())
+                {
+                    <td>
+                        @if (obj.ObjectAdditionalProperties.AgreementType == 354)
+                        {
+                            @obj.ObjectMainProperties.MultilistingBonus.FormatString()
+                        }
+                    </td>
+                    <td>
+                        @if (obj.ObjectAdditionalProperties.AgreementType == 354)
+                        {
+                            @IdObjectsCache.GetDictionaryValue(obj.ObjectMainProperties.MultilistingBonusType)    
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

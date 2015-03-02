@@ -1,0 +1,491 @@
+input[type='text'], .round
+	background-color: white
+	border: 1px solid #d2d2d2
+	border-radius: 5px
+	height: 21px
+	font-size: 12px
+	line-height: 21px
+	padding-left: 5px
+
+textarea.round
+	background-color: white
+	border: 1px solid #d2d2d2
+	border-radius: 5px
+	height: 21px
+	font-size: 12px
+	line-height: 21px
+	padding-left: 5px
+	height: 70px
+
+.header-input
+	padding: 2.5px 0
+	position: relative
+
+	input[type='text'], input[type='password']
+		background-color: #5bb38b
+		width: 150px
+		height: 19px
+		color: #bde1d1
+		border-radius: 0
+		border: none
+		padding: 0 5px
+
+	input:-webkit-input-placeholder, input:-moz-placeholder
+		color: #bde1d1 !important
+
+	#header-auth-submit
+		position: absolute
+		width: 27px
+		height: 19px
+		background: url(../../images/masterpage/header-auth-submit.png) left top no-repeat
+		border: 0
+		right: 0px
+		top: 3px
+		cursor: pointer
+
+		&:hover
+			background: url(../../images/masterpage/header-auth-submit-active.png) left top no-repeat
+
+.block
+	width: 100%
+
+	.block-header
+		height: 25px
+		margin-bottom: 6px
+
+		.block-icon
+			height: 25px
+			width: 25px
+			float: left
+			margin-right: 5px
+
+		.block-title
+			margin-left: 5px
+			font-size: 20px
+			color: #666666
+			font-family: $content-header-font
+			padding-top: 3px
+
+
+
+	.block-content
+		border: 1px solid #cacaca
+		border-radius: $block-border-radius
+
+		.block-inner-content
+			border: 1px solid white
+			background-color: #f0f0f0
+			border-radius: $block-border-radius
+			position: relative
+			overflow: hidden
+
+.link
+	color: green
+	margin-top: 5px
+	cursor: pointer
+
+	&:hover
+		text-decoration: underline
+
+.tab-control
+	.tab-header
+
+		td
+			padding: 0px !important
+
+		.tab-header-item
+			background-color: #d2d2d2
+			font-size: 13px
+			color: #3d3d3d
+			text-align: center
+			cursor: pointer
+			min-width: 80px
+			border-right: 4px solid #f4f4f4
+
+			&.active, &:hover
+				background-color: #98cf6b !important
+
+			.tab-header-title
+				padding-top: 10px
+				padding-bottom: 10px
+
+			&:first-child
+				border-top-left-radius: $block-border-radius
+
+			&:last-child
+				border-top-right-radius: $block-border-radius
+				border-right: none
+
+	.tab
+		display: none
+		padding: 10px
+
+form
+	fieldset
+		border: 0px
+		marin-bottom: 5px 0 !important
+		margin-bottom: 15px !important
+
+		legend, .legend
+			font-size: 18px
+			font-family: $content-header-font
+			color: #666666
+			margin-bottom: 10px
+
+
+	.editor-label
+		margin: 5px 0
+		font-size: 12px
+		color: #323232
+
+	.editor-field
+		margin: 5px 0px
+		margin-bottom: 10px
+
+	.field
+		width: 220px
+
+	.field-small
+		width: 160px
+
+	.error
+		font-size: 12px
+		color: red
+		display: block
+		margin-top: 3px
+		
+	.readonly
+		background-color: #e5e5e5
+
+	.field-required
+		background-color: #ffebeb !important
+
+	.required-label
+		color: red !important
+
+	.valid
+		border-color: #90ff65
+		font-size: 12px
+		display: block
+		margin-top: 3px
+
+	#submit-button-wrapper
+		margin-top: 20px
+		width: 100%
+		text-align: left
+
+		#submit-button
+			width: 95px
+			height: 29px
+			background: url(../../images/common/submit-button.png) left top no-repeat
+			cursor: pointer
+
+.page-form-container
+	.field
+		width: 50%
+
+	.field-small
+		width: 25%
+
+	.field-large
+		width: 98%
+
+	.field-full
+		width: 100%
+
+	textarea.field-large
+		min-height: 300px
+
+.dialog
+
+	.field
+		width: 99%
+
+.action-table
+	width: 100%
+	margin: 5px
+
+	tr
+		vertical-align: top
+
+		td
+			vertical-align: top
+			padding: 5px
+
+			#action-menu
+				min-width: 160px
+				max-width: 260px
+				border-top-right-radius: 5px
+				border-bottom-right-radius: 5px
+				overflow: hidden
+
+				#action-menu-header
+					background: #229963
+					background: -moz-linear-gradient(top, #229963 0%, #4bb168 100%)
+					background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#229963), color-stop(100%,#4bb168))
+					background: -webkit-linear-gradient(top, #229963 0%,#4bb168 100%)
+					background: -o-linear-gradient(top, #229963 0%,#4bb168 100%)
+					background: -ms-linear-gradient(top, #229963 0%,#4bb168 100%)
+					background: linear-gradient(to bottom, #229963 0%,#4bb168 100%)
+					filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#229963', endColorstr='#4bb168',GradientType=0 )
+					padding: 12px 1px
+					text-align: center
+					font-family: $content-header-font
+					color: white
+					font-size: 18px
+					white-space: nowrap
+
+				ul
+					list-style-type: disc !important
+					list-style-position: inside
+					padding: 10px 13px
+					border: 1px solid #9c9c9c
+					border-top: none
+					background-color: #ffffff
+					border-bottom-right-radius: 5px
+
+					li
+						padding: 7px 5px
+						list-style-type: disc !important
+						list-style-position: inside
+
+						a
+							font-size: 13px
+							color: #0a8149
+
+							&:hover
+								text-decoration: underline
+
+					.separator
+						padding: 0px
+						height: 31px
+						width: 100%
+						background: url(../../images/mainpage/video-block-separator.png) center center no-repeat
+
+
+.content-table
+	width: 98%
+	border: none
+	border-radius: 5px
+	border: 1px solid #a1a1a1
+	font-size: 12px
+
+	thead
+		tr
+			th
+				vertical-align: middle
+				background-color: #dfdfdf
+				border: 1px solid #a1a1a1
+				padding: 5px
+				color: #505050
+				font-weight: bold
+
+			th.icons
+				min-width: 40px
+
+			th.checkbox-wrapper
+				width: 24px
+
+			th:first-child
+				border-top-left-radius: 5px
+
+	tbody
+		tr
+			td
+				border: 1px solid #a1a1a1
+				padding: 5px
+				vertical-align: middle
+				background-color: #ffffff
+				text-align: center
+
+				&.no-bottom
+					border-bottom-color: #FFFFFF
+
+				&.no-top
+					border-top-color: #FFFFFF
+
+		tr.even
+			td
+				background-color: #f6f6f6
+
+				&.no-bottom
+					border-bottom-color: #f6f6f6
+
+				&.no-top
+					border-top-color: #f6f6f6
+
+		td.sub-title
+			text-align: center !important
+			background-color: #a9a9a9 !important
+			font-weight: bold
+			color: white
+
+		tr.bold
+			td
+				font-weight: bold !important
+
+				a
+					font-weight: bold !important
+
+		tr.special
+			background-color: #FFFF66 !important
+
+			td
+				background-color: transparent !important
+
+.object-details
+	.tab-header
+		.tab-header-item
+			border-left: 0 !important
+			border-top: 0 !important
+			border-bottom: 0 !important
+
+fieldset
+	margin: 15px
+
+	legend
+		font-size: 14px
+		font-family: Arial
+		margin-bottom: 5px
+
+
+
+.icon-edit
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-edit.png) left top no-repeat
+	cursor: pointer
+
+.icon-delete
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-delete.png) left top no-repeat
+	cursor: pointer
+
+.icon-details
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-details.png) left top no-repeat
+	cursor: pointer
+
+.icon-view
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-object-card.png) left top no-repeat
+	cursor: pointer
+
+.icon-change-state
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-object-change-status.png) left top no-repeat
+	cursor: pointer
+
+.icon-change-agent
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-object-change-agent.png) left top no-repeat
+	cursor: pointer
+
+.icon-photos
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-object-photos.png) left top no-repeat
+	cursor: pointer
+
+.icon-details
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-more-info.png) left top no-repeat
+	cursor: pointer
+
+.icon-history
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-history.png) left top no-repeat
+	cursor: pointer
+
+.icon-accept
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-accept.png) left top no-repeat
+	cursor: pointer
+
+.icon-decline
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-decline.png) left top no-repeat
+	cursor: pointer
+
+.icon-status-info
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-status-info.png) left top no-repeat
+	cursor: pointer
+
+.icon-money
+	width: 16px
+	height: 16px
+	background: url(../../images/common/icon-money.png) left top no-repeat
+	cursor: pointer
+
+.ui-autocomplete-loading
+	background: white url(../../images/common/green-ajax.gif) right center no-repeat
+
+.rdv-nav
+	border: 1px solid #cacaca
+	border-radius: $block-border-radius
+
+	.rdv-nav-inner
+		border: 1px solid white
+		background-color: #f0f0f0
+		border-radius: $block-border-radius
+		position: relative
+		overflow: hidden
+		padding: 18px
+
+		.rdv-nav-section
+			border-bottom: 1px solid #e5e5e5
+			padding-bottom: 5px
+
+			.rdv-nav-section-header
+				border-bottom: 1px solid #e5e5e5
+				padding-bottom: 5px
+				padding-left: 15px
+				margin-top: 4px
+				background: url(../../images/common/rdvnavup.png) left center no-repeat
+				cursor: pointer
+
+				&.collapsed
+					border-bottom: 0 !important
+					background: url(../../images/common/rdvnavdown.png) left center no-repeat !important
+
+				a
+					color: #279805
+					font-size: 13px
+					padding: 2px 3px
+
+					&:hover, &.active
+						background: #888888
+						border-radius: 5px
+						color: white
+
+			.rdv-nav-content
+				li
+					padding: 3px
+					padding-left: 20px
+					padding-top: 0px
+					margin: 3px 0px
+					border-radius: 3px
+					margin-left: 10px
+
+					&:hover, &.active
+						background: #888888 url(../../images/common/rdvnawwhite.png) 6px center no-repeat
+
+						a
+							color: white
+					a
+						color: black
+						text-decoration: none
+						font-size: 12px
+
+

@@ -1,0 +1,184 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.ServiceType>
+
+@{
+    ViewBag.Title = "Управление услугами";
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Services-tab" })
+            @* Контейнер лейаута страницы *@
+            <table class="action-table">
+                <tbody>
+                    <tr>
+                        <td width="150px">
+                            @* Меню действий *@
+                            <div id="action-menu" style="width: 150px" cellspacing="0">
+                                <div id="action-menu-header">
+                                    Услуги
+                                </div>
+                                <ul id="action-menu-content">
+                                    <li><a href="/administration/services/add" id="services-add-action">Добавить</a> </li>
+                                    <li><a href="#" id="services-edit-action">Редактировать </a> </li>
+                                    <li><a href="#" id="services-change-status-action">Изменить статус</a> </li>
+                                    <li><a href="#" id="services-view-logs-action">Посмотреть логи</a> </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="100%">
+                            @* Таблица *@
+                            <div id="objects-table-wrapper">
+                                <div id="objects-tabs-header">
+                                    <div class="header-tab active">
+                                        <a href="#active-tab" sharp="active">Активные (@Model.Count(o => o.ServiceStatus == 1))</a>
+                                    </div>
+                                    <div class="header-tab">
+                                        <a href="#draft-tab" sharp="draft">Неактивные (@Model.Count(o => o.ServiceStatus == 0))</a>
+                                    </div>
+                                    
+                                    <div class="clear">
+                                    </div>
+                                </div>
+                                <div id="objects-tabs">
+                                    <div class="object-tab object-tab-active" id="active-tab">
+                                        @Html.Partial("ServicesTable",Model.Where(s => s.ServiceStatus == 1).ToList())
+                                    </div>
+                                    <div class="object-tab" id="draft-tab" style="display: none">
+                                        @Html.Partial("ServicesTable",Model.Where(s => s.ServiceStatus == 0).ToList())
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clear">
+            </div>
+        </div>
+    </div>
+</div>
+@* Диалог изменения статуса у услуги *@
+<div id="change-service-status-dialog" title="Изменение статуса у услуг" class="dialog"
+    style="display: none; padding-top: 20px">
+    <form action="/administration/service/change-status" method="POST" id="change-status-form">
+    <input type="hidden" name="serviceIds" id="service-ids-field" value="-1" />
+    <div class="editor-label">
+        Новый статус
+    </div>
+    <div class="editor-field">
+        <select id="objects-agent-field" name="newStatus" class="field round">
+            <option value="0">Неактивна</option>
+            <option value="1">Активна</option>
+        </select>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    
+    // Переключаем глобальную функцию получения выбранных элементов в таблице
+    getSelectedTableItems = function() {
+        var result = [];
+        $(".object-tab-active .content-table tbody tr input:checked").each(function (index, item) {
+            result.push($(item).parent().parent().data("item-id"));
+        });
+        return result;
+    };
+    
+    function showChangeServiceStatusDialog(objectIds) {
+        $("#service-ids-field").val(objectIds);
+            // Отображаем диалог
+            var dialog = $("#change-service-status-dialog").dialog({
+                autoOpen: true,
+                resizable: false,
+                modal: true,
+                buttons: {
+                    "Сохранить": function () {
+                        $("#change-status-form").submit();
+                    },
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                }
+            });
+        }
+
+    $(document).ready(function () {
+        @* Переключение закладок у объекта *@
+        $("#objects-tabs-header .header-tab a").click(function() {
+            $("#objects-tabs-header .header-tab").removeClass("active");
+            $("#objects-tabs").find(".object-tab").removeClass("object-tab-active").hide();
+            var target = $(this).attr("href");
+            $(this).parent().addClass("active");
+            $(target).addClass("object-tab-active").show();
+            $(".statusSection").val($(this).attr("sharp"));
+            return false;
+        });
+        
+        @*Переход на страницу редактирования *@
+        $(".icon-edit").click(function() {
+            var id = $(this).parent().parent().data("item-id");
+            window.location.href = '/administration/services/edit/' + id;
+            return false;
+        });
+
+        @* Изменение статуса *@
+        $(".icon-change-state").click(function() {
+            var id = $(this).parent().parent().data("item-id");
+            showChangeServiceStatusDialog(id);
+            return false;
+        });
+
+        @* Просмотр истории вызовов *@
+        $(".icon-history").click(function() {
+            var id = $(this).parent().parent().data("item-id");
+            window.location.href = '/administration/services/logs/' + id;
+            return false;
+        });
+
+        @* Клик редактировать *@
+        $("#services-edit-action").click(function() {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                alert("Выберите услугу для редактирования");
+                return false;
+            }
+            window.location.href = '/administration/services/edit/' + ids[0];
+            return false;
+        });
+
+        @* Клик переместить *@
+        $("#services-change-status-action").click(function() {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            var idsStr = "";
+            $.each(ids, function(index, item) {
+                idsStr += item + ',';
+            });
+            showChangeServiceStatusDialog(idsStr);
+            return false;
+        });
+
+        @* Клик логин *@
+        $("#services-view-logs-action").click(function() {
+            var ids = getSelectedTableItems();
+            if (ids.length == 0) {
+                return false;
+            }
+            window.location.href = '/administration/services/logs/' + ids[0];
+            return false;
+        });
+    });
+</script>

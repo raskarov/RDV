@@ -1,0 +1,123 @@
+﻿@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.List<RDV.Domain.Entities.Payment>
+
+@{
+    ViewBag.Title = "Кошелек пользователя";
+}
+<div id="page">
+    @* Заголовок страницы *@
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+
+    <div class="page-content">
+        <div class="page-account-content">
+            @* Разделы личного кабинета *@
+            @Html.Partial("AccountTabs", new TabOptionsModel() { SelectedTab = "Profile-tab" })
+            
+            <div class="info" style="text-align: right;">
+                В данной таблице отражена информация о движении денежных<br/> средств на вашем внутреннем лицевом счете (кошельке)
+            </div>
+            
+            <div class="info" style="float: right; font-size: 16px">
+                Ваш баланс составляет: <b>@ViewContext.CurrentUser().GetAccountBalance().ToString("0.00")</b> рублей
+            </div>
+            
+            <div class="info" style="font-size: 16px; padding-top: 7px">
+                <a href="javascript:showPaymentDialog()">Пополнить кошелек</a>
+            </div>
+
+            @* Таблица *@
+            <table class="content-table" id="statistics-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Дата операции 
+                        </th>
+                        <th>
+                            Тип
+                        </th>
+                        <th>
+                            Сумма, рублей
+                        </th>
+                        <th>
+                            Описание
+                        </th>
+                        <th>
+                            Оплачен
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count > 0)
+                    {
+                        foreach (var payment in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @payment.DateCreated
+                                </td>
+                                <td>
+                                    @(((PaymentDirection)payment.Direction).GetEnumMemberName())
+                                </td>
+                                <td>
+                                    @payment.Amount
+                                </td>
+                                <td>
+                                    @payment.Description
+                                </td>
+                                <td>
+                                    @(payment.Payed ? "Да" : "Нет")
+                                </td>
+                            </tr>
+                        }
+                    } else
+                    {
+                    <tr>
+                        <td colspan="5">
+                            <div style="text-align: center">Нет информации о движении денежных средств</div>
+                        </td>
+                    </tr>    
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="new-payment-dialog" title="Пополнение кошелька" class="dialog" style="display: none">
+    <p style="margin: 10px 0px; margin-top: 0">Укажите сумму, на которую вы хотите пополнить ваш кошелек. </p>
+    <p style="margin: 10px 0px;">Для приема платежей используется система ROBOKASSA </p>
+    <p style="margin: 10px 0px;">Способ оплаты можно будет выбрать на следующем шаге </p>
+    <form action="/account/profile/new-payment" id="new-payment-form" method="POST">
+        <div class="editor-label">
+            Сумма для зачисления (в рублях)
+        </div>
+        <div class="editor-field">
+            <input type="number" id="new-payment-amount-field" name="amount" class="round field required" placeholder="Введите число"/>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" language="javascript">
+    function showPaymentDialog() {
+        var dialog = $("#new-payment-dialog").dialog({
+            autoOpen: true,
+            resizable: false,
+            modal: true,
+            width: 380,
+            maxHeight: window.innerHeight * 0.8,
+            buttons: {
+                "Пополнить": function () {
+                    $("#new-payment-form").submit();
+                },
+                "Закрыть": function () {
+                    dialog.dialog("close");
+                }
+            }
+        });
+    }
+</script>

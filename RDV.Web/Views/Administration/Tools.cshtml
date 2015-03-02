@@ -1,0 +1,72 @@
+﻿@model IList<RDV.Domain.Interfaces.Infrastructure.ITool>
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@{
+    ViewBag.Title = "Системые инструменты";
+}
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @* Разделы панели управления *@
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Tools-tab" })
+            @* Контейнер лейаута страницы *@
+            
+            @* Таблица *@
+            <table class="content-table" id="settings-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Наименование 
+                        </th>
+                        <th>
+                            Статус
+                        </th>
+                        <th>
+                            Интервал повторения
+                        </th>
+                        <th>
+                            Последний запуск
+                        </th>
+                        <th>
+                            Последнее завершение
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var tool in Model)
+                    {
+                        <tr item-id="@tool.Id">
+                            <td>
+                                @tool.Title
+                            </td>
+                            <td>
+                                @tool.State.GetEnumMemberName()
+                            </td>
+                            <td>
+                                @tool.Interval.GetEnumMemberName()
+                            </td>
+                            <td>
+                                @tool.LastLaunch.FormatDateTime()
+                            </td>
+                            <td>
+                                @tool.LastCompleted.FormatDateTime()
+                            </td>
+                            <td>
+                                
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

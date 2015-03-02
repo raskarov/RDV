@@ -1,0 +1,166 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Enums
+@using RDV.Web.Classes.Extensions
+@model RDV.Web.Models.Account.ObjectsList.ObjectsListViewModel
+@{
+    var currentUser = ViewContext.CurrentUser();
+    bool needToShowAgentColumn = false, needToShowCompanyColumn = false;
+    switch (Model.ListLocation)
+    {
+        case ObjectsListLocation.MyObjects:
+            needToShowAgentColumn = false;
+            needToShowCompanyColumn = false;
+            break;
+        case ObjectsListLocation.Favourites:
+            needToShowAgentColumn = true;
+            needToShowCompanyColumn = true;
+            break;
+        case ObjectsListLocation.CompanyObjects:
+            needToShowAgentColumn = true;
+            needToShowCompanyColumn = false;
+            break;
+        case ObjectsListLocation.AllObjects:
+            needToShowAgentColumn = true;
+            needToShowCompanyColumn = true;
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+    var colSpan = 8;
+    if (needToShowAgentColumn)
+    {
+        colSpan++;
+    }
+    if (needToShowCompanyColumn)
+    {
+        colSpan++;
+    }
+    var objects = Model.LoadedObjects;
+    if (Model.CustomStatusFilter.HasValue)
+    {
+        objects = objects.Where(o => o.Status == Model.CustomStatusFilter.Value).ToList();
+    }
+}
+<table class="content-table" id="objects-table">
+    <thead>
+        <tr>
+            <th class="checkbox-wrapper">
+                <input type="checkbox" id="select-all-checkbox" value="true" />
+            </th>
+            <th>
+                ИД
+            </th>
+            <th>
+                Расположение
+            </th>
+            <th>
+                Примечания
+            </th>
+            <th>
+                Цена
+            </th>
+            @if (needToShowAgentColumn)
+            {
+                <th>
+                    Агент
+                </th>
+            }
+            @if (needToShowCompanyColumn)
+            {
+                <th>
+                    Компания
+                </th>
+            }
+            <th class="icons" width="5%">
+            </th>
+            <th class="expand">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (objects.Count > 0)
+        {
+            foreach (var loadedObject in objects)
+            {
+            <tr data-item-id="@loadedObject.Id">
+                <td class="checkbox-wrapper">
+                    <input type="checkbox" id="select-@loadedObject.Id-checkbox" value="true"/>
+                </td>
+                <td>@loadedObject.Id
+                </td>
+                <td>@loadedObject.Address
+                </td>
+                <td>@loadedObject.Notes
+                </td>
+                <td>@loadedObject.Price
+                </td>
+                @if (needToShowAgentColumn)
+                {
+                    <td>
+                        @loadedObject.EstateAgent.ToString()
+                    </td>
+                }
+                @if (needToShowCompanyColumn)
+                {
+                    <td>
+                        @(loadedObject.EstateAgent.Company != null ? loadedObject.EstateAgent.Company.Name : "Вне компании")
+                    </td>
+                }
+                <td style="white-space: nowrap;">
+                    @* Формируем набор иконок *@ @* Просмотр карточки объекта *@ <a target="_blank" href="/objects/@loadedObject.Id/card"><span class="edit-row icon-view"
+                        title="Карточка объекта"></span></a>@* Редактирование *@
+                    @if (currentUser.CanEditObject(loadedObject))
+                    {
+                        <span class="edit-row icon-edit" title="Редактировать"></span>
+                    }
+                    @* Изменение статуса *@
+                    @if (currentUser.CanChangeStatus(loadedObject))
+                    {
+                        <span class="edit-row icon-change-state" title="Изменить статус"></span>
+                    }
+                    @* Изменение риелтора *@
+                    @if (currentUser.HasPermission(Permission.ChangeObjectAgent))
+                    {
+                        <span class="edit-row icon-change-agent" title="Изменить агента"></span>
+                    }
+                    @* Просмотр фото *@
+                    @if(loadedObject.HasPhotos)
+                    {
+                        <span class="edit-row icon-photos" title="Фотографии"></span>    
+                    }
+                    @* История объекта *@
+                    <span class="edit-row icon-history" title="История статусов"></span>
+                    @* Информация о статусе *@
+                    @if (loadedObject.Status != EstateStatuses.Draft && loadedObject.Status != EstateStatuses.Active)
+                    {
+                        <span class="edit-row icon-status-info" title="Информация о статусе"></span>    
+                    }
+                    @* Изменение цены *@
+                    @if (loadedObject.Status == EstateStatuses.Draft || loadedObject.Status == EstateStatuses.Active)
+                    {
+                        <span class="edit-row icon-money" title="Изменение цены"></span>
+                    }
+                </td>
+                <td>
+                    @* Просмотр развенутой информации по объекту *@ 
+                    <span class="edit-row icon-details" title="Развернутая информация"></span>
+                    <img class="ajax-indicator" src="/Content/images/common/green-ajax.gif" style="display: none" />
+                </td>
+            </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="@colSpan">
+                    <div style="text-align: center">
+                        Нет данных для отображения</div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script language="javascript" type="text/javascript">
+    
+</script>

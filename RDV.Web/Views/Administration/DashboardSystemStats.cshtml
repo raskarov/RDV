@@ -1,0 +1,58 @@
+﻿@using RDV.Domain.Entities
+@using RDV.Domain.Enums
+@using RDV.Web.Classes.Extensions
+@using RDV.Web.Models.UI
+@model System.Collections.Generic.IEnumerable<RDV.Domain.Entities.SystemStat>
+
+@{
+    DateTime? date = ViewBag.date;
+    ViewBag.Title = "Показатели работы системы на "+date.FormatDate();
+}
+
+<div id="page">
+    <div class="page-header">
+        <div class="page-title">
+            @ViewBag.Title
+        </div>
+        @Html.Partial("NavigationChain")
+    </div>
+    <div class="page-content">
+        <div class="page-administration-content">
+            @Html.Partial("AdministrationTabs", new TabOptionsModel() { SelectedTab = "Dashboard-tab" })
+            <fieldset>
+                <legend>Дата выборки</legend>
+                <input type="text" id="start-date-field" class="round field datepicker" placeholder="Дата выборки показаталей" value="@date.FormatDate()"/>
+            </fieldset>
+            <table class="content-table" id="statistics-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Показатель
+                        </th>
+                        <th>
+                            Значение
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var stat in Model)
+                    {
+                        <tr>
+                            <td>
+                                @(((SystemStatsType)stat.StatType).GetEnumMemberName())
+                            </td>
+                            <td>
+                                @stat.Value.ToString("0.00")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+   $("#start-date-field").change(function() {
+       window.location.href = '/administration/system-stats?date=' + $(this).val();
+   });
+</script>

@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CD0359D0-EFFA-4E35-8716-507CDAFECC89}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RDV.Domain</RootNamespace>
+    <AssemblyName>RDV.Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Configuration">
+      <HintPath>..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.Mvc">
+      <HintPath>..\packages\Autofac.Mvc3.2.6.3.862\lib\NET40\Autofac.Integration.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="FlexCel, Version=5.7.6.0, Culture=neutral, PublicKeyToken=cb8f6080e6d5a4d6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FlexCell\FlexCel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.Edm, Version=5.6.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Data.Edm.5.6.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData, Version=5.6.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Data.OData.5.6.2\lib\net40\Microsoft.Data.OData.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.Services.Client, Version=5.6.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Configuration">
+      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.1.8.0.0\lib\net35-full\Microsoft.WindowsAzure.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Storage">
+      <HintPath>..\packages\WindowsAzure.Storage.4.3.0\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Spatial, Version=5.6.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Spatial.5.6.2\lib\net40\System.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\DateTimeZone.cs" />
+    <Compile Include="DAL\DataAccessLayer.cs" />
+    <Compile Include="DAL\RDV.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RDV.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\RDVDataContext.cs" />
+    <Compile Include="DAL\Repositories\AuditEventsRepository.cs" />
+    <Compile Include="DAL\Repositories\BaseRepository.cs" />
+    <Compile Include="DAL\Repositories\ClientsRepository.cs" />
+    <Compile Include="DAL\Repositories\CompaniesRepository.cs" />
+    <Compile Include="DAL\Repositories\Content\ArticlesRepository.cs" />
+    <Compile Include="DAL\Repositories\Content\BooksRepository.cs" />
+    <Compile Include="DAL\Repositories\Content\DALContentModule.cs" />
+    <Compile Include="DAL\Repositories\Content\MenuItemsRepository.cs" />
+    <Compile Include="DAL\Repositories\Content\PartnersRepository.cs" />
+    <Compile Include="DAL\Repositories\Content\StaticPagesRepository.cs" />
+    <Compile Include="DAL\Repositories\CounterAgentsRepository.cs" />
+    <Compile Include="DAL\Repositories\DictionariesRepository.cs" />
+    <Compile Include="DAL\Repositories\DictionaryValuesRepository.cs" />
+    <Compile Include="DAL\Repositories\EstateObjectsRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\DALGeoModule.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoCitiesRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoCountriesRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoDistrictsRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoObjectsRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoRegionDistrictsRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoRegionsRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoResidentialAreasRepository.cs" />
+    <Compile Include="DAL\Repositories\Geo\GeoStreetsRepository.cs" />
+    <Compile Include="DAL\Repositories\MailNotificationMessagesRepository.cs" />
+    <Compile Include="DAL\Repositories\NonRdvAgentsRepository.cs" />
+    <Compile Include="DAL\Repositories\ObjectNotificationsRepository.cs" />
+    <Compile Include="DAL\Repositories\PaymentsRepository.cs" />
+    <Compile Include="DAL\Repositories\PermissionsRepository.cs" />
+    <Compile Include="DAL\Repositories\RolesRepository.cs" />
+    <Compile Include="DAL\Repositories\SearchRequestObjectsRepository.cs" />
+    <Compile Include="DAL\Repositories\SearchRequestsRepository.cs" />
+    <Compile Include="DAL\Repositories\ServiceTypesRepository.cs" />
+    <Compile Include="DAL\Repositories\SettignsRepository.cs" />
+    <Compile Include="DAL\Repositories\SMSNotificationMessagesRepository.cs" />
+    <Compile Include="DAL\Repositories\StoredFilesRepository.cs" />
+    <Compile Include="DAL\Repositories\SystemStatsRepository.cs" />
+    <Compile Include="DAL\Repositories\UsersRepository.cs" />
+    <Compile Include="Entities\Address.cs" />
+    <Compile Include="Entities\Client.cs" />
+    <Compile Include="Entities\Company.cs" />
+    <Compile Include="Entities\Dictionary.cs" />
+    <Compile Include="Entities\EstateObject.cs" />
+    <Compile Include="Entities\EstateObjectMatchedSearchRequest.cs" />
+    <Compile Include="Entities\NonRdvAgent.cs" />
+    <Compile Include="Entities\Passport.cs" />
+    <Compile Include="Entities\Permission.cs" />
+    <Compile Include="Entities\Role.cs" />
+    <Compile Include="Entities\SearchRequest.cs" />
+    <Compile Include="Entities\StoredFile.cs" />
+    <Compile Include="Entities\User.cs" />
+    <Compile Include="Enums\ArticleTypes.cs" />
+    <Compile Include="Enums\AuditEventTypes.cs" />
+    <Compile Include="Enums\TypeContactPhone.cs" />
+    <Compile Include="Enums\ObjectNotificationTypes.cs" />
+    <Compile Include="Enums\ObjectsListSection.cs" />
+    <Compile Include="Enums\PaymentDirection.cs" />
+    <Compile Include="Enums\RequestsListSection.cs" />
+    <Compile Include="Enums\SearchRequestObjectStatus.cs" />
+    <Compile Include="Enums\SearchRequestTriggerEvent.cs" />
+    <Compile Include="Enums\SubscribeCategories.cs" />
+    <Compile Include="Enums\SystemStatsType.cs" />
+    <Compile Include="Enums\ToolLaunchInterval.cs" />
+    <Compile Include="Enums\BuiltinRoles.cs" />
+    <Compile Include="Enums\ClientAgreementTypes.cs" />
+    <Compile Include="Enums\ClientTypes.cs" />
+    <Compile Include="Enums\DataFormats.cs" />
+    <Compile Include="Enums\GeoLevels.cs" />
+    <Compile Include="Enums\ObjectMediaTypes.cs" />
+    <Compile Include="Enums\RegistrationTypes.cs" />
+    <Compile Include="Enums\EnumDescriptionAttribute.cs" />
+    <Compile Include="Enums\EnumUtils.cs" />
+    <Compile Include="Enums\EstateOperations.cs" />
+    <Compile Include="Enums\EstateStatuses.cs" />
+    <Compile Include="Enums\EstateTypes.cs" />
+    <Compile Include="Enums\StandartPermissions.cs" />
+    <Compile Include="Enums\ToolState.cs" />
+    <Compile Include="Enums\UserStatuses.cs" />
+    <Compile Include="ImportExport\Geo\GeoImporterBase.cs" />
+    <Compile Include="ImportExport\Geo\GeoXLSImporter.cs" />
+    <Compile Include="ImportExport\Geo\GeoXMLImporter.cs" />
+    <Compile Include="ImportExport\ImportExportLayer.cs" />
+    <Compile Include="Infrastructure\AuditManager.cs" />
+    <Compile Include="Infrastructure\Geo\GeoManager.cs" />
+    <Compile Include="Infrastructure\Geo\GeoUtils.cs" />
+    <Compile Include="Infrastructure\InfrastructureLayer.cs" />
+    <Compile Include="Infrastructure\Mailing\MailConnectionString.cs" />
+    <Compile Include="Infrastructure\Mailing\MailNotificationManager.cs" />
+    <Compile Include="Infrastructure\Mailing\SMSNotificationManager.cs" />
+    <Compile Include="Infrastructure\Mailing\Templates\BaseTemplate.cs" />
+    <Compile Include="Infrastructure\Mailing\Templates\FileTemplate.cs" />
+    <Compile Include="Infrastructure\Mailing\Templates\ParametrizedFileTemplate.cs" />
+    <Compile Include="Infrastructure\Mailing\UniSenderMailNotificationManager.cs" />
+    <Compile Include="Infrastructure\Misc\DictionaryStringCache.cs" />
+    <Compile Include="Infrastructure\Misc\DynamicJsonObject.cs" />
+    <Compile Include="Infrastructure\Misc\PasswordUtils.cs" />
+    <Compile Include="Infrastructure\Misc\StringUtils.cs" />
+    <Compile Include="Infrastructure\Routing\RouteAttribute.cs" />
+    <Compile Include="Infrastructure\Routing\RoutesManager.cs" />
+    <Compile Include="Infrastructure\Tools\BaseTool.cs" />
+    <Compile Include="Infrastructure\Tools\ObjectManagerTool.cs" />
+    <Compile Include="Infrastructure\Tools\SystemStatsTool.cs" />
+    <Compile Include="Infrastructure\Tools\ToolsManager.cs" />
+    <Compile Include="Interfaces\Cache\IStringCache.cs" />
+    <Compile Include="Interfaces\ImportExport\Geo\IGeoImporterBase.cs" />
+    <Compile Include="Interfaces\ImportExport\Geo\IGeoXLSImporter.cs" />
+    <Compile Include="Interfaces\ImportExport\Geo\IGeoXMLImporter.cs" />
+    <Compile Include="Interfaces\ImportExport\IImporter.cs" />
+    <Compile Include="Interfaces\ImportExport\ImportStatistics.cs" />
+    <Compile Include="Interfaces\Infrastructure\IAuditManager.cs" />
+    <Compile Include="Interfaces\Infrastructure\IGeoManager.cs" />
+    <Compile Include="Interfaces\Infrastructure\IMailNotificationManager.cs" />
+    <Compile Include="Interfaces\Infrastructure\IObjectsTriggerManager.cs" />
+    <Compile Include="Interfaces\Infrastructure\ISMSNotificationManager.cs" />
+    <Compile Include="Interfaces\Infrastructure\ITool.cs" />
+    <Compile Include="Interfaces\Infrastructure\IToolsManager.cs" />
+    <Compile Include="Interfaces\Infrastructure\IUINotificationManager.cs" />
+    <Compile Include="Interfaces\Repositories\Content\IArticlesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Content\IBooksRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Content\IMenuItemsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Content\IPartnersRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Content\IStaticPagesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoRegionDistrictsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IAuditEventsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoCitiesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoDistrictsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoObjectsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoRegionsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoResidentialAreasRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoStreetsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IBaseRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IClientsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ICompaniesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ICounterAgentsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IDictionariesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IDictionaryValuesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\Geo\IGeoCountriesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IEstateObjectsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IMailNotificationMessagesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\INonRdvAgentsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IObjectNotificationsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IPaymentsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IPermissionsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IRolesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ISearchRequestObjectsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ISearchRequestsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IServiceTypesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ISettingsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ISMSNotificationMessagesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IStoredFilesRepository.cs" />
+    <Compile Include="Interfaces\Repositories\ISystemStatsRepository.cs" />
+    <Compile Include="Interfaces\Repositories\IUsersRepository.cs" />
+    <Compile Include="IoC\Locator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Core\Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="DAL\RDV.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>RDV.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DAL\RDV.dbml.layout">
+      <DependentUpon>RDV.dbml</DependentUpon>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

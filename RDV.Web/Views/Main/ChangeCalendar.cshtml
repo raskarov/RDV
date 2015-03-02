@@ -1,0 +1,20 @@
+﻿@model System.Collections.Generic.List<RDV.Domain.Entities.Article>
+@{
+    DateTime date = ViewBag.date;
+}
+<div id="calendar-day-wrapper">
+    <span id="calendar-day">@date.Day</span>
+</div>
+<div id="calendar-day-info">
+    <span id="calendar-month-name">@date.ToString("MMM")</span>
+    <span id="calendar-year">@date.Year года</span>
+</div>
+<div class="clear">
+</div>
+@foreach (var nearestEvent in Model)
+{
+    <div id="calendar-event-description">
+        <a href="/articles/view/@nearestEvent.Id">@nearestEvent.Title</a>
+    </div>
+}
+

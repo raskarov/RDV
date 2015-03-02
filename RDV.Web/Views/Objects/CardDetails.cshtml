@@ -1,0 +1,100 @@
+﻿@using RDV.Web.Classes.Extensions
+@using RDV.Web.Classes.Forms
+@model RDV.Domain.Entities.EstateObject
+
+@{
+    // Создаем наборы свойств
+    var techFields = FormPageFieldsFactory.TechPageList(Model);
+    var legalFields = FormPageFieldsFactory.LegalPageList(Model);
+    var infrastructureFields = FormPageFieldsFactory.InfrastructurePageList(Model);
+    var expluatationFields = FormPageFieldsFactory.ExpluatationPageList(Model);
+    var renderingContext = new FieldRenderingContext(Model, ViewContext.CurrentUser());
+    
+    // Считываем данные
+    techFields.ReadValuesFromObject(Model);
+    legalFields.ReadValuesFromObject(Model);
+    infrastructureFields.ReadValuesFromObject(Model);
+    expluatationFields.ReadValuesFromObject(Model);
+}
+
+@* Сервисные свойства *@
+<div class="card-details">
+    <table width="100%" class="content-table">
+        <thead>
+            <tr>
+                <th>
+                    Свойства
+                </th>
+                <th>
+                    Значение
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="card-section-header">
+                <td colspan="2">
+                    Технические
+                </td>
+            </tr>
+            @foreach(var field in techFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+            {
+                <tr>
+                    <td align="left">
+                        @field.Caption
+                    </td>
+                    <td>
+                        @field.ValueAsString()
+                    </td>
+                </tr>
+            }
+            <tr class="card-section-header">
+                <td colspan="2">
+                    Юридические
+                </td>
+            </tr>
+            @foreach(var field in legalFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+            {
+                <tr>
+                    <td align="left">
+                        @field.Caption
+                    </td>
+                    <td>
+                        @field.ValueAsString()
+                    </td>
+                </tr>
+            }
+            <tr class="card-section-header">
+                <td colspan="2">
+                    Инфраструктурные
+                </td>
+            </tr>
+            @foreach(var field in infrastructureFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+            {
+                <tr>
+                    <td align="left">
+                        @field.Caption
+                    </td>
+                    <td>
+                        @field.ValueAsString()
+                    </td>
+                </tr>
+            }
+            <tr class="card-section-header">
+                <td colspan="2">
+                    Эксплуатационные
+                </td>
+            </tr>
+            @foreach(var field in expluatationFields.Where(f => f.CheckVisibility(renderingContext)).OrderBy(f => f.Position))
+            {
+                <tr>
+                    <td align="left">
+                        @field.Caption
+                    </td>
+                    <td>
+                        @field.ValueAsString()
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
